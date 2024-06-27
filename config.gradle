@@ -1,0 +1,20 @@
+ext {
+    plugins = [
+            application: 'com.android.application',
+            library    : 'com.android.library'
+    ]
+
+    android = [
+            applicationId    : "com.u2tzjtne.telephonehelper",
+            compileSdkVersion: 29,
+            buildToolsVersion: "29.0.2",
+            minSdkVersion    : 26,
+            targetSdkVersion : 29,
+            versionCode      : 19,
+            versionName      : "1.1.9",
+            storeFile        : file("app/keystore/U2tzJTNE.jks"),
+            storePassword    : "U2tzJTNE",
+            keyAlias         : "U2tzJTNE",
+            keyPassword      : "U2tzJTNE"
+    ]
+}

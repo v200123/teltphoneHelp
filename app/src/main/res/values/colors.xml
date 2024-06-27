@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="gray">#9E9E9E</color>
+    <color name="white_50">#787B89</color>
+
+    <color name="text_home_tab_normal">#999999</color>
+    <color name="text_home_tab_checked">#0276F4</color>
+
+    <color name="text_call_record_missed">#D9021B</color>
+    <color name="text_call_record_normal">#333333</color>
+
+    <color name="text_get_code_enable">#0476F2</color>
+    <color name="text_get_code_disable">#730476F2</color>
+</resources>
