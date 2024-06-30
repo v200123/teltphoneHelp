@@ -88,7 +88,12 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
 
 
     public static void start(Context context, String phoneNumber) {
-        Intent intent = new Intent(context, CallActivity.class);
+        Intent intent;
+        if(context.getPackageName().contains("old"))
+            intent = new Intent(context, CallActivity.class);
+        else{
+            intent=  new Intent(context, newCallActivity.class);
+        }
         intent.putExtra("phoneNumber", phoneNumber);
         context.startActivity(intent);
     }
@@ -327,7 +332,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        hangUp("正在挂断...", false);
+        hangUp("正在挂断...", true);
     }
 
     @Override

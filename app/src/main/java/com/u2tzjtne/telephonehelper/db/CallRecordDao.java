@@ -34,7 +34,7 @@ public interface CallRecordDao {
     /**
      * 按组获取全部数据
      */
-    @Query("select * from CallRecord where endTime in(select max(endTime) from CallRecord group by phoneNumber) order by id desc")
+    @Query("select * from CallRecord where endTime in(select max(endTime) from CallRecord group by phoneNumber) order by startTime desc")
     Maybe<List<CallRecord>> getAllByGroup();
 
     /**
@@ -46,7 +46,7 @@ public interface CallRecordDao {
     /**
      * 根据号码查询
      */
-    @Query("select * from CallRecord where phoneNumber = :number order by id desc")
+    @Query("select * from CallRecord where phoneNumber = :number order by startTime desc")
     Maybe<List<CallRecord>> getByNumber(String number);
 
     /**

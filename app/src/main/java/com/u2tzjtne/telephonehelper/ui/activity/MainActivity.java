@@ -2,6 +2,7 @@ package com.u2tzjtne.telephonehelper.ui.activity;
 
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -14,11 +15,14 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.util.XPopupUtils;
 import com.u2tzjtne.telephonehelper.R;
 import com.u2tzjtne.telephonehelper.db.AppDatabase;
 import com.u2tzjtne.telephonehelper.db.CallRecord;
 import com.u2tzjtne.telephonehelper.event.ClipboardEvent;
 import com.u2tzjtne.telephonehelper.ui.adapter.CallRecordAdapter;
+import com.u2tzjtne.telephonehelper.ui.dialog.CopyPhoneNumberDialog;
 import com.u2tzjtne.telephonehelper.util.ClipboardUtils;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.StatusBarUtils;
@@ -29,6 +33,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.List;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 /**
  * @author u2tzjtne
@@ -94,6 +100,45 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         super.onResume();
         StatusBarUtils.setDarkStatusBar(this);
         hideNumber(true);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                runOnUiThread(() -> {
+                    String text = ClipboardUtils.getText(MainActivity.this);
+                    if(text!=null&&text.startsWith("1"))
+                    {
+                        llDialRoot.setVisibility(View.VISIBLE);
+                        ClipboardUtils.clearFirstClipboard(MainActivity.this);
+                        new XPopup.Builder(MainActivity.this).hasShadowBg(false).isCenterHorizontal(true)
+                                .popupWidth(XPopupUtils.getScreenWidth(MainActivity.this) - 200)
+                                .isDestroyOnDismiss(true).atView(findViewById(R.id.ll_bohaopan)).asCustom(new CopyPhoneNumberDialog(MainActivity.this, "13658170135", new Function0<Unit>() {
+                            @Override
+                            public Unit invoke() {
+                                llNumber.setVisibility(View.VISIBLE);
+                                tvDialNumber.setVisibility(View.VISIBLE);
+                                tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(text) );
+                                if (text.length() >= 8) {
+                                    showActionPage(true);
+                                    if (text.length() == 8) {
+                                        setLocation(text + " 0000");
+                                    }else {
+                                        setLocation(text);
+                                    }
+                                }
+                                return null;
+                            }
+                        })).show();
+                    }
+                });
+
+            }
+        }).start();
+
         getData();
     }
 
@@ -128,7 +173,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                         currentText = currentText + " ";
                     }
                     currentText = currentText + textView.getText().toString();
-                    tvDialNumber.setText(currentText);
+                    tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(currentText));
 //                    if (currentText.length() == 13) {
 //                        setLocation(currentText);
 //                    }
@@ -208,7 +253,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         findViewById(R.id.ll_dial_hide).setOnClickListener(this);
         findViewById(R.id.ll_dial_call).setOnClickListener(this);
         findViewById(R.id.ll_dial_delete).setOnClickListener(this);
+        llSettings.setOnClickListener(view -> {
 
+
+            startActivity(new Intent(this, AddCallRecordActivity.class));
+
+        });
 
 
 
@@ -246,6 +296,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         if(number.isEmpty()){
             return;
         }
+
         CallActivity.start(this, number);
     }
 

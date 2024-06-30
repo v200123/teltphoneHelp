@@ -24,7 +24,11 @@ public class CallHistoryAdapter extends BaseQuickAdapter<CallRecord, BaseViewHol
         if (callRecord.isConnected) {
             //通话时长
             String duration = DateUtils.getCallDuration(callRecord.endTime - callRecord.connectedTime);
-            viewHolder.setText(R.id.tv_status, "呼出" + duration);
+            if(duration.equals("0秒")){
+                viewHolder.setText(R.id.tv_status, "未接通");
+            }else {
+                viewHolder.setText(R.id.tv_status, "呼出" + duration);
+            }
         } else {
             viewHolder.setText(R.id.tv_status, "未接通");
         }

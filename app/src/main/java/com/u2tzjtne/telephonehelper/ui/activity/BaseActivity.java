@@ -18,21 +18,18 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setStatusBar();
+
     }
 
-    @Override
-    public void setContentView(int layoutResID) {
-        setStatusBar(layoutResID);
-    }
 
-    private void setStatusBar(int layoutResID) {
+
+    private void setStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             StatusBarUtils.setTranslucentForImageViewInFragment(this, null);
             StatusBarUtils.setLightStatusBar(this);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-            super.setContentView(layoutResID);
         } else {
-            super.setContentView(layoutResID);
             StatusBarUtils.setTranslucentForImageViewInFragment(this, null);
         }
     }

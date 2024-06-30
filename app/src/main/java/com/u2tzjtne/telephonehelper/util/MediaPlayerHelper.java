@@ -12,8 +12,6 @@ public class MediaPlayerHelper {
     private final MediaPlayer mediaPlayer;
     private boolean isSpeakerOn;
 
-    private final Uri audioCallUri = Uri.parse("android.resource://com.u2tzjtne.telephonehelper/" + R.raw.audio_call);
-    private final Uri audioNoResponseUri = Uri.parse("android.resource://com.u2tzjtne.telephonehelper/" + R.raw.audio_no_response);
 
     private MediaPlayerHelper() {
         mediaPlayer = new MediaPlayer();
@@ -28,6 +26,8 @@ public class MediaPlayerHelper {
     }
 
     public void playNoResponseSound(Context context) {
+        final Uri audioNoResponseUri = Uri.parse("android.resource://"+context.getPackageName()+"/" + R.raw.audio_no_response);
+
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(context, audioNoResponseUri);
@@ -39,7 +39,24 @@ public class MediaPlayerHelper {
         }
     }
 
+    public void playGuaduanSound(Context context) {
+      final Uri audioGuaDuanUri = Uri.parse("android.resource://"+context.getPackageName()+"/" + + R.raw.calling);
+
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(context, audioGuaDuanUri);
+            mediaPlayer.setLooping(false);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void playCallSound(Context context) {
+        final Uri audioCallUri = Uri.parse("android.resource://"+context.getPackageName()+"/" + R.raw.audio_call);
+
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(context, audioCallUri);

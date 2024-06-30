@@ -20,4 +20,6 @@ public class CallRecord {
     public long connectedTime;//接通时间
     public long endTime;//通话结束时间
     public boolean isConnected;//是否接通
+
+    public int callType = 0; //0为呼出 1为呼入
 }

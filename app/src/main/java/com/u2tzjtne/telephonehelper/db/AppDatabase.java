@@ -9,7 +9,7 @@ import com.u2tzjtne.telephonehelper.base.App;
 /**
  * @author u2tzjtne
  */
-@Database(entities = {CallRecord.class}, version = 1, exportSchema = false)
+@Database(entities = {CallRecord.class}, version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;

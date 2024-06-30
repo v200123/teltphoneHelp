@@ -1,11 +1,12 @@
 apply plugin: rootProject.ext.plugins.application
+apply plugin: 'org.jetbrains.kotlin.android'
 
 static def releaseTime() {
     return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 34
 
     defaultConfig {
         applicationId rootProject.ext.android.applicationId
@@ -21,7 +22,9 @@ android {
             outputFileName = "TelephoneHelper_${variant.buildType.name}_${releaseTime()}_${defaultConfig.versionName}_u${defaultConfig.versionCode}.apk"
         }
     }
-
+    buildFeatures {
+        viewBinding true
+    }
     signingConfigs {
         release {
             storeFile rootProject.ext.android.storeFile
@@ -43,9 +46,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
 dependencies {
+    implementation 'com.github.li-xiaojun:XPopup:2.10.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.multidex:multidex:2.0.1'
@@ -65,6 +72,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.7.2'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     implementation 'androidx.room:room-runtime:2.2.5'
+    implementation 'androidx.core:core-ktx:1.13.1'
     annotationProcessor 'androidx.room:room-compiler:2.2.5'
     implementation 'androidx.room:room-rxjava2:2.2.5'
     implementation 'org.greenrobot:eventbus:3.2.0'

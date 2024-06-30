@@ -1,80 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000" />
+
+    <com.hjq.shape.view.ShapeImageView
         android:id="@+id/iv_new_call_head"
-        android:layout_marginTop="80dp"
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:layout_marginTop="80dp"
+        android:padding="20dp"
+        android:src="@drawable/ic_new_call_head"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:id="@+id/tv_new_call_number"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="@color/white"
-        android:textSize="24dp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_new_call_head" />
-
-    <TextView
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:id="@+id/tv_new_call_number_local"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:gravity="center"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number" />
-
-    <TextView
-        android:id="@+id/tv_new_call_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center"
-
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number_local" />
-
-    <com.hjq.shape.view.ShapeTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingStart="18dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="18dp"
-        android:layout_marginTop="12dp"
-        android:paddingBottom="4dp"
-        android:text="AI通话"
-        android:textColor="@color/white"
-        android:textSize="18dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/tv_new_call_status"
-        app:layout_constraintStart_toStartOf="@+id/tv_new_call_status"
-        app:layout_constraintTop_toBottomOf="@+id/tv_new_call_status"
-        app:shape_radius="20dp"
-        app:shape_solidColor="@color/gray" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:shape_radius="100dp"
+        app:shape_solidColor="@color/white_50" />
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_new_call_head">
+
+        <TextView
+            android:id="@+id/tv_new_call_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginEnd="12dp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="24dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_new_call_number_local"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number" />
+
+        <Chronometer
+            android:id="@+id/cm_call_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:format="%s"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:textColor="@color/white"
+            android:textSize="21dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/tv_new_call_number_local"
+            app:layout_constraintStart_toStartOf="@+id/tv_new_call_number_local"
+            app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number_local" />
+
+        <TextView
+
+            android:id="@+id/tv_new_call_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:text="正在拨号"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number_local" />
+
+        <com.hjq.shape.view.ShapeTextView
+            android:id="@+id/tv_AI_call_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:paddingStart="18dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="18dp"
+            android:paddingBottom="5dp"
+            android:text="AI通话"
+            android:textColor="@color/white"
+            android:textSize="17dp"
+            android:textStyle="bold"
+
+            app:shape_radius="20dp"
+            app:shape_solidColor="@color/gray" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -461,7 +499,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:background="@color/black"
             android:id="@+id/ll_action_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -481,21 +518,23 @@
                     android:layout_weight="1"
                     android:background="?attr/selectableItemBackground"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp">
-
+                    android:orientation="vertical">
 
 
                     <TextView
-                        android:drawableTop="@drawable/ic_new_video"
                         android:id="@+id/tv_action_0"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:layout_marginTop="5dp"
+                        android:drawablePadding="8dp"
+                        android:drawableTop="@drawable/ic_new_video"
+                        android:gravity="center"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp"
                         android:text="视频模式"
                         android:textColor="@color/white_50"
-                        android:textSize="14sp" />
+                        android:textSize="15dp"
+                        app:drawableTint="@color/white_50" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -509,19 +548,22 @@
                     android:paddingBottom="12dp">
 
 
-
                     <TextView
-                        android:drawableTop="@drawable/ic_new_add"
                         android:id="@+id/tv_action_1"
+                        android:drawablePadding="8dp"
+
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
+                        android:drawableTop="@drawable/ic_new_add"
+                        android:drawableTint="@color/white_50"
                         android:text="添加通话"
                         android:textColor="@color/white_50"
-                        android:textSize="14sp" />
+                        android:textSize="15dp" />
                 </LinearLayout>
 
                 <LinearLayout
+
                     android:id="@+id/ll_action_2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -532,14 +574,16 @@
                     android:paddingBottom="12dp">
 
                     <TextView
+                        android:drawablePadding="8dp"
+
                         android:id="@+id/tv_action_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:drawableTop="@drawable/ic_new_note"
                         android:text="笔记"
-                        android:textColor="@color/white_50"
-                        android:textSize="14sp" />
+                        android:textColor="@color/white"
+                        android:textSize="15dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -561,16 +605,18 @@
                     android:paddingBottom="12dp">
 
 
-
                     <TextView
-                        android:drawableTop="@drawable/ic_new_jingyin"
                         android:id="@+id/tv_action_3"
+                        android:drawablePadding="8dp"
+
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
+                        android:drawableTop="@drawable/ic_new_jingyin"
+                        android:drawableTint="@color/white_50"
                         android:text="静音"
                         android:textColor="@color/white_50"
-                        android:textSize="14sp" />
+                        android:textSize="15dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -584,16 +630,18 @@
                     android:paddingBottom="12dp">
 
 
-
                     <TextView
                         android:id="@+id/tv_action_4"
+                        android:drawablePadding="8dp"
+
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:drawableTop="@drawable/ic_new_stop"
+                        android:drawableTint="@color/white_50"
                         android:text="暂停通话"
                         android:textColor="@color/white_50"
-                        android:textSize="14sp" />
+                        android:textSize="15dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -607,7 +655,9 @@
                     android:paddingBottom="12dp">
 
 
-                    <TextView
+                    <Chronometer
+                        android:drawablePadding="8dp"
+
                         android:id="@+id/tv_action_5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -615,7 +665,7 @@
                         android:drawableTop="@drawable/ic_new_record"
                         android:text="录音"
                         android:textColor="@color/white"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -626,7 +676,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
+            android:paddingTop="18dp"
             android:paddingBottom="16dp">
 
             <LinearLayout
@@ -640,12 +690,13 @@
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp">
 
-                <ImageView
+                <TextView
                     android:id="@+id/iv_dial_switch"
-
-                    android:layout_width="16dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_dial_white" />
+                    android:text="免提"
+                    android:textColor="@color/white"
+                    android:textSize="16dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -677,11 +728,15 @@
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp">
 
-                <ImageView
+                <TextView
                     android:id="@+id/iv_dial_speaker"
-                    android:layout_width="21dp"
+
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_speaker_normal" />
+                    android:src="@drawable/ic_speaker_normal"
+                    android:text="键盘"
+                    android:textColor="@color/white"
+                    android:textSize="16dp" />
             </LinearLayout>
 
         </LinearLayout>
