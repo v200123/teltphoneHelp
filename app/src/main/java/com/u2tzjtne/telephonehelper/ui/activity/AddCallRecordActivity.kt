@@ -22,7 +22,9 @@ class AddCallRecordActivity : BaseActivity() {
 
     companion object{
          fun String.formatWithSpaces(): String {
-            return this.replace(Regex("(\\d{3})(\\d{4}){0,2}"), "$1 $2 $3")
+             if(this.length>3)
+            return this.replace(Regex("(\\d{3})(\\d{4})(\\d{4})"), "$1 $2 $3")
+             else return this
         }
     }
 
