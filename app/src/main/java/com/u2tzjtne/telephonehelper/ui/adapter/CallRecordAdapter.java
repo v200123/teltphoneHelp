@@ -1,5 +1,8 @@
 package com.u2tzjtne.telephonehelper.ui.adapter;
 
+import android.graphics.Color;
+import android.view.View;
+
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.u2tzjtne.telephonehelper.R;
@@ -24,19 +27,38 @@ public class CallRecordAdapter extends BaseQuickAdapter<CallRecord, BaseViewHold
         //判断是否接通
         viewHolder.setText(R.id.tv_attribution, callRecord.attribution + " " + callRecord.operator);
         if (callRecord.isConnected) {
+            viewHolder.getView(R.id.iv_flag).setVisibility(View.VISIBLE);
+            viewHolder.setTextColor(R.id.tv_call_number, Color.BLACK);
             //通话时长
             String duration = DateUtils.getCallDuration(callRecord.endTime - callRecord.connectedTime);
+
             if(callRecord.callType==0) {
                 viewHolder.setText(R.id.tv_status, "呼出" + duration);
                 viewHolder.getView(R.id.iv_flag).setScaleY(1);
             }
             else {
-                viewHolder.setText(R.id.tv_status, "呼入" + duration);
+                if(duration.equals("0秒")){
+                    viewHolder.setText(R.id.tv_status, "已挂断");
+                }else {
+                    viewHolder.setText(R.id.tv_status, "呼入" + duration);
+                }
                 viewHolder.getView(R.id.iv_flag).setScaleY(-1);
             }
+
+
         } else {
-            viewHolder.setText(R.id.tv_status, "未接通");
+
+            if(callRecord.callType==1) {
+                viewHolder.setTextColor(R.id.tv_call_number, Color.RED);
+                viewHolder.getView(R.id.iv_flag).setVisibility(View.GONE);
+                viewHolder.setText(R.id.tv_status, "响铃" + callRecord.callNumber+"声");
+
+            }
+            else {
+                viewHolder.setText(R.id.tv_status, "未接通");
+            }
         }
+
         String time = DateUtils.convertTimestamp(callRecord.endTime,false);
         viewHolder.setText(R.id.tv_call_date, time);
         viewHolder.getView(R.id.iv_history).setOnClickListener(v -> {

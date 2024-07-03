@@ -47,7 +47,7 @@ class newCallActivity : BaseActivity() {
     private var isMiantiYin = false
 
     companion object {
-        const val GUADUAN = 1
+        const val GUADUAN = 9
         const val PLAY_RING = 2 //响铃
         const val CONNECTED_STATUS = 3
         const val HOLD_ON_PHONE = 4
@@ -87,21 +87,26 @@ class newCallActivity : BaseActivity() {
 
         }
 
-        bind.llAction4.setOnClickListener {
 
-            mStatusObserver.value = GUADUAN
 
+        bind.llAction0.setOnClickListener {
+            lifecycleScope.cancel()
+            GlobalScope.launch(Dispatchers.Default) {
+                Log.e(TAG, "updateAction: 开始26秒的延时" )
+                delay(15 * 1000)
+                mStatusObserver.postValue(PLAY_NO_RESPONSE_SOUND)
+
+            }
         }
+
         mStatusObserver.observe(this) {
             when (it) {
-
                 GUADUAN ->{
                     lifecycleScope.cancel()
-
                     MediaPlayerHelper.getInstance().stopAudio()
                     GlobalScope.launch(Dispatchers.Default) {
                         MediaPlayerHelper.getInstance().playCallSound(this@newCallActivity)
-                        delay(4_000)
+                        delay(5_000)
                         MediaPlayerHelper.getInstance().stopAudio()
 
                         MediaPlayerHelper.getInstance().playGuaduanSound(this@newCallActivity)
@@ -121,6 +126,11 @@ class newCallActivity : BaseActivity() {
                 }
 
                 PLAY_RING -> {
+                    bind.llAction4.setOnClickListener {
+
+                        mStatusObserver.value = GUADUAN
+
+                    }
                     MediaPlayerHelper.getInstance().playCallSound(this)
                 }
 
@@ -134,8 +144,8 @@ class newCallActivity : BaseActivity() {
 
                 WAIT_FINISH -> {
                     Log.e(TAG, "onCreate:WAIT_FINISH " )
-
-                    lifecycleScope.launch(Dispatchers.Default) {
+                    MediaPlayerHelper.getInstance().stopAudio()
+                    GlobalScope.launch(Dispatchers.Default) {
                         delay(1000)
                         mStatusObserver.postValue(FINISH)
                     }
@@ -171,7 +181,7 @@ class newCallActivity : BaseActivity() {
                     AppCompatResources.getDrawable(
                         this@newCallActivity,
                         R.drawable.ic_hd
-                    )!!.apply { setBounds(0, 0, 80, 80) },
+                    )!!.apply { setBounds(0, 0, 100, 100) },
                     null
                 )
             }
@@ -254,6 +264,7 @@ class newCallActivity : BaseActivity() {
         bind.tvAction4.setTextColor(Color.WHITE)
         bind.tvAction4.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
         bind.llAction4.setOnClickListener(null)
+
         bind.llAction3.setOnClickListener {
             if (isJingYin) {
                 bind.tvAction3.setTextColor(Color.WHITE)
@@ -283,14 +294,7 @@ class newCallActivity : BaseActivity() {
             isLuYin = !isLuYin
         }
 
-        bind.llAction0.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.Default) {
-                Log.e(TAG, "updateAction: 开始26秒的延时" )
-                delay(26 * 1000)
-                mStatusObserver.postValue(PLAY_NO_RESPONSE_SOUND)
 
-            }
-        }
 
 
     }

@@ -14,6 +14,7 @@ import io.reactivex.schedulers.Schedulers
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Calendar
+import kotlin.random.Random
 
 
 class AddCallRecordActivity : BaseActivity() {
@@ -74,15 +75,21 @@ class AddCallRecordActivity : BaseActivity() {
 
         binding.submit.setOnClickListener {
 
-            val phoneNumber = binding.etPhoneNumber.text.toString()
+            val phoneNumber = binding.etPhoneNumber.text.toString().trim()
 
             val callTime = binding.etPhoneCallTime.text.toString().toLong()
             if(callTime != 0L) {
                 callRecord.isConnected = true
-                callRecord.endTime =callRecord.startTime + (callTime*1000)
             }else{
+
+                if(callRecord.callType==1)
+                {
+                    callRecord.callNumber = Random.nextInt(5, 13)
+                }
                 callRecord.isConnected = false
             }
+            callRecord.endTime =callRecord.startTime + (callTime*1000)
+
             callRecord.attribution = PhoneNumberUtils.getProvince(phoneNumber)
             callRecord.operator = PhoneNumberUtils.getOperator(phoneNumber)
             callRecord.phoneNumber = phoneNumber.formatWithSpaces()

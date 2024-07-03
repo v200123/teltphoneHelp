@@ -1,5 +1,7 @@
 package com.u2tzjtne.telephonehelper.ui.activity;
 
+import static com.u2tzjtne.telephonehelper.ui.activity.newCallActivity.GUADUAN;
+
 import android.annotation.SuppressLint;
 import android.app.WallpaperManager;
 import android.content.Context;
@@ -174,6 +176,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         findViewById(R.id.ll_action_0).setOnClickListener(this);
         findViewById(R.id.ll_action_3).setOnClickListener(this);
         findViewById(R.id.ll_action_4).setOnClickListener(this);
+        findViewById(R.id.ll_action_1).setOnClickListener(this);
 
 
         //未接通
@@ -232,7 +235,25 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                 case WAIT_FINISH:
                     handler.sendEmptyMessageDelayed(FINISH, 1000);
                     break;
+                case GUADUAN:
+                    handler.removeMessages(CONNECTED);
+                    handler.removeMessages(PLAY_RING);
+                    handler.removeMessages(PLAY_NO_RESPONSE_SOUND);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
+                            try {
+                                Thread.sleep(5000);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                            MediaPlayerHelper.getInstance().playGuaduanSound(CallActivity.this);
+                            handler.sendEmptyMessageDelayed(CALL_END, 47_000);
 
+                        }
+                    }).start();
+                    break;
                 case FINISH:
                     updateHangUpColor();
                     try {
@@ -359,6 +380,10 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                 break;
             case R.id.ll_action_0:
                 switchAction0();
+                break;
+            case R.id.ll_action_1:
+                handler.sendEmptyMessageDelayed(GUADUAN, 0);
+
                 break;
             case R.id.ll_action_3:
                 //停止倒计时
