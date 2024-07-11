@@ -116,7 +116,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                         ClipboardUtils.clearFirstClipboard(MainActivity.this);
                         new XPopup.Builder(MainActivity.this).hasShadowBg(false).isCenterHorizontal(true)
                                 .popupWidth(XPopupUtils.getScreenWidth(MainActivity.this) - 200)
-                                .isDestroyOnDismiss(true).atView(findViewById(R.id.ll_bohaopan)).asCustom(new CopyPhoneNumberDialog(MainActivity.this, "13658170135", new Function0<Unit>() {
+                                .isDestroyOnDismiss(true).atView(findViewById(R.id.ll_bohaopan)).asCustom(new CopyPhoneNumberDialog(MainActivity.this, text, new Function0<Unit>() {
                             @Override
                             public Unit invoke() {
                                 llNumber.setVisibility(View.VISIBLE);

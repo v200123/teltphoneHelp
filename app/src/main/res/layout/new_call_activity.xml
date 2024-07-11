@@ -36,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="12dp"
             android:gravity="center"
             android:textColor="@color/white"
@@ -46,22 +46,22 @@
         <TextView
             android:id="@+id/tv_new_call_number_local"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginStart="12dp"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="12dp"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/white_50"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number" />
 
         <Chronometer
             android:id="@+id/cm_call_time"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:format="%s"
             android:gravity="center"
             android:includeFontPadding="false"
@@ -76,7 +76,7 @@
 
             android:id="@+id/tv_new_call_status"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginStart="12dp"
             android:layout_marginTop="12dp"
@@ -84,7 +84,7 @@
             android:gravity="center"
             android:textSize="16dp"
             android:text="正在拨号"
-            android:textColor="@color/white"
+            android:textColor="@color/white_50"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number_local" />
@@ -94,7 +94,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:paddingStart="18dp"
             android:paddingTop="5dp"
             android:paddingEnd="18dp"
@@ -103,7 +103,6 @@
             android:textColor="@color/white"
             android:textSize="17dp"
             android:textStyle="bold"
-
             app:shape_radius="20dp"
             app:shape_solidColor="@color/gray" />
     </LinearLayout>

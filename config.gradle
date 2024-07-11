@@ -5,7 +5,7 @@ ext {
     ]
 
     android = [
-            applicationId    : "com.u2tzjtne.oldtelephonehelper",
+            applicationId    : "com.u2tzjtne.telephonehelper",
             compileSdkVersion: 29,
             buildToolsVersion: "29.0.2",
             minSdkVersion    : 26,

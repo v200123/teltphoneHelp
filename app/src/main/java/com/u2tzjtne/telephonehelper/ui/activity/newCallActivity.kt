@@ -181,7 +181,7 @@ class newCallActivity : BaseActivity() {
                     AppCompatResources.getDrawable(
                         this@newCallActivity,
                         R.drawable.ic_hd
-                    )!!.apply { setBounds(0, 0, 100, 100) },
+                    )!!.apply { setBounds(0, 0, 105, 105) },
                     null
                 )
             }
@@ -263,7 +263,9 @@ class newCallActivity : BaseActivity() {
         bind.tvAction3.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
         bind.tvAction4.setTextColor(Color.WHITE)
         bind.tvAction4.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+        bind.tvNewCallNumberLocal.setTextColor(Color.WHITE)
         bind.llAction4.setOnClickListener(null)
+
 
         bind.llAction3.setOnClickListener {
             if (isJingYin) {
