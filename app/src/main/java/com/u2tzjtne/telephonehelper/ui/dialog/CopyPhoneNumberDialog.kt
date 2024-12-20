@@ -31,7 +31,6 @@ class CopyPhoneNumberDialog(context: Context,val phone:String,val block:()->Unit
         textView.setOnClickListener {
             dismiss()
             block()
-            block
         }
     }
 }

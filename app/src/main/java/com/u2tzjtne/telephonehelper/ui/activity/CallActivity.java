@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
 import com.u2tzjtne.telephonehelper.R;
 import com.u2tzjtne.telephonehelper.db.AppDatabase;
 import com.u2tzjtne.telephonehelper.db.CallRecord;
+import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean;
+import com.u2tzjtne.telephonehelper.http.download.getLocalCallback;
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
@@ -183,9 +185,18 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         updateCallTip(false);
         callRecord.startTime = System.currentTimeMillis();
         callRecord.phoneNumber = number;
-        callRecord.attribution = PhoneNumberUtils.getProvince(number);
-        callRecord.operator = PhoneNumberUtils.getOperator(number);
-        tvAttribution.setText(callRecord.attribution + " " + callRecord.operator);
+
+                PhoneNumberUtils.getProvince(number, new getLocalCallback() {
+                    @Override
+                    public void result(PhoneLocalBean bean) {
+                        if(!bean.getProvince().equals(bean.getCity()) )
+                        callRecord.attribution = bean.getProvince() + bean.getCity();
+                        else  callRecord.attribution = bean.getProvince();
+                        callRecord.operator = bean.getCarrier();
+                        tvAttribution.setText(callRecord.attribution + " " + callRecord.operator);
+
+                    }
+                });
         tvCallNumber.setText(callRecord.phoneNumber);
     }
 

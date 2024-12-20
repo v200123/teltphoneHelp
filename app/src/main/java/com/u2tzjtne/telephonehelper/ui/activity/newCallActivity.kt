@@ -17,11 +17,14 @@ import com.u2tzjtne.telephonehelper.R
 import com.u2tzjtne.telephonehelper.databinding.NewCallActivityBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
+import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean
+import com.u2tzjtne.telephonehelper.http.download.getLocalCallback
 import com.u2tzjtne.telephonehelper.ui.activity.AddCallRecordActivity.Companion.formatWithSpaces
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import com.u2tzjtne.telephonehelper.util.ToastUtils
 import com.yanzhenjie.permission.AndPermission
+import com.yanzhenjie.permission.BuildConfig
 import com.yanzhenjie.permission.runtime.Permission
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -67,9 +70,16 @@ class newCallActivity : BaseActivity() {
         callRecord.startTime = System.currentTimeMillis()
         callRecord.phoneNumber = number
         callRecord.callType = 0
-        callRecord.attribution = PhoneNumberUtils.getProvince(number)
-        callRecord.operator = PhoneNumberUtils.getOperator(number)
-        bind.tvNewCallNumberLocal.setText(callRecord.attribution + " " + callRecord.operator)
+        PhoneNumberUtils.getProvince(number,object : getLocalCallback{
+            override fun result(bean: PhoneLocalBean) {
+                if(bean.province != bean.city)
+                    callRecord.attribution = bean.province + bean.city
+                else  callRecord.attribution = bean.province
+                callRecord.operator = bean.carrier
+                bind.tvNewCallNumberLocal.setText(callRecord.attribution + " " + callRecord.operator)
+            }
+        })
+
         bind.tvNewCallNumber.setText(callRecord.phoneNumber.formatWithSpaces())
 
         bind.llDialSwitch.setOnClickListener {
@@ -187,8 +197,8 @@ class newCallActivity : BaseActivity() {
                     null
                 )
             }
-
         }
+
         lifecycleScope.launch(Dispatchers.IO) {
             async {
                 delay(2_000)
@@ -199,7 +209,6 @@ class newCallActivity : BaseActivity() {
 
                 mStatusObserver.postValue(CONNECTED_STATUS)
             }
-
 
         }
         setBackGround()

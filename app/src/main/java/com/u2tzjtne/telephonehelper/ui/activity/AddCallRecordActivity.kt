@@ -8,6 +8,8 @@ import com.u2tzjtne.telephonehelper.R
 import com.u2tzjtne.telephonehelper.databinding.ActivityAddCallRecordBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
+import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean
+import com.u2tzjtne.telephonehelper.http.download.getLocalCallback
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -90,8 +92,14 @@ class AddCallRecordActivity : BaseActivity() {
             }
             callRecord.endTime =callRecord.startTime + (callTime*1000)
 
-            callRecord.attribution = PhoneNumberUtils.getProvince(phoneNumber)
-            callRecord.operator = PhoneNumberUtils.getOperator(phoneNumber)
+            PhoneNumberUtils.getProvince(phoneNumber,object : getLocalCallback{
+                    override fun result(bean: PhoneLocalBean) {
+                        if(bean.province != bean.city)
+                        callRecord.attribution = bean.province + bean.city
+                        else  callRecord.attribution = bean.province
+                        callRecord.operator = bean.carrier
+                    }
+                })
             callRecord.phoneNumber = phoneNumber.formatWithSpaces()
             AppDatabase.getInstance().callRecordModel()
                 .insert(callRecord)

@@ -20,15 +20,13 @@ import com.lxj.xpopup.util.XPopupUtils;
 import com.u2tzjtne.telephonehelper.R;
 import com.u2tzjtne.telephonehelper.db.AppDatabase;
 import com.u2tzjtne.telephonehelper.db.CallRecord;
-import com.u2tzjtne.telephonehelper.event.ClipboardEvent;
+import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean;
+import com.u2tzjtne.telephonehelper.http.download.getLocalCallback;
 import com.u2tzjtne.telephonehelper.ui.adapter.CallRecordAdapter;
 import com.u2tzjtne.telephonehelper.ui.dialog.CopyPhoneNumberDialog;
 import com.u2tzjtne.telephonehelper.util.ClipboardUtils;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.StatusBarUtils;
-import com.u2tzjtne.telephonehelper.util.ToastUtils;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -93,6 +91,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+
     }
 
     @Override
@@ -207,15 +206,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private void setLocation(String number) {
 //        ToastUtils.s(number);
-        String province = PhoneNumberUtils.getProvince(number);
-        if (TextUtils.isEmpty(province)) {
-            return;
-        }
-        String operator = PhoneNumberUtils.getOperator(number);
-        if (!TextUtils.isEmpty(operator)) {
-            province = province + "  " + operator;
-        }
-        tvLocation.setText(province);
+        PhoneNumberUtils.getProvince(number, new getLocalCallback() {
+            @Override
+            public void result(PhoneLocalBean bean) {
+                String attribution ;
+                String operator ;
+                if(!bean.getProvince().equals(bean.getCity()) )
+                    attribution = bean.getProvince() + bean.getCity();
+                else  attribution = bean.getProvince();
+                operator = bean.getCarrier();
+                tvLocation.setText(attribution + " " + operator);
+            }
+        });
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
