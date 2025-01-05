@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ImageView;
@@ -33,7 +34,11 @@ import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
 
+import io.reactivex.Maybe;
+import io.reactivex.MaybeObserver;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -80,6 +85,10 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     LinearLayout llDial1;
     private String number;
     private final CallRecord callRecord = new CallRecord();
+
+    private CallRecord oldCallRecord = null;
+
+
     private final int CONNECTED = 1;
 
     private final int PLAY_RING = 2;
@@ -93,10 +102,10 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
 
     public static void start(Context context, String phoneNumber) {
         Intent intent;
-        if(context.getPackageName().contains("old"))
+        if (context.getPackageName().contains("old"))
             intent = new Intent(context, CallActivity.class);
-        else{
-            intent=  new Intent(context, newCallActivity.class);
+        else {
+            intent = new Intent(context, newCallActivity.class);
         }
         intent.putExtra("phoneNumber", phoneNumber);
         context.startActivity(intent);
@@ -118,12 +127,11 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     }
 
 
-    private void updateHangUpColor(){
+    private void updateHangUpColor() {
         findViewById(R.id.iv_dial_switch).setAlpha(0.5f);
         findViewById(R.id.iv_dial_hang_up).setAlpha(0.5f);
         ivDialSpeaker.setAlpha(0.5f);
     }
-
 
 
     private void setBackGround() {
@@ -180,28 +188,73 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         findViewById(R.id.ll_action_4).setOnClickListener(this);
         findViewById(R.id.ll_action_1).setOnClickListener(this);
 
-
         //未接通
         updateCallTip(false);
         callRecord.startTime = System.currentTimeMillis();
         callRecord.phoneNumber = number;
 
-                PhoneNumberUtils.getProvince(number, new getLocalCallback() {
-                    @Override
-                    public void result(PhoneLocalBean bean) {
-                        if(!bean.getProvince().equals(bean.getCity()) )
-                        callRecord.attribution = bean.getProvince() + bean.getCity();
-                        else  callRecord.attribution = bean.getProvince();
-                        callRecord.operator = bean.getCarrier();
-                        tvAttribution.setText(callRecord.attribution + " " + callRecord.operator);
-
-                    }
-                });
         tvCallNumber.setText(callRecord.phoneNumber);
     }
 
     private void getData() {
         number = getIntent().getStringExtra("phoneNumber");
+        AppDatabase.getInstance().callRecordModel()
+                .getByNumber(number)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new MaybeObserver<CallRecord>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(CallRecord oldCallRecord) {
+                        Log.d("result", "onNext: 走了onNext流程");
+                        CallActivity.this.oldCallRecord = oldCallRecord;
+                        if(oldCallRecord==null||oldCallRecord.attribution == null ||oldCallRecord.attribution.equals("null")||oldCallRecord.attribution.isBlank()||oldCallRecord.attribution.equals("未知")) {
+                            PhoneNumberUtils.getProvince(number, new getLocalCallback() {
+                                @Override
+                                public void result(PhoneLocalBean bean) {
+                                    if (!bean.getProvince().equals(bean.getCity()))
+                                        callRecord.attribution = bean.getProvince() + bean.getCity();
+                                    else callRecord.attribution = bean.getProvince();
+                                    callRecord.operator = bean.getCarrier();
+                                    tvAttribution.setText(callRecord.attribution + " " + callRecord.operator);
+
+                                }
+                            });
+                        }else{
+                            tvAttribution.setText(oldCallRecord.attribution + " " + oldCallRecord.operator);
+                            callRecord.attribution = oldCallRecord.attribution;
+                            callRecord.operator = oldCallRecord.operator;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("result", "onError: 走了onError流程");
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if(oldCallRecord==null){
+                            PhoneNumberUtils.getProvince(number, new getLocalCallback() {
+                                @Override
+                                public void result(PhoneLocalBean bean) {
+                                    if (!bean.getProvince().equals(bean.getCity()))
+                                        callRecord.attribution = bean.getProvince() + bean.getCity();
+                                    else callRecord.attribution = bean.getProvince();
+                                    callRecord.operator = bean.getCarrier();
+                                    tvAttribution.setText(callRecord.attribution + " " + callRecord.operator);
+                                }
+                            });
+                        }
+                        Log.d("result", "onComplete: 走了onComplete流程");
+
+                    }
+                });
     }
 
     /**

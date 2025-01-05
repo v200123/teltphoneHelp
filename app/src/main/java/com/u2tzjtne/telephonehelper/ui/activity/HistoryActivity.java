@@ -90,7 +90,7 @@ public class HistoryActivity extends BaseActivity implements View.OnClickListene
     @SuppressLint("CheckResult")
     private void getCallData() {
         AppDatabase.getInstance().callRecordModel()
-                .getByNumber(number)
+                .getByNumberMuti(number)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::setData);

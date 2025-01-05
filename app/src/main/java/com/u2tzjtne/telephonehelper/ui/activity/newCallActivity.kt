@@ -24,9 +24,11 @@ import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import com.u2tzjtne.telephonehelper.util.ToastUtils
 import com.yanzhenjie.permission.AndPermission
-import com.yanzhenjie.permission.BuildConfig
 import com.yanzhenjie.permission.runtime.Permission
+import io.reactivex.MaybeObserver
+import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -70,15 +72,15 @@ class newCallActivity : BaseActivity() {
         callRecord.startTime = System.currentTimeMillis()
         callRecord.phoneNumber = number
         callRecord.callType = 0
-        PhoneNumberUtils.getProvince(number,object : getLocalCallback{
-            override fun result(bean: PhoneLocalBean) {
-                if(bean.province != bean.city)
-                    callRecord.attribution = bean.province + bean.city
-                else  callRecord.attribution = bean.province
-                callRecord.operator = bean.carrier
-                bind.tvNewCallNumberLocal.setText(callRecord.attribution + " " + callRecord.operator)
-            }
-        })
+//        PhoneNumberUtils.getProvince(number,object : getLocalCallback{
+//            override fun result(bean: PhoneLocalBean) {
+//                if(bean.province != bean.city)
+//                    callRecord.attribution = bean.province + bean.city
+//                else  callRecord.attribution = bean.province
+//                callRecord.operator = bean.carrier
+//                bind.tvNewCallNumberLocal.setText(callRecord.attribution + " " + callRecord.operator)
+//            }
+//        })
 
         bind.tvNewCallNumber.setText(callRecord.phoneNumber.formatWithSpaces())
 
@@ -327,6 +329,43 @@ class newCallActivity : BaseActivity() {
 
     private fun getNumberData() {
         number = intent.getStringExtra("phoneNumber") ?: ""
+
+        AppDatabase.getInstance().callRecordModel()
+            .getByNumber(number)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : MaybeObserver<CallRecord?> {
+                override fun onSubscribe(d: Disposable) {
+                }
+
+                override fun onSuccess(oldCallRecord: CallRecord) {
+                    if ( oldCallRecord.attribution == null || oldCallRecord.attribution=="null" || oldCallRecord.attribution.isBlank() || oldCallRecord.attribution == "未知") {
+                        PhoneNumberUtils.getProvince(
+                            number
+                        ) { bean ->
+                            if(bean.province != bean.city)
+                                callRecord.attribution = bean.province + bean.city
+                            else  callRecord.attribution = bean.province
+                            callRecord.operator = bean.carrier
+                            bind.tvNewCallNumberLocal.text = callRecord.attribution + " " + callRecord.operator
+                        }
+                    } else {
+                        bind.tvNewCallNumberLocal.text = oldCallRecord.attribution + " " + oldCallRecord.operator
+                        callRecord.attribution = oldCallRecord.attribution
+                        callRecord.operator = oldCallRecord.operator
+                    }
+                }
+
+                override fun onError(e: Throwable) {
+                    Log.d(TAG, "onError: 走了onError流程")
+                }
+
+                override fun onComplete() {
+                    Log.d(TAG, "onError: 走了onError流程")
+
+                }
+            })
+
     }
 
     private fun setBackGround() {

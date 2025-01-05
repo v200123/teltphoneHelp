@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 
 import static androidx.room.OnConflictStrategy.IGNORE;
 
@@ -46,8 +47,11 @@ public interface CallRecordDao {
     /**
      * 根据号码查询
      */
+    @Query("select * from CallRecord where phoneNumber = :number order by startTime desc limit 1")
+    Maybe<CallRecord> getByNumber(String number);
+
     @Query("select * from CallRecord where phoneNumber = :number order by startTime desc")
-    Maybe<List<CallRecord>> getByNumber(String number);
+    Maybe<List<CallRecord>> getByNumberMuti(String number);
 
     /**
      * 插入数据
