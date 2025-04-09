@@ -358,11 +358,23 @@ class newCallActivity : BaseActivity() {
 
                 override fun onError(e: Throwable) {
                     Log.d(TAG, "onError: 走了onError流程")
+
                 }
 
                 override fun onComplete() {
-                    Log.d(TAG, "onError: 走了onError流程")
-
+                    Log.d(TAG, "onComplete: 走了onComplete流程")
+                    if(callRecord.attribution==null || callRecord.attribution=="null" || callRecord.attribution.isBlank() || callRecord.attribution == "未知") {
+                        PhoneNumberUtils.getProvince(
+                            number
+                        ) { bean ->
+                            if (bean.province != bean.city)
+                                callRecord.attribution = bean.province + bean.city
+                            else callRecord.attribution = bean.province
+                            callRecord.operator = bean.carrier
+                            bind.tvNewCallNumberLocal.text =
+                                callRecord.attribution + " " + callRecord.operator
+                        }
+                    }
                 }
             })
 

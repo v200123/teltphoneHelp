@@ -3,6 +3,8 @@ package com.u2tzjtne.telephonehelper.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -85,7 +87,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     View llSettings;
     View llSearch;
     View llSwitch;
-
+    MediaPlayer mediaPlayer;
+    SoundPool soundPool ;
+    int soundId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +101,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
+//        mediaPlayer  = MediaPlayer.create(this, R.raw.bohao);
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(5) // 最大同时播放数
+                .build();
+        soundId = soundPool.load(this, R.raw.bohao, 1);
         StatusBarUtils.setDarkStatusBar(this);
         hideNumber(true);
         new Thread(new Runnable() {
@@ -115,6 +124,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                         ClipboardUtils.clearFirstClipboard(MainActivity.this);
                         new XPopup.Builder(MainActivity.this).hasShadowBg(false).isCenterHorizontal(true)
                                 .popupWidth(XPopupUtils.getScreenWidth(MainActivity.this) - 200)
+                                .hasStatusBar(true)
+                                .isLightStatusBar(true)
                                 .isDestroyOnDismiss(true).atView(findViewById(R.id.ll_bohaopan)).asCustom(new CopyPhoneNumberDialog(MainActivity.this, text, new Function0<Unit>() {
                             @Override
                             public Unit invoke() {
@@ -142,6 +153,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mediaPlayer.release();
+    }
+
+    @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
@@ -155,11 +172,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private final View.OnClickListener dialClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+
             llNumber.setVisibility(View.VISIBLE);
             if (view instanceof ViewGroup) {
                 ViewGroup viewGroup = (ViewGroup) view;
                 View childView = viewGroup.getChildAt(0);
                 if (childView instanceof TextView) {
+                    soundPool.play(soundId, 1, 1, 1, 0, 1);
+
                     TextView textView = (TextView) childView;
                     String currentText;
                     if (tvDialNumber.getText() != null) {
