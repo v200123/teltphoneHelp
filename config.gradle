@@ -20,9 +20,9 @@ ext {
             /*
             zheli shit xinde
             * */
-//            storeFile        : file("app/keystore/U2tzJTNE.jks"),
-//            storePassword    : "U2tzJTNE",
-//            keyAlias         : "U2tzJTNE",
-//            keyPassword      : "U2tzJTNE"
+//            storeFile        : file("app/keystore/U2tzJTNENew.jks"),
+//            storePassword    : "123456",
+//            keyAlias         : "key0",
+//            keyPassword      : "123456"
     ]
 }
