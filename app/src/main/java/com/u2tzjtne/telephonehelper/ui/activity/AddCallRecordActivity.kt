@@ -56,10 +56,9 @@ class AddCallRecordActivity : BaseActivity() {
                     val timePickerDialog = TimePickerDialog(
                         this@AddCallRecordActivity,
                         { view, hourOfDay, minute -> // 处理日期和时间选择后的操作，例如更新UI或执行其他任务
-                            val dateTime: String = year.toString() + "-" + (month + 1).toString() + "-" + dayOfMonth + " " + hourOfDay.toString() + ":" + minute
+                            val dateTime = String.format("%04d-%02d-%02d %02d:%02d", year, month + 1, dayOfMonth, hourOfDay, minute)
                             Log.d("DateTimePicker", "Selected date and time: $dateTime")
                             binding.button.setText(dateTime)
-
                             val localDateTime = LocalDateTime.of(year, month+1, dayOfMonth, hourOfDay, minute)
                             val epochSecond =
                                 localDateTime.atZone(ZoneId.of("Asia/Shanghai")).toInstant().toEpochMilli()

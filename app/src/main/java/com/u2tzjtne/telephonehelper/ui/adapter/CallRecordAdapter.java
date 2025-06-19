@@ -59,7 +59,7 @@ public class CallRecordAdapter extends BaseQuickAdapter<CallRecord, BaseViewHold
             }
         }
 
-        String time = DateUtils.convertTimestamp(callRecord.endTime,false);
+        String time = DateUtils.convertTimestamp(callRecord.startTime,false);
         viewHolder.setText(R.id.tv_call_date, time);
         viewHolder.getView(R.id.iv_history).setOnClickListener(v -> {
             //启动到历史记录界面
