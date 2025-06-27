@@ -11,7 +11,7 @@ public class DateUtils {
     public static String convertTimestamp(long timestamp, boolean needTime) {
         try {
             Instant instant = Instant.ofEpochMilli(timestamp);
-            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.of("Asia/Shanghai"));
             LocalDate today = LocalDate.now();
             LocalDate date = dateTime.toLocalDate();
             if (date.equals(today)) {

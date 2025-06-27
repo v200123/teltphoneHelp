@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"/>
     <EditText
         android:id="@+id/et_phone_call_time"
-
+        android:inputType="number"
         android:gravity="center"
         android:hint=""
         android:layout_marginTop="8dp"

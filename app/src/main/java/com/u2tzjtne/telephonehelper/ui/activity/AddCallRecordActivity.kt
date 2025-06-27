@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.u2tzjtne.telephonehelper.R
 import com.u2tzjtne.telephonehelper.databinding.ActivityAddCallRecordBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
@@ -23,22 +24,22 @@ class AddCallRecordActivity : BaseActivity() {
     private val binding: ActivityAddCallRecordBinding by lazy { ActivityAddCallRecordBinding.inflate(layoutInflater) }
     private val callRecord = CallRecord()
 
-    companion object{
-         fun String.formatWithSpaces(): String {
-             if(this.length>3)
-            return this.replace(Regex("(\\d{3})(\\d{4})(\\d{4})"), "$1 $2 $3")
-             else return this
+    companion object {
+        fun String.formatWithSpaces(): String {
+            if (this.length > 3)
+                return this.replace(Regex("(\\d{3})(\\d{4})(\\d{4})"), "$1 $2 $3")
+            else return this
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-    setContentView(binding.root)
+        setContentView(binding.root)
         binding.rgPhoneType.setOnCheckedChangeListener { group, checkedId ->
-            if(checkedId == R.id.call_type_out){
+            if (checkedId == R.id.call_type_out) {
                 callRecord.callType = 0
-            }else{
+            } else {
                 callRecord.callType = 1
             }
         }
@@ -56,10 +57,17 @@ class AddCallRecordActivity : BaseActivity() {
                     val timePickerDialog = TimePickerDialog(
                         this@AddCallRecordActivity,
                         { view, hourOfDay, minute -> // 处理日期和时间选择后的操作，例如更新UI或执行其他任务
-                            val dateTime = String.format("%04d-%02d-%02d %02d:%02d", year, month + 1, dayOfMonth, hourOfDay, minute)
+                            val dateTime = String.format(
+                                "%04d-%02d-%02d %02d:%02d",
+                                year,
+                                month + 1,
+                                dayOfMonth,
+                                hourOfDay,
+                                minute
+                            )
                             Log.d("DateTimePicker", "Selected date and time: $dateTime")
                             binding.button.setText(dateTime)
-                            val localDateTime = LocalDateTime.of(year, month+1, dayOfMonth, hourOfDay, minute)
+                            val localDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, hourOfDay, minute)
                             val epochSecond =
                                 localDateTime.atZone(ZoneId.of("Asia/Shanghai")).toInstant().toEpochMilli()
                             callRecord.startTime = epochSecond
@@ -77,28 +85,31 @@ class AddCallRecordActivity : BaseActivity() {
         binding.submit.setOnClickListener {
 
             val phoneNumber = binding.etPhoneNumber.text.toString().trim()
-
+            if (binding.etPhoneCallTime.text == null) {
+                Toast.makeText(this, "请输入通话时间", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val callTime = binding.etPhoneCallTime.text.toString().toLong()
-            if(callTime != 0L) {
-                callRecord.isConnected = true
-            }else{
 
-                if(callRecord.callType==1)
-                {
+            if (callTime != 0L) {
+                callRecord.isConnected = true
+            } else {
+
+                if (callRecord.callType == 1) {
                     callRecord.callNumber = Random.nextInt(5, 13)
                 }
                 callRecord.isConnected = false
             }
-            callRecord.endTime =callRecord.startTime + (callTime*1000)
+            callRecord.endTime = callRecord.startTime + (callTime * 1000)
 
-            PhoneNumberUtils.getProvince(phoneNumber,object : getLocalCallback{
-                    override fun result(bean: PhoneLocalBean) {
-                        if(bean.province != bean.city)
+            PhoneNumberUtils.getProvince(phoneNumber, object : getLocalCallback {
+                override fun result(bean: PhoneLocalBean) {
+                    if (bean.province != bean.city)
                         callRecord.attribution = bean.province + bean.city
-                        else  callRecord.attribution = bean.province
-                        callRecord.operator = bean.carrier
-                    }
-                })
+                    else callRecord.attribution = bean.province
+                    callRecord.operator = bean.carrier
+                }
+            })
             callRecord.phoneNumber = phoneNumber.formatWithSpaces()
             AppDatabase.getInstance().callRecordModel()
                 .insert(callRecord)
@@ -109,7 +120,6 @@ class AddCallRecordActivity : BaseActivity() {
         }
 
     }
-
 
 
 }
