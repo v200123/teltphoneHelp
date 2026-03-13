@@ -68,6 +68,23 @@ public class MediaPlayerHelper {
         }
     }
 
+    /**
+     * 播放通话结束提示音
+     */
+    public void playCallEndSound(Context context) {
+        final Uri audioCallEndUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.audio_call_end);
+
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(context, audioCallEndUri);
+            mediaPlayer.setLooping(false);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void stopAudio() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();

@@ -106,9 +106,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     private final int FINISH = 3;
     private final int WAIT_FINISH = 4;
     private final int PLAY_NO_RESPONSE_SOUND = 5;
-
     private final int CALL_END = 6;
-
 
     public static void start(Context context, String phoneNumber) {
         Intent intent;
@@ -537,6 +535,9 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         }
         updateCallTip(false);
         tvCallStatus.setText(text);
+        // 播放通话结束提示音
+        MediaPlayerHelper.getInstance().stopAudio();
+        MediaPlayerHelper.getInstance().playCallEndSound(CallActivity.this);
         handler.sendEmptyMessageDelayed(WAIT_FINISH, 0);
     }
 
