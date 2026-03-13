@@ -1,5 +1,6 @@
 package com.u2tzjtne.telephonehelper.ui.activity
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.content.res.ColorStateList
@@ -17,9 +18,11 @@ import com.u2tzjtne.telephonehelper.R
 import com.u2tzjtne.telephonehelper.databinding.NewCallActivityBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
+import com.u2tzjtne.telephonehelper.db.Recording
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback
 import com.u2tzjtne.telephonehelper.ui.activity.AddCallRecordActivity.Companion.formatWithSpaces
+import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import com.u2tzjtne.telephonehelper.util.ToastUtils
@@ -37,6 +40,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
 class newCallActivity : BaseActivity() {
@@ -50,6 +54,11 @@ class newCallActivity : BaseActivity() {
     private var isJingYin = false
     private var isLuYin = false
     private var isMiantiYin = false
+
+    // 录音工具类
+    private val audioRecorderHelper = AudioRecorderHelper.getInstance()
+    // 临时存储本次通话的所有录音信息（等待通话记录保存后关联）
+    private val pendingRecordings = mutableListOf<AudioRecorderHelper.RecordingInfo>()
 
     companion object {
         const val GUADUAN = 9
@@ -72,15 +81,6 @@ class newCallActivity : BaseActivity() {
         callRecord.startTime = System.currentTimeMillis()
         callRecord.phoneNumber = number
         callRecord.callType = 0
-//        PhoneNumberUtils.getProvince(number,object : getLocalCallback{
-//            override fun result(bean: PhoneLocalBean) {
-//                if(bean.province != bean.city)
-//                    callRecord.attribution = bean.province + bean.city
-//                else  callRecord.attribution = bean.province
-//                callRecord.operator = bean.carrier
-//                bind.tvNewCallNumberLocal.setText(callRecord.attribution + " " + callRecord.operator)
-//            }
-//        })
 
         bind.tvNewCallNumber.setText(callRecord.phoneNumber.formatWithSpaces())
 
@@ -115,6 +115,8 @@ class newCallActivity : BaseActivity() {
             when (it) {
                 GUADUAN ->{
                     lifecycleScope.cancel()
+                    // 停止录音并保存
+                    stopAndSaveRecording()
                     MediaPlayerHelper.getInstance().stopAudio()
                     GlobalScope.launch(Dispatchers.Default) {
                         MediaPlayerHelper.getInstance().playCallSound(this@newCallActivity)
@@ -157,6 +159,8 @@ class newCallActivity : BaseActivity() {
                 WAIT_FINISH -> {
                     Log.e(TAG, "onCreate:WAIT_FINISH " )
                     MediaPlayerHelper.getInstance().stopAudio()
+                    // 停止录音
+                    stopAndSaveRecording()
                     GlobalScope.launch(Dispatchers.Default) {
                         delay(1000)
                         mStatusObserver.postValue(FINISH)
@@ -235,6 +239,9 @@ class newCallActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        // 确保停止录音
+        stopAndSaveRecording()
+        
         MediaPlayerHelper.getInstance().stopAudio()
         bind.cmCallTime.stop()
     }
@@ -257,11 +264,148 @@ class newCallActivity : BaseActivity() {
 
     private fun saveCallRecord() {
         callRecord.endTime = System.currentTimeMillis()
+        
+        // 如果有录音，设置第一个录音路径到 callRecord（向后兼容）
+        if (pendingRecordings.isNotEmpty()) {
+            callRecord.recordingPath = pendingRecordings[0].filePath
+            callRecord.recordingStartTime = pendingRecordings[0].startTime
+            callRecord.recordingEndTime = pendingRecordings[0].endTime
+        }
+        
         AppDatabase.getInstance().callRecordModel()
             .insert(callRecord)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
+            .subscribe(object : io.reactivex.CompletableObserver {
+                override fun onSubscribe(d: Disposable) {
+                }
+
+                override fun onComplete() {
+                    Log.d(TAG, "通话记录保存成功")
+                    // 获取刚插入的通话记录ID，然后保存录音记录
+                    saveRecordingRecords()
+                }
+
+                override fun onError(e: Throwable) {
+                    Log.e(TAG, "通话记录保存失败: ${e.message}")
+                }
+            })
+    }
+
+    /**
+     * 保存所有录音记录到 Recording 表
+     */
+    private fun saveRecordingRecords() {
+        if (pendingRecordings.isEmpty()) return
+        
+        // 查询刚插入的通话记录获取ID
+        AppDatabase.getInstance().callRecordModel()
+            .getByNumber(number)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .subscribe(object : MaybeObserver<CallRecord?> {
+                override fun onSubscribe(d: Disposable) {}
+
+                override fun onSuccess(savedCallRecord: CallRecord) {
+                    // 为每条录音创建 Recording 记录
+                    pendingRecordings.forEach { info ->
+                        val recording = Recording().apply {
+                            callRecordId = savedCallRecord.id
+                            filePath = info.filePath
+                            startTime = info.startTime
+                            endTime = info.endTime
+                            duration = info.getDuration()
+                            format = "m4a"
+                            createdAt = System.currentTimeMillis()
+                            // 获取文件大小
+                            fileSize = try {
+                                File(info.filePath).length()
+                            } catch (e: Exception) {
+                                0L
+                            }
+                        }
+                        
+                        AppDatabase.getInstance().recordingModel()
+                            .insert(recording)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe()
+                    }
+                    Log.d(TAG, "已保存 ${pendingRecordings.size} 条录音记录")
+                    pendingRecordings.clear()
+                }
+
+                override fun onError(e: Throwable) {
+                    Log.e(TAG, "查询通话记录失败: ${e.message}")
+                }
+
+                override fun onComplete() {
+                    Log.d(TAG, "未找到通话记录")
+                }
+            })
+    }
+
+    /**
+     * 开始录音
+     */
+    private fun startRecording() {
+        // 检查并请求录音权限
+        AndPermission.with(this)
+            .runtime()
+            .permission(Manifest.permission.RECORD_AUDIO)
+            .onDenied { 
+                ToastUtils.s("需要录音权限才能使用录音功能")
+                // 重置录音按钮状态
+                isLuYin = false
+                bind.tvAction5.setTextColor(Color.WHITE)
+                bind.tvAction5.stop()
+                bind.tvAction5.setText("录音")
+                bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+            }
+            .onGranted { 
+                // 开始录音
+                val recordingPath = audioRecorderHelper.startRecording(number)
+                if (recordingPath != null) {
+                    Log.d(TAG, "录音开始: $recordingPath")
+                    ToastUtils.s("开始录音")
+                } else {
+                    ToastUtils.s("录音启动失败")
+                    // 重置状态
+                    isLuYin = false
+                    bind.tvAction5.setTextColor(Color.WHITE)
+                    bind.tvAction5.stop()
+                    bind.tvAction5.setText("录音")
+                    bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+                }
+            }.start()
+    }
+
+    /**
+     * 停止录音并将录音信息添加到待保存列表
+     */
+    private fun stopAndSaveRecording() {
+        if (audioRecorderHelper.isCurrentlyRecording()) {
+            val recordingInfo = audioRecorderHelper.stopRecording()
+            recordingInfo?.let { info ->
+                Log.d(TAG, "录音停止: ${info.filePath}, 时长: ${info.getFormattedDuration()}")
+                // 将录音信息添加到待保存列表
+                pendingRecordings.add(info)
+            }
+        }
+    }
+
+    /**
+     * 停止录音（用户手动停止）
+     */
+    private fun stopRecordingByUser() {
+        if (audioRecorderHelper.isCurrentlyRecording()) {
+            val recordingInfo = audioRecorderHelper.stopRecording()
+            recordingInfo?.let { info ->
+                Log.d(TAG, "录音停止: ${info.filePath}, 时长: ${info.getFormattedDuration()}")
+                // 将录音信息添加到待保存列表
+                pendingRecordings.add(info)
+                ToastUtils.s("录音已停止，共 ${pendingRecordings.size} 条录音")
+            }
+        }
     }
 
 
@@ -292,19 +436,22 @@ class newCallActivity : BaseActivity() {
             isJingYin = !isJingYin
         }
 
+        // 录音按钮点击事件
         bind.llAction5.setOnClickListener {
-            if(isLuYin)
-            {
+            if (isLuYin) {
+                // 停止录音
                 bind.tvAction5.setTextColor(Color.WHITE)
                 bind.tvAction5.stop()
                 bind.tvAction5.setText("录音")
                 bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-            }
-            else{
+                stopRecordingByUser()
+            } else {
+                // 开始录音
                 bind.tvAction5.setTextColor("#13A8E1".toColorInt())
                 bind.tvAction5.setBase(SystemClock.elapsedRealtime())
                 bind.tvAction5.start()
                 bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf("#13A8E1".toColorInt())
+                startRecording()
             }
             isLuYin = !isLuYin
         }

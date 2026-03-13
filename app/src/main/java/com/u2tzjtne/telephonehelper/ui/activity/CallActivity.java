@@ -2,6 +2,7 @@ package com.u2tzjtne.telephonehelper.ui.activity;
 
 import static com.u2tzjtne.telephonehelper.ui.activity.newCallActivity.GUADUAN;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.WallpaperManager;
 import android.content.Context;
@@ -25,18 +26,21 @@ import androidx.annotation.NonNull;
 import com.u2tzjtne.telephonehelper.R;
 import com.u2tzjtne.telephonehelper.db.AppDatabase;
 import com.u2tzjtne.telephonehelper.db.CallRecord;
+import com.u2tzjtne.telephonehelper.db.Recording;
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean;
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback;
+import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper;
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import io.reactivex.Maybe;
 import io.reactivex.MaybeObserver;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -88,6 +92,12 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
 
     private CallRecord oldCallRecord = null;
 
+    // 录音工具类
+    private final AudioRecorderHelper audioRecorderHelper = AudioRecorderHelper.Companion.getInstance();
+    // 录音状态标志
+    private boolean isRecording = false;
+    // 临时存储本次通话的所有录音信息（等待通话记录保存后关联）
+    private final List<AudioRecorderHelper.RecordingInfo> pendingRecordings = new ArrayList<>();
 
     private final int CONNECTED = 1;
 
@@ -183,7 +193,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         findViewById(R.id.ll_dial_switch).setOnClickListener(this);
         findViewById(R.id.ll_dial_hang_up).setOnClickListener(this);
         findViewById(R.id.ll_dial_speaker).setOnClickListener(this);
-        findViewById(R.id.ll_action_0).setOnClickListener(this);
+        findViewById(R.id.ll_action_0).setOnClickListener(this); // 录音按钮
         findViewById(R.id.ll_action_3).setOnClickListener(this);
         findViewById(R.id.ll_action_4).setOnClickListener(this);
         findViewById(R.id.ll_action_1).setOnClickListener(this);
@@ -303,6 +313,8 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     handler.removeMessages(CONNECTED);
                     handler.removeMessages(PLAY_RING);
                     handler.removeMessages(PLAY_NO_RESPONSE_SOUND);
+                    // 停止录音并保存
+                    stopAndSaveRecording();
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -339,11 +351,177 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
      */
     private void saveCallRecord() {
         callRecord.endTime = System.currentTimeMillis();
+        
+        // 如果有录音，设置第一个录音路径到 callRecord（向后兼容）
+        if (!pendingRecordings.isEmpty()) {
+            AudioRecorderHelper.RecordingInfo firstRecording = pendingRecordings.get(0);
+            callRecord.recordingPath = firstRecording.getFilePath();
+            callRecord.recordingStartTime = firstRecording.getStartTime();
+            callRecord.recordingEndTime = firstRecording.getEndTime();
+        }
+        
         AppDatabase.getInstance().callRecordModel()
                 .insert(callRecord)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
+                .subscribe(new io.reactivex.CompletableObserver() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d("CallActivity", "通话记录保存成功");
+                        // 获取刚插入的通话记录ID，然后保存录音记录
+                        saveRecordingRecords();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("CallActivity", "通话记录保存失败: " + e.getMessage());
+                    }
+                });
+    }
+
+    /**
+     * 保存所有录音记录到 Recording 表
+     */
+    private void saveRecordingRecords() {
+        if (pendingRecordings.isEmpty()) return;
+        
+        // 查询刚插入的通话记录获取ID
+        AppDatabase.getInstance().callRecordModel()
+                .getByNumber(number)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(new MaybeObserver<CallRecord>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {}
+
+                    @Override
+                    public void onSuccess(CallRecord savedCallRecord) {
+                        // 为每条录音创建 Recording 记录
+                        for (AudioRecorderHelper.RecordingInfo info : pendingRecordings) {
+                            Recording recording = new Recording();
+                            recording.callRecordId = savedCallRecord.id;
+                            recording.filePath = info.getFilePath();
+                            recording.startTime = info.getStartTime();
+                            recording.endTime = info.getEndTime();
+                            recording.duration = info.getDuration();
+                            recording.format = "m4a";
+                            recording.createdAt = System.currentTimeMillis();
+                            // 获取文件大小
+                            try {
+                                File file = new File(info.getFilePath());
+                                recording.fileSize = file.length();
+                            } catch (Exception e) {
+                                recording.fileSize = 0L;
+                            }
+                            
+                            AppDatabase.getInstance().recordingModel()
+                                    .insert(recording)
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe();
+                        }
+                        Log.d("CallActivity", "已保存 " + pendingRecordings.size() + " 条录音记录");
+                        pendingRecordings.clear();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("CallActivity", "查询通话记录失败: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d("CallActivity", "未找到通话记录");
+                    }
+                });
+    }
+
+    /**
+     * 开始录音
+     */
+    private void startRecording() {
+        // 检查并请求录音权限
+        AndPermission.with(this)
+                .runtime()
+                .permission(Permission.RECORD_AUDIO)
+                .onDenied(data -> {
+                    ToastUtils.s("需要录音权限才能使用录音功能");
+                    // 重置录音按钮状态
+                    isRecording = false;
+                    ivAction0.setImageResource(R.drawable.ic_call_action_0_0);
+                    tvAction0.setTextColor(getResources().getColor(R.color.white_50));
+                    tvAction0.setText("录音");
+                })
+                .onGranted(data -> {
+                    // 开始录音
+                    String recordingPath = audioRecorderHelper.startRecording(number);
+                    if (recordingPath != null) {
+                        Log.d("CallActivity", "录音开始: " + recordingPath);
+                        ToastUtils.s("开始录音");
+                    } else {
+                        ToastUtils.s("录音启动失败");
+                        // 重置状态
+                        isRecording = false;
+                        ivAction0.setImageResource(R.drawable.ic_call_action_0_0);
+                        tvAction0.setTextColor(getResources().getColor(R.color.white_50));
+                        tvAction0.setText("录音");
+                    }
+                }).start();
+    }
+
+    /**
+     * 停止录音并将录音信息添加到待保存列表
+     */
+    private void stopAndSaveRecording() {
+        if (audioRecorderHelper.isCurrentlyRecording()) {
+            AudioRecorderHelper.RecordingInfo recordingInfo = audioRecorderHelper.stopRecording();
+            if (recordingInfo != null) {
+                Log.d("CallActivity", "录音停止: " + recordingInfo.getFilePath() + 
+                      ", 时长: " + recordingInfo.getFormattedDuration());
+                // 将录音信息添加到待保存列表
+                pendingRecordings.add(recordingInfo);
+            }
+        }
+    }
+
+    /**
+     * 停止录音（用户手动停止）
+     */
+    private void stopRecordingByUser() {
+        if (audioRecorderHelper.isCurrentlyRecording()) {
+            AudioRecorderHelper.RecordingInfo recordingInfo = audioRecorderHelper.stopRecording();
+            if (recordingInfo != null) {
+                Log.d("CallActivity", "录音停止: " + recordingInfo.getFilePath() + 
+                      ", 时长: " + recordingInfo.getFormattedDuration());
+                // 将录音信息添加到待保存列表
+                pendingRecordings.add(recordingInfo);
+                ToastUtils.s("录音已停止，共 " + pendingRecordings.size() + " 条录音");
+            }
+        }
+    }
+
+    /**
+     * 切换录音状态
+     */
+    private void toggleRecording() {
+        if (isRecording) {
+            // 停止录音
+            stopRecordingByUser();
+            ivAction0.setImageResource(R.drawable.ic_call_action_0_0);
+            tvAction0.setTextColor(getResources().getColor(R.color.white_50));
+            tvAction0.setText("录音");
+            isRecording = false;
+        } else {
+            // 开始录音
+            startRecording();
+            ivAction0.setImageResource(R.drawable.ic_call_action_0_1);
+            tvAction0.setTextColor(getResources().getColor(R.color.white));
+            tvAction0.setText("录音中");
+            isRecording = true;
+        }
     }
 
 
@@ -351,6 +529,9 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
      * 挂断
      */
     private void hangUp(String text, Boolean needSave) {
+        // 停止录音
+        stopAndSaveRecording();
+        
         if (needSave) {
             saveCallRecord();
         }
@@ -383,19 +564,12 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void switchAction0() {
-        if (isAction0On) {
-            ivAction0.setImageResource(R.drawable.ic_call_action_0_1);
-            tvAction0.setTextColor(getResources().getColor(R.color.white_50));
-            isAction0On = false;
-        } else {
-            ivAction0.setImageResource(R.drawable.ic_call_action_0_2);
-            tvAction0.setTextColor(getResources().getColor(R.color.white));
-            isAction0On = true;
-        }
+        // 切换录音状态
+        toggleRecording();
     }
 
     private void updateAction() {
-        ivAction0.setImageResource(R.drawable.ic_call_action_0_1);
+        ivAction0.setImageResource(R.drawable.ic_call_action_0_0);
         tvAction0.setTextColor(getResources().getColor(R.color.white));
 
         ivAction1.setImageResource(R.drawable.ic_call_action_1_1);
@@ -423,6 +597,9 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // 确保停止录音
+        stopAndSaveRecording();
+        
         MediaPlayerHelper.getInstance().stopAudio();
         handler.removeCallbacksAndMessages(null);
         if (cmCallTime != null) {
@@ -443,7 +620,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                 switchSpeaker();
                 break;
             case R.id.ll_action_0:
-                switchAction0();
+                switchAction0(); // 录音按钮
                 break;
             case R.id.ll_action_1:
                 handler.sendEmptyMessageDelayed(GUADUAN, 0);

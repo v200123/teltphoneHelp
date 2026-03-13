@@ -24,4 +24,9 @@ public class CallRecord {
     public int callNumber;//响铃次数
 
     public int callType = 0; //0为呼出 1为呼入
+
+    // 录音相关字段
+    public String recordingPath; // 录音文件路径
+    public long recordingStartTime; // 录音开始时间
+    public long recordingEndTime; // 录音结束时间
 }

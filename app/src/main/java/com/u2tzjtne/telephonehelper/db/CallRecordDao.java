@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -60,6 +61,22 @@ public interface CallRecordDao {
     Completable insert(CallRecord record);
 
     /**
+     * 更新数据
+     */
+    @Update
+    Completable update(CallRecord record);
+
+    /**
+     * 更新录音路径
+     * @param id 通话记录ID
+     * @param recordingPath 录音文件路径
+     * @param recordingStartTime 录音开始时间
+     * @param recordingEndTime 录音结束时间
+     */
+    @Query("UPDATE CallRecord SET recordingPath = :recordingPath, recordingStartTime = :recordingStartTime, recordingEndTime = :recordingEndTime WHERE id = :id")
+    Completable updateRecordingPath(int id, String recordingPath, long recordingStartTime, long recordingEndTime);
+
+    /**
      * 删除指定数据
      */
     @Delete
@@ -98,4 +115,10 @@ public interface CallRecordDao {
      */
     @Query("select * from CallRecord where REPLACE(phoneNumber, ' ', '') like :prefix || '%' and endTime in(select max(endTime) from CallRecord where REPLACE(phoneNumber, ' ', '') like :prefix || '%' group by phoneNumber) order by startTime desc")
     Maybe<List<CallRecord>> getByPrefixGroup(String prefix);
+
+    /**
+     * 获取有录音的通话记录
+     */
+    @Query("select * from CallRecord where recordingPath IS NOT NULL AND recordingPath != '' order by startTime desc")
+    Maybe<List<CallRecord>> getWithRecording();
 }
