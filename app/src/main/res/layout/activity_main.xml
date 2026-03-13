@@ -115,7 +115,7 @@
         <LinearLayout
             android:id="@+id/ll_action"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginTop="40dp"
             android:orientation="vertical"
             android:visibility="gone">
@@ -140,45 +140,61 @@
                     android:textSize="20sp" />
             </RelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="25dp"
-                android:paddingVertical="15dp"
-                android:text="新建联系人"
-                android:textColor="#227DD9"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+            <!-- 筛选结果列表 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_filter_result"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:visibility="gone" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- 原有的操作按钮布局 -->
+            <LinearLayout
+                android:id="@+id/ll_action_buttons"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="25dp"
-                android:paddingVertical="15dp"
-                android:text="添加到联系人"
-                android:textColor="#227DD9"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="25dp"
-                android:paddingVertical="15dp"
-                android:text="发起视频通话"
-                android:textColor="#227DD9"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="25dp"
+                    android:paddingVertical="15dp"
+                    android:text="新建联系人"
+                    android:textColor="#227DD9"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="25dp"
-                android:paddingVertical="15dp"
-                android:text="发送信息"
-                android:textColor="#227DD9"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="25dp"
+                    android:paddingVertical="15dp"
+                    android:text="添加到联系人"
+                    android:textColor="#227DD9"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="25dp"
+                    android:paddingVertical="15dp"
+                    android:text="发起视频通话"
+                    android:textColor="#227DD9"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="25dp"
+                    android:paddingVertical="15dp"
+                    android:text="发送信息"
+                    android:textColor="#227DD9"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <ImageView

@@ -25,6 +25,7 @@ import com.u2tzjtne.telephonehelper.db.CallRecord;
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean;
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback;
 import com.u2tzjtne.telephonehelper.ui.adapter.CallRecordAdapter;
+import com.u2tzjtne.telephonehelper.ui.adapter.FilterResultAdapter;
 import com.u2tzjtne.telephonehelper.ui.dialog.CopyPhoneNumberDialog;
 import com.u2tzjtne.telephonehelper.util.ClipboardUtils;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
@@ -87,6 +88,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     View llSettings;
     View llSearch;
     View llSwitch;
+    View llActionButtons;
+    RecyclerView rvFilterResult;
+    FilterResultAdapter filterAdapter;
+    List<CallRecord> filterData;
+    String currentPrefix = ""; // 当前筛选前缀
     MediaPlayer mediaPlayer;
     SoundPool soundPool ;
     int soundId;
@@ -187,16 +193,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     } else {
                         return;
                     }
-                    showActionPage(currentText.length() >= 3);
+                    // 从输入第一位就开始筛选
+                    showActionPage(currentText.length() >= 0);
                     if (currentText.length() == 3 || currentText.length() == 8) {
                         currentText = currentText + " ";
                     }
                     currentText = currentText + textView.getText().toString();
                     tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(currentText));
-//                    if (currentText.length() == 13) {
-//                        setLocation(currentText);
-//                    }
-                    if (currentText.length() == 8) {
+                    
+                    // 获取纯数字号码进行筛选
+                    String pureNumber = currentText.replace(" ", "");
+                    filterByPrefix(pureNumber);
+                    
+                    if (pureNumber.length() == 8) {
                         setLocation(currentText + " 0000");
                     }
                 }
@@ -206,7 +215,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private void showActionPage(boolean isShow) {
         if (isShow) {
-            //显示操作菜单
+            //显示操作菜单（包含筛选列表或原有按钮）
             llAction.setVisibility(View.VISIBLE);
             rvCallRecord.setVisibility(View.GONE);
             llTab.setVisibility(View.GONE);
@@ -221,6 +230,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             llSwitch.setVisibility(View.VISIBLE);
             llSettings.setVisibility(View.VISIBLE);
             llSearch.setVisibility(View.VISIBLE);
+            // 隐藏筛选列表，显示原有按钮
+            rvFilterResult.setVisibility(View.GONE);
+            llActionButtons.setVisibility(View.VISIBLE);
+            // 清空筛选数据
+            filterData.clear();
+            currentPrefix = "";
+            filterAdapter.setHighlightPrefix("");
+            filterAdapter.notifyDataSetChanged();
         }
     }
 
@@ -270,6 +287,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         llSettings= findViewById(R.id.ll_settings);
         llSearch= findViewById(R.id.ll_search);
         llSwitch= findViewById(R.id.ll_switch);
+        llActionButtons= findViewById(R.id.ll_action_buttons);
+        rvFilterResult= findViewById(R.id.rv_filter_result);
 
 
         findViewById(R.id.iv_dial_show).setOnClickListener(this);
@@ -287,6 +306,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
 
         rvCallRecord.setLayoutManager(new LinearLayoutManager(this));
+        //初始化筛选结果列表
+        rvFilterResult.setLayoutManager(new LinearLayoutManager(this));
+        filterData = new java.util.ArrayList<>();
+        filterAdapter = new FilterResultAdapter(filterData);
+        rvFilterResult.setAdapter(filterAdapter);
+        filterAdapter.setOnItemClickListener((adapter1, view, position) -> {
+            callPhone(filterData.get(position).phoneNumber);
+        });
         //触摸隐藏拨号盘
         rvCallRecord.setOnTouchListener((view, motionEvent) -> {
             llDialRoot.setVisibility(View.GONE);
@@ -333,6 +360,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             llNumber.setVisibility(View.VISIBLE);
         }
         showActionPage(false);
+        // 清空筛选数据
+        filterData.clear();
+        currentPrefix = "";
+        filterAdapter.setHighlightPrefix("");
+        filterAdapter.notifyDataSetChanged();
     }
 
     private void deleteNumber() {
@@ -342,8 +374,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             tvDialNumber.setText(afterText);
             if (afterText.length() < 1) {
                 hideNumber(true);
+            } else {
+                // 更新筛选结果
+                String pureNumber = afterText.replace(" ", "");
+                filterByPrefix(pureNumber);
             }
-            showActionPage(tvDialNumber.getText().length() >= 3);
+            showActionPage(tvDialNumber.getText().length() >= 0);
         } else {
             hideNumber(true);
         }
@@ -390,6 +426,48 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             adapter.remove(position);
             return false;
         });
+    }
+
+    /**
+     * 根据号码前缀筛选历史记录
+     * @param prefix 号码前缀
+     */
+    @SuppressLint("CheckResult")
+    private void filterByPrefix(String prefix) {
+        // 保存当前筛选前缀用于高亮显示
+        currentPrefix = prefix != null ? prefix : "";
+        
+        if (TextUtils.isEmpty(prefix)) {
+            // 没有输入，显示原有按钮
+            updateFilterUI(null);
+            return;
+        }
+        AppDatabase.getInstance().callRecordModel()
+                .getByPrefixGroup(prefix)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::updateFilterUI);
+    }
+
+    /**
+     * 更新筛选结果UI
+     * @param data 筛选结果数据
+     */
+    private void updateFilterUI(List<CallRecord> data) {
+        if (data == null || data.isEmpty()) {
+            // 没有筛选结果，显示原有按钮
+            rvFilterResult.setVisibility(View.GONE);
+            llActionButtons.setVisibility(View.VISIBLE);
+        } else {
+            // 有筛选结果，显示列表
+            filterData.clear();
+            filterData.addAll(data);
+            // 更新高亮前缀
+            filterAdapter.setHighlightPrefix(currentPrefix);
+            filterAdapter.notifyDataSetChanged();
+            rvFilterResult.setVisibility(View.VISIBLE);
+            llActionButtons.setVisibility(View.GONE);
+        }
     }
 
 //    @OnClick({R.id.iv_dial_show, R.id.ll_dial_hide, R.id.ll_dial_call, R.id.ll_dial_delete})

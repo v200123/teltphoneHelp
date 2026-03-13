@@ -82,4 +82,20 @@ public interface CallRecordDao {
      */
     @Query("delete from CallRecord")
     void deleteAll();
+
+    /**
+     * 根据号码前缀筛选（用于拨号时实时匹配）
+     * 注意：数据库中号码格式为 "010 2233 0122"，需要去掉空格后再匹配
+     * @param prefix 号码前缀（纯数字）
+     */
+    @Query("select * from CallRecord where REPLACE(phoneNumber, ' ', '') like :prefix || '%' order by startTime desc")
+    Maybe<List<CallRecord>> getByPrefix(String prefix);
+
+    /**
+     * 根据号码前缀筛选并按号码分组（获取每个号码的最新记录）
+     * 注意：数据库中号码格式为 "010 2233 0122"，需要去掉空格后再匹配
+     * @param prefix 号码前缀（纯数字）
+     */
+    @Query("select * from CallRecord where REPLACE(phoneNumber, ' ', '') like :prefix || '%' and endTime in(select max(endTime) from CallRecord where REPLACE(phoneNumber, ' ', '') like :prefix || '%' group by phoneNumber) order by startTime desc")
+    Maybe<List<CallRecord>> getByPrefixGroup(String prefix);
 }
