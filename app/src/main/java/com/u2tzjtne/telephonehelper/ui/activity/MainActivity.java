@@ -127,7 +127,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     if(text!=null&&text.startsWith("1"))
                     {
                         llDialRoot.setVisibility(View.VISIBLE);
-                        ClipboardUtils.clearFirstClipboard(MainActivity.this);
                         new XPopup.Builder(MainActivity.this).hasShadowBg(false).isCenterHorizontal(true)
                                 .popupWidth(XPopupUtils.getScreenWidth(MainActivity.this) - 200)
                                 .hasStatusBar(true)
@@ -146,6 +145,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                                         setLocation(text);
                                     }
                                 }
+                                ClipboardUtils.clearFirstClipboard(MainActivity.this);
                                 return null;
                             }
                         })).show();

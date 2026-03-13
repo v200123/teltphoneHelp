@@ -11,14 +11,30 @@
         android:textSize="15dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"/>
-    <EditText
-        android:id="@+id/et_phone_number"
-        android:gravity="center"
-        android:hint="对方手机号"
-        android:layout_marginTop="8dp"
-        android:textSize="15dp"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/et_phone_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="对方手机号"
+            android:textSize="15dp" />
+
+        <Button
+            android:id="@+id/btn_paste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="粘贴"
+            android:minWidth="60dp" />
+
+    </LinearLayout>
     <TextView
         android:layout_marginTop="12dp"
         android:layout_width="wrap_content"

@@ -302,6 +302,7 @@ class newCallActivity : BaseActivity() {
             }
             else{
                 bind.tvAction5.setTextColor("#13A8E1".toColorInt())
+                bind.tvAction5.setBase(SystemClock.elapsedRealtime())
                 bind.tvAction5.start()
                 bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf("#13A8E1".toColorInt())
             }

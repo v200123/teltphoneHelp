@@ -11,6 +11,7 @@ import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback
+import com.u2tzjtne.telephonehelper.util.ClipboardUtils
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -36,6 +37,23 @@ class AddCallRecordActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(binding.root)
+
+        // 粘贴按钮点击事件
+        binding.btnPaste.setOnClickListener {
+            val clipboardText = ClipboardUtils.getText(this)
+            if (!clipboardText.isNullOrEmpty()) {
+                // 过滤出纯数字
+                val phoneNumber = clipboardText.filter { it.isDigit() }
+                if (phoneNumber.isNotEmpty()) {
+                    binding.etPhoneNumber.setText(phoneNumber)
+                } else {
+                    Toast.makeText(this, "剪贴板中没有有效的手机号", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "剪贴板为空", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding.rgPhoneType.setOnCheckedChangeListener { group, checkedId ->
             if (checkedId == R.id.call_type_out) {
                 callRecord.callType = 0
