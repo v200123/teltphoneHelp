@@ -35,8 +35,13 @@
         <activity
             android:name=".ui.activity.HistoryActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.CallRecordingDetailActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".ui.activity.newCallActivity" />
+
         <activity android:name=".ui.activity.AddCallRecordActivity" />
+        <activity android:name=".ui.activity.RingVideoManageActivity" />
     </application>
 
 </manifest>

@@ -100,8 +100,10 @@ public class HistoryActivity extends BaseActivity implements View.OnClickListene
         CallHistoryAdapter adapter = new CallHistoryAdapter(data);
         rvCallRecord.setAdapter(adapter);
         adapter.setOnItemClickListener((adapter1, view, position) -> {
-            CallActivity.start(this, number);
+            CallRecord callRecord = data.get(position);
+            CallRecordingDetailActivity.Companion.start(this, callRecord.id);
         });
+
         adapter.setOnItemLongClickListener((adapter12, view, position) -> {
             AppDatabase.getInstance()
                     .callRecordModel()

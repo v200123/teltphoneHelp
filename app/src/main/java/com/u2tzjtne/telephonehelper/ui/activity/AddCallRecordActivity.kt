@@ -2,6 +2,7 @@ package com.u2tzjtne.telephonehelper.ui.activity
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -99,6 +100,9 @@ class AddCallRecordActivity : BaseActivity() {
             datePickerDialog.show()
         }
 
+        binding.btnManageRingVideo.setOnClickListener {
+            startActivity(Intent(this, RingVideoManageActivity::class.java))
+        }
 
         binding.submit.setOnClickListener {
 

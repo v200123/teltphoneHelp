@@ -72,7 +72,7 @@ public class MediaPlayerHelper {
      * 播放通话结束提示音
      */
     public void playCallEndSound(Context context) {
-        final Uri audioCallEndUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.audio_call_end);
+        final Uri audioCallEndUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.audio_call);
 
         try {
             mediaPlayer.reset();
