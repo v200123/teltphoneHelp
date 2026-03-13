@@ -55,31 +55,25 @@ public class FilterResultAdapter extends BaseQuickAdapter<CallRecord, BaseViewHo
         viewHolder.setText(R.id.tv_attribution, callRecord.attribution + " " + callRecord.operator);
         if (callRecord.isConnected) {
             viewHolder.getView(R.id.iv_flag).setVisibility(View.VISIBLE);
-            // 通话时长
-            String duration = DateUtils.getCallDuration(callRecord.endTime - callRecord.connectedTime);
-
+            // 筛选结果不显示通话时长
             if (callRecord.callType == 0) {
-                viewHolder.setText(R.id.tv_status, "呼出" + duration);
+                viewHolder.setText(R.id.tv_status, "呼出");
                 viewHolder.getView(R.id.iv_flag).setScaleY(1);
             } else {
-                if (duration.equals("0秒")) {
-                    viewHolder.setText(R.id.tv_status, "已挂断");
-                } else {
-                    viewHolder.setText(R.id.tv_status, "呼入" + duration);
-                }
+                viewHolder.setText(R.id.tv_status, "呼入");
                 viewHolder.getView(R.id.iv_flag).setScaleY(-1);
             }
         } else {
             if (callRecord.callType == 1) {
                 viewHolder.getView(R.id.iv_flag).setVisibility(View.GONE);
-                viewHolder.setText(R.id.tv_status, "响铃" + callRecord.callNumber + "声");
+                viewHolder.setText(R.id.tv_status, "响铃");
             } else {
                 viewHolder.setText(R.id.tv_status, "未接通");
             }
         }
 
-        String time = DateUtils.convertTimestamp(callRecord.startTime, false);
-        viewHolder.setText(R.id.tv_call_date, time);
+        // 筛选结果不显示通话时间
+        viewHolder.getView(R.id.tv_call_date).setVisibility(View.GONE);
         viewHolder.getView(R.id.iv_history).setOnClickListener(v -> {
             // 启动到历史记录界面
             HistoryActivity.start(getContext(), callRecord.phoneNumber);
