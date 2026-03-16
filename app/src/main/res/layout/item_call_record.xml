@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+    android:background="?attr/windowBackgroundColor"
     android:paddingHorizontal="25dp"
     android:paddingVertical="16dp">
 
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/iv_avatar"
         android:text="186 1332 5962"
-        android:textColor="@color/black"
+        android:textColor="?attr/textPrimaryColor"
         android:textSize="18sp"
         android:textStyle="bold" />
 
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="7月1日"
-            android:textColor="#ff9094a2"
+            android:textColor="?attr/textTertiaryColor"
             android:textSize="14sp" />
 
         <TextView
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:text="未接通"
-            android:textColor="#ff9094a2"
+            android:textColor="?attr/textTertiaryColor"
             android:textSize="14sp" />
 
         <TextView
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:text="山东济宁 电信"
-            android:textColor="#ff9094a2"
+            android:textColor="?attr/textTertiaryColor"
             android:textSize="14sp" />
 
         <ImageView
@@ -76,7 +76,6 @@
         android:layout_centerVertical="true"
         android:background="@drawable/oval_grey_bg"
         android:padding="5dp"
-        android:src="@drawable/baseline_arrow_forward_ios_24" />
+        android:src="@drawable/baseline_arrow_forward_ios_24"
+        android:tint="?attr/textTertiaryColor" />
 </RelativeLayout>
-
-

@@ -76,7 +76,7 @@ dependencies {
     annotationProcessor 'androidx.room:room-compiler:2.2.5'
     implementation 'androidx.room:room-rxjava2:2.2.5'
     implementation 'org.greenrobot:eventbus:3.2.0'
-    implementation 'me.ihxq.projects:phone-number-geo:1.0.9-202302'
+    implementation 'me.ihxq.projects:phone-number-geo:1.0.10-202502'
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation 'com.github.wenmingvs:LogReport:1.0.3'
     implementation 'com.github.getActivity:ShapeView:9.3'

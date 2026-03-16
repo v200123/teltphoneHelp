@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ========== 主题自定义属性 ========== -->
+
+    <!-- 背景色 -->
+    <attr name="windowBackgroundColor" format="reference|color" />
+    <attr name="cardBackgroundColor" format="reference|color" />
+    <attr name="itemBackgroundColor" format="reference|color" />
+    <attr name="surfaceColor" format="reference|color" />
+    <attr name="dividerColor" format="reference|color" />
+
+    <!-- 文字颜色 -->
+    <attr name="textPrimaryColor" format="reference|color" />
+    <attr name="textSecondaryColor" format="reference|color" />
+    <attr name="textTertiaryColor" format="reference|color" />
+    <attr name="textHintColor" format="reference|color" />
+
+    <!-- 功能色 -->
+    <attr name="accentGreenColor" format="reference|color" />
+    <attr name="accentBlueColor" format="reference|color" />
+    <attr name="accentRedColor" format="reference|color" />
+    <attr name="dialGreenColor" format="reference|color" />
+    <attr name="hangUpRedColor" format="reference|color" />
+
+    <!-- Tab颜色 -->
+    <attr name="tabNormalColor" format="reference|color" />
+    <attr name="tabCheckedColor" format="reference|color" />
+
+    <!-- 拨号键盘颜色 -->
+    <attr name="dialPadNumberColor" format="reference|color" />
+    <attr name="dialPadLetterColor" format="reference|color" />
+    <attr name="dialPadBackgroundColor" format="reference|color" />
+
+    <!-- 通话界面颜色 -->
+    <attr name="callBackgroundColor" format="reference|color" />
+    <attr name="callTextPrimaryColor" format="reference|color" />
+    <attr name="callTextSecondaryColor" format="reference|color" />
+</resources>

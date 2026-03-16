@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ========== 主题色（黑夜模式）========== -->
+    <color name="colorPrimary">#BB86FC</color>
+    <color name="colorPrimaryDark">#1F1F1F</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimaryVariant">#3700B3</color>
+
+    <!-- ========== 背景色（黑夜模式）========== -->
+    <!-- 窗口背景 - Material Dark 推荐 -->
+    <color name="windowBackground">#121212</color>
+    <!-- 卡片背景 - 稍微亮一点 -->
+    <color name="cardBackground">#1E1E1E</color>
+    <!-- 列表项背景 -->
+    <color name="itemBackground">#2C2C2C</color>
+    <!-- 对话框背景 -->
+    <color name="dialogBackground">#2D2D2D</color>
+    <!-- 表面颜色 -->
+    <color name="surfaceColor">#2C2C2C</color>
+    <!-- 分割线颜色 -->
+    <color name="dividerColor">#424242</color>
+
+    <!-- ========== 文字主色（黑夜模式）========== -->
+    <!-- 主要文字 - 高对比度 -->
+    <color name="textPrimary">#FFFFFF</color>
+    <!-- 次要文字 -->
+    <color name="textSecondary">#B0B0B0</color>
+    <!-- 第三级文字 -->
+    <color name="textTertiary">#808080</color>
+    <!-- 提示文字 -->
+    <color name="textHint">#666666</color>
+
+    <!-- ========== 功能色（黑夜模式适当降低饱和度）========== -->
+    <!-- 成功/绿色 -->
+    <color name="accentGreen">#66BB6A</color>
+    <!-- 蓝色/链接 -->
+    <color name="accentBlue">#64B5F6</color>
+    <!-- 红色/警告 -->
+    <color name="accentRed">#EF5350</color>
+    <!-- 橙色/提示 -->
+    <color name="accentOrange">#FFB74D</color>
+    <!-- 拨号键绿色 -->
+    <color name="dialGreen">#4CAF50</color>
+    <!-- 挂断红色 -->
+    <color name="hangUpRed">#EF5350</color>
+
+    <!-- ========== Tab/导航 ========== -->
+    <color name="textHomeTabNormal">#808080</color>
+    <color name="textHomeTabChecked">#66BB6A</color>
+
+    <!-- ========== 通话记录 ========== -->
+    <color name="textCallRecordMissed">#EF5350</color>
+    <color name="textCallRecordNormal">#FFFFFF</color>
+
+    <!-- ========== 验证码按钮 ========== -->
+    <color name="textGetCodeEnable">#64B5F6</color>
+    <color name="textGetCodeDisable">#7364B5F6</color>
+
+    <!-- ========== 拨号盘颜色 ========== -->
+    <color name="dialPadNumber">#FFFFFF</color>
+    <color name="dialPadLetter">#787B89</color>
+    <color name="dialPadBackground">#1E1E1E</color>
+
+    <!-- ========== 通话界面颜色（黑夜模式下保持不变）========== -->
+    <color name="callBackground">#CC000000</color>
+    <color name="callTextPrimary">#FFFFFF</color>
+    <color name="callTextSecondary">#B0B0B0</color>
+
+    <!-- ========== 兼容旧代码 ========== -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray">#666666</color>
+    <color name="white_50">#808080</color>
+
+    <!-- 兼容旧命名 -->
+    <color name="text_call_record_missed">@color/textCallRecordMissed</color>
+    <color name="text_call_record_normal">@color/textCallRecordNormal</color>
+    <color name="text_home_tab_normal">@color/textHomeTabNormal</color>
+    <color name="text_home_tab_checked">@color/textHomeTabChecked</color>
+    <color name="text_get_code_enable">@color/textGetCodeEnable</color>
+    <color name="text_get_code_disable">@color/textGetCodeDisable</color>
+</resources>

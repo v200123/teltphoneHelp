@@ -2,12 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/windowBackgroundColor">
+
     <TextView
         android:layout_marginTop="60dp"
         android:layout_width="wrap_content"
         android:text="对方号码"
-        android:textColor="@color/black"
+        android:textColor="?attr/textPrimaryColor"
         android:textSize="15dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"/>
@@ -25,6 +27,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:hint="对方手机号"
+            android:textColor="?attr/textPrimaryColor"
+            android:textColorHint="?attr/textHintColor"
             android:textSize="15dp" />
 
         <Button
@@ -39,7 +43,7 @@
         android:layout_marginTop="12dp"
         android:layout_width="wrap_content"
         android:text="通话类型"
-        android:textColor="@color/black"
+        android:textColor="?attr/textPrimaryColor"
         android:textSize="15dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"/>
@@ -52,12 +56,14 @@
         <RadioButton
             android:id="@+id/call_type_out"
             android:text="呼出电话"
+            android:textColor="?attr/textPrimaryColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <RadioButton
             android:id="@+id/call_type_in"
 
             android:text="呼入电话"
+            android:textColor="?attr/textPrimaryColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </RadioGroup>
@@ -65,7 +71,7 @@
         android:layout_marginTop="12dp"
         android:layout_width="wrap_content"
         android:text="通话日期"
-        android:textColor="@color/black"
+        android:textColor="?attr/textPrimaryColor"
         android:textSize="15dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"/>
@@ -80,7 +86,7 @@
         android:layout_marginTop="12dp"
         android:layout_width="wrap_content"
         android:text="通话时长（单位秒）"
-        android:textColor="@color/black"
+        android:textColor="?attr/textPrimaryColor"
         android:textSize="15dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"/>
@@ -89,6 +95,8 @@
         android:inputType="number"
         android:gravity="center"
         android:hint=""
+        android:textColor="?attr/textPrimaryColor"
+        android:textColorHint="?attr/textHintColor"
         android:layout_marginTop="8dp"
         android:textSize="15dp"
         android:layout_width="match_parent"

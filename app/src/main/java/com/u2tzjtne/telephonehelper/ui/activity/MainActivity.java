@@ -27,6 +27,7 @@ import com.u2tzjtne.telephonehelper.http.download.getLocalCallback;
 import com.u2tzjtne.telephonehelper.ui.adapter.CallRecordAdapter;
 import com.u2tzjtne.telephonehelper.ui.adapter.FilterResultAdapter;
 import com.u2tzjtne.telephonehelper.ui.dialog.CopyPhoneNumberDialog;
+import com.u2tzjtne.telephonehelper.ui.dialog.ThemeSwitchDialog;
 import com.u2tzjtne.telephonehelper.util.ClipboardUtils;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.StatusBarUtils;
@@ -84,7 +85,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     View llAction;
     View ivBack;
-    View llTab;
+    LinearLayout llTab;
+    TextView tvTabCall;
+    TextView tvTabContact;
+    TextView tvTabBusiness;
     View llSettings;
     View llSearch;
     View llSwitch;
@@ -96,6 +100,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     MediaPlayer mediaPlayer;
     SoundPool soundPool ;
     int soundId;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -205,7 +211,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     String pureNumber = currentText.replace(" ", "");
                     filterByPrefix(pureNumber);
                     
-                    if (pureNumber.length() == 8) {
+                    if (pureNumber.length() == 7) {
                         setLocation(currentText + " 0000");
                     }
                 }
@@ -229,7 +235,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             llTab.setVisibility(View.VISIBLE);
             llSwitch.setVisibility(View.VISIBLE);
             llSettings.setVisibility(View.VISIBLE);
-            llSearch.setVisibility(View.VISIBLE);
             // 隐藏筛选列表，显示原有按钮
             rvFilterResult.setVisibility(View.GONE);
             llActionButtons.setVisibility(View.VISIBLE);
@@ -284,26 +289,29 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         llAction= findViewById(R.id.ll_action);
         ivBack= findViewById(R.id.iv_back);
         llTab= findViewById(R.id.ll_tab);
+        tvTabCall = findViewById(R.id.tv_tab_call);
+        tvTabContact = findViewById(R.id.tv_tab_contact);
+        tvTabBusiness = findViewById(R.id.tv_tab_business);
         llSettings= findViewById(R.id.ll_settings);
         llSearch= findViewById(R.id.ll_search);
         llSwitch= findViewById(R.id.ll_switch);
         llActionButtons= findViewById(R.id.ll_action_buttons);
         rvFilterResult= findViewById(R.id.rv_filter_result);
 
+        // 设置 Tab 点击事件
+        tvTabCall.setOnClickListener(v -> switchTab(0));
+        tvTabContact.setOnClickListener(v -> switchTab(1));
+        tvTabBusiness.setOnClickListener(v -> switchTab(2));
 
         findViewById(R.id.iv_dial_show).setOnClickListener(this);
         findViewById(R.id.ll_dial_hide).setOnClickListener(this);
         findViewById(R.id.ll_dial_call).setOnClickListener(this);
         findViewById(R.id.ll_dial_delete).setOnClickListener(this);
+        
+        // 设置按钮 - 添加通话记录
         llSettings.setOnClickListener(view -> {
-
-
             startActivity(new Intent(this, AddCallRecordActivity.class));
-
         });
-
-
-
 
         rvCallRecord.setLayoutManager(new LinearLayoutManager(this));
         //初始化筛选结果列表
@@ -339,6 +347,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         ivBack.setOnClickListener(view -> {
             showActionPage(false);
         });
+    }
+
+    /**
+     * 切换 Tab
+     * @param index 0-通话, 1-联系人, 2-营业厅
+     */
+    private void switchTab(int index) {
+        // 重置所有 Tab 颜色
+        tvTabCall.setTextColor(getResources().getColor(R.color.textSecondary));
+        tvTabContact.setTextColor(getResources().getColor(R.color.textSecondary));
+        tvTabBusiness.setTextColor(getResources().getColor(R.color.textSecondary));
+        
+        // 设置选中 Tab 颜色
+        switch (index) {
+            case 0:
+                tvTabCall.setTextColor(getResources().getColor(R.color.dialGreen));
+                // 通话 Tab，正常显示
+                break;
+            case 1:
+                tvTabContact.setTextColor(getResources().getColor(R.color.dialGreen));
+                // 联系人 Tab，显示主题切换对话框
+                new XPopup.Builder(this)
+                        .asCustom(new ThemeSwitchDialog(this))
+                        .show();
+                break;
+            case 2:
+                tvTabBusiness.setTextColor(getResources().getColor(R.color.dialGreen));
+                // 营业厅 Tab，暂无功能
+                break;
+        }
     }
 
     private void callPhone(String number) {
@@ -482,7 +520,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 //            case R.id.ll_dial_call:
 //                callPhone(getAndCheckNumber());
 //                break;
-//            case R.id.ll_dial_delete:
+//            case R.id.ll_dial_call:
 //                deleteNumber();
 //                break;
 //            default:

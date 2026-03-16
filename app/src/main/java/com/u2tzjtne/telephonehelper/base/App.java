@@ -3,6 +3,7 @@ package com.u2tzjtne.telephonehelper.base;
 import android.app.Application;
 import android.content.Context;
 
+import com.u2tzjtne.telephonehelper.util.ThemeManager;
 import com.wenming.library.LogReport;
 import com.wenming.library.save.imp.CrashWriter;
 
@@ -22,6 +23,8 @@ public class App extends Application {
             context = getApplicationContext();
         }
         initCrashReport();
+        // 初始化主题管理器
+        ThemeManager.INSTANCE.init(this);
     }
 
     public static App getInstance() {

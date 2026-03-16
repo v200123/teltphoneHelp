@@ -1,11 +1,121 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <!-- 白天主题 -->
+    <style name="AppTheme.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- 主题色 -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorSecondary">@color/colorAccent</item>
+
+        <!-- 背景色 -->
+        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="windowBackgroundColor">@color/windowBackground</item>
+        <item name="cardBackgroundColor">@color/cardBackground</item>
+        <item name="itemBackgroundColor">@color/itemBackground</item>
+        <item name="surfaceColor">@color/surfaceColor</item>
+        <item name="dividerColor">@color/dividerColor</item>
+
+        <!-- 文字颜色 -->
+        <item name="textPrimaryColor">@color/textPrimary</item>
+        <item name="textSecondaryColor">@color/textSecondary</item>
+        <item name="textTertiaryColor">@color/textTertiary</item>
+        <item name="textHintColor">@color/textHint</item>
+
+        <!-- 功能色 -->
+        <item name="accentGreenColor">@color/accentGreen</item>
+        <item name="accentBlueColor">@color/accentBlue</item>
+        <item name="accentRedColor">@color/accentRed</item>
+        <item name="dialGreenColor">@color/dialGreen</item>
+        <item name="hangUpRedColor">@color/hangUpRed</item>
+
+        <!-- Tab颜色 -->
+        <item name="tabNormalColor">@color/textHomeTabNormal</item>
+        <item name="tabCheckedColor">@color/textHomeTabChecked</item>
+
+        <!-- 拨号键盘颜色 -->
+        <item name="dialPadNumberColor">@color/dialPadNumber</item>
+        <item name="dialPadLetterColor">@color/dialPadLetter</item>
+        <item name="dialPadBackgroundColor">@color/dialPadBackground</item>
+
+        <!-- 通话界面颜色 -->
+        <item name="callBackgroundColor">@color/callBackground</item>
+        <item name="callTextPrimaryColor">@color/callTextPrimary</item>
+        <item name="callTextSecondaryColor">@color/callTextSecondary</item>
+
+        <!-- 组件样式 -->
+        <item name="android:textColorPrimary">@color/textPrimary</item>
+        <item name="android:textColorSecondary">@color/textSecondary</item>
+        <item name="android:textColorHint">@color/textHint</item>
+        <item name="colorSurface">@color/surfaceColor</item>
+        <item name="colorError">@color/accentRed</item>
+
+        <!-- 状态栏 -->
+        <item name="android:statusBarColor">@color/windowBackground</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
+    <!-- 黑夜主题 -->
+    <style name="AppTheme.Dark" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- 主题色 -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorSecondary">@color/colorAccent</item>
+
+        <!-- 背景色 -->
+        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="windowBackgroundColor">@color/windowBackground</item>
+        <item name="cardBackgroundColor">@color/cardBackground</item>
+        <item name="itemBackgroundColor">@color/itemBackground</item>
+        <item name="surfaceColor">@color/surfaceColor</item>
+        <item name="dividerColor">@color/dividerColor</item>
+
+        <!-- 文字颜色 -->
+        <item name="textPrimaryColor">@color/textPrimary</item>
+        <item name="textSecondaryColor">@color/textSecondary</item>
+        <item name="textTertiaryColor">@color/textTertiary</item>
+        <item name="textHintColor">@color/textHint</item>
+
+        <!-- 功能色 -->
+        <item name="accentGreenColor">@color/accentGreen</item>
+        <item name="accentBlueColor">@color/accentBlue</item>
+        <item name="accentRedColor">@color/accentRed</item>
+        <item name="dialGreenColor">@color/dialGreen</item>
+        <item name="hangUpRedColor">@color/hangUpRed</item>
+
+        <!-- Tab颜色 -->
+        <item name="tabNormalColor">@color/textHomeTabNormal</item>
+        <item name="tabCheckedColor">@color/textHomeTabChecked</item>
+
+        <!-- 拨号键盘颜色 -->
+        <item name="dialPadNumberColor">@color/dialPadNumber</item>
+        <item name="dialPadLetterColor">@color/dialPadLetter</item>
+        <item name="dialPadBackgroundColor">@color/dialPadBackground</item>
+
+        <!-- 通话界面颜色 -->
+        <item name="callBackgroundColor">@color/callBackground</item>
+        <item name="callTextPrimaryColor">@color/callTextPrimary</item>
+        <item name="callTextSecondaryColor">@color/callTextSecondary</item>
+
+        <!-- 组件样式 -->
+        <item name="android:textColorPrimary">@color/textPrimary</item>
+        <item name="android:textColorSecondary">@color/textSecondary</item>
+        <item name="android:textColorHint">@color/textHint</item>
+        <item name="colorSurface">@color/surfaceColor</item>
+        <item name="colorError">@color/accentRed</item>
+
+        <!-- 状态栏 -->
+        <item name="android:statusBarColor">@color/windowBackground</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <!-- 默认主题（跟随系统） -->
+    <style name="AppTheme" parent="AppTheme.Light" />
+
+    <!-- 透明主题（用于通话界面等特殊场景） -->
     <style name="AppTheme.Translucent">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
@@ -14,6 +124,14 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <!-- 白天模式透明主题 -->
+    <style name="AppTheme.Light.Translucent" parent="AppTheme.Translucent" />
+
+    <!-- 黑夜模式透明主题 -->
+    <style name="AppTheme.Dark.Translucent" parent="AppTheme.Translucent">
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
 </resources>

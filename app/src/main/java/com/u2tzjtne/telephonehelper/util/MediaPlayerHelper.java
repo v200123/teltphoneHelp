@@ -95,7 +95,7 @@ public class MediaPlayerHelper {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (isSpeaker) {
             audioManager.setSpeakerphoneOn(true);
-            audioManager.setMode(AudioManager.MODE_NORMAL);
+            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         } else {
             audioManager.setSpeakerphoneOn(false);
             audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
