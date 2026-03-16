@@ -33,6 +33,8 @@ import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper;
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
+import com.u2tzjtne.telephonehelper.util.VideoPlayerHelper;
+import android.widget.VideoView;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
@@ -126,12 +128,22 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         setContentView(R.layout.activity_call);
         getData();
         initView();
+        // 初始化视频播放器
+        initVideoPlayer();
         //10秒后自动接通
         handler.sendEmptyMessageDelayed(CONNECTED, 10 * 1000);
         //2秒后 显示对方振铃
         handler.sendEmptyMessageDelayed(PLAY_RING, 2 * 1000);
         setBackGround();
         MediaPlayerHelper.getInstance().switchAudioOutput(CallActivity.this, isSpeakerOn);
+    }
+
+    /**
+     * 初始化彩铃视频播放器
+     */
+    private void initVideoPlayer() {
+        videoRingtone = findViewById(R.id.video_ringtone);
+        VideoPlayerHelper.getInstance().init(videoRingtone);
     }
 
 
@@ -290,6 +302,8 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
             super.handleMessage(msg);
             switch (msg.what) {
                 case CONNECTED:
+                    // 接通后停止播放彩铃视频
+                    VideoPlayerHelper.getInstance().stopPlaying();
                     MediaPlayerHelper.getInstance().stopAudio();
                     callRecord.isConnected = true;
                     callRecord.connectedTime = System.currentTimeMillis();
@@ -298,7 +312,15 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     break;
                 case PLAY_RING:
                     tvCallStatus.setText("对方已振铃");
-                    MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
+                    // 开始播放彩铃视频（自动检测视频来源）
+                    // 如果有视频在播放，则不播放拨号等待音
+                    VideoPlayerHelper.getInstance().playRingtoneVideo(CallActivity.this, getPackageName(), isVideoPlaying -> {
+                        if (!isVideoPlaying) {
+                            // 没有视频时播放拨号等待音
+                            MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
+                        }
+                        return null;
+                    });
                     break;
                 case PLAY_NO_RESPONSE_SOUND:
                     MediaPlayerHelper.getInstance().playNoResponseSound(CallActivity.this);
@@ -552,6 +574,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
 
     private boolean isSpeakerOn = false;
     private boolean isAction0On = false;
+    private VideoView videoRingtone;
 
     private void switchSpeaker() {
         if (isSpeakerOn) {
@@ -600,6 +623,9 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         super.onDestroy();
         // 确保停止录音
         stopAndSaveRecording();
+        
+        // 释放视频播放器资源
+        VideoPlayerHelper.getInstance().release();
         
         MediaPlayerHelper.getInstance().stopAudio();
         handler.removeCallbacksAndMessages(null);

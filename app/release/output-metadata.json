@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.u2tzjtne.telephonehelper",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 50,
+      "versionName": "1.5.0",
+      "outputFile": "TelephoneHelper_release_2026-03-13_1.5.0_u50.apk"
+    }
+  ],
+  "elementType": "File"
+}

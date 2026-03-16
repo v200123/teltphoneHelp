@@ -26,6 +26,7 @@ import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import com.u2tzjtne.telephonehelper.util.ToastUtils
+import com.u2tzjtne.telephonehelper.util.VideoPlayerHelper
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.runtime.Permission
 import io.reactivex.MaybeObserver
@@ -84,6 +85,9 @@ class newCallActivity : BaseActivity() {
 
         bind.tvNewCallNumber.setText(callRecord.phoneNumber.formatWithSpaces())
 
+        // 初始化视频播放器
+        VideoPlayerHelper.getInstance().init(bind.videoRingtone)
+
         bind.llDialSwitch.setOnClickListener {
 
             if(isSpeakerOn){
@@ -130,6 +134,8 @@ class newCallActivity : BaseActivity() {
                 }
 
                 CONNECTED_STATUS -> {
+                    // 接通后停止播放彩铃视频
+                    VideoPlayerHelper.getInstance().stopPlaying()
 
                     MediaPlayerHelper.getInstance().stopAudio()
                     callRecord.isConnected = true
@@ -145,7 +151,14 @@ class newCallActivity : BaseActivity() {
                         mStatusObserver.value = GUADUAN
 
                     }
-                    MediaPlayerHelper.getInstance().playCallSound(this)
+                    // 开始播放彩铃视频（自动检测视频来源）
+                    // 如果有视频在播放，则不播放拨号等待音
+                    VideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName) { isVideoPlaying ->
+                        if (!isVideoPlaying) {
+                            // 没有视频时播放拨号等待音
+                            MediaPlayerHelper.getInstance().playCallSound(this)
+                        }
+                    }
                 }
 
                 PLAY_NO_RESPONSE_SOUND -> {
@@ -241,6 +254,9 @@ class newCallActivity : BaseActivity() {
 
         // 确保停止录音
         stopAndSaveRecording()
+        
+        // 释放视频播放器资源
+        VideoPlayerHelper.getInstance().release()
         
         MediaPlayerHelper.getInstance().stopAudio()
         bind.cmCallTime.stop()

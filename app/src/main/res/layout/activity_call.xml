@@ -11,6 +11,13 @@
         android:layout_height="match_parent"
         android:background="#CC000000" />
 
+    <!-- 彩铃视频播放视图 - 接通前显示 -->
+    <VideoView
+        android:id="@+id/video_ringtone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
