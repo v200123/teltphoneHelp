@@ -99,8 +99,6 @@ class newCallActivity : BaseActivity() {
                 MediaPlayerHelper.getInstance().switchAudioOutput(this, isSpeakerOn)
                 bind.ivDialSwitch.setTextColor("#13A8E1".toColorInt())
             }
-
-
         }
 
 
@@ -151,9 +149,9 @@ class newCallActivity : BaseActivity() {
                         mStatusObserver.value = GUADUAN
 
                     }
-                    // 开始播放彩铃视频（自动检测视频来源）
+                    // 开始播放彩铃视频（根据号码查找绑定的彩铃）
                     // 如果有视频在播放，则不播放拨号等待音
-                    VideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName) { isVideoPlaying ->
+                    VideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
                         if (!isVideoPlaying) {
                             // 没有视频时播放拨号等待音
                             MediaPlayerHelper.getInstance().playCallSound(this)

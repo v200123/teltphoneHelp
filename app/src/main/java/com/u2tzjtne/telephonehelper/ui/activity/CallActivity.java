@@ -312,9 +312,9 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     break;
                 case PLAY_RING:
                     tvCallStatus.setText("对方已振铃");
-                    // 开始播放彩铃视频（自动检测视频来源）
+                    // 开始播放彩铃视频（根据号码查找绑定的彩铃）
                     // 如果有视频在播放，则不播放拨号等待音
-                    VideoPlayerHelper.getInstance().playRingtoneVideo(CallActivity.this, getPackageName(), isVideoPlaying -> {
+                    VideoPlayerHelper.getInstance().playRingtoneVideo(CallActivity.this, getPackageName(), number, isVideoPlaying -> {
                         if (!isVideoPlaying) {
                             // 没有视频时播放拨号等待音
                             MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);

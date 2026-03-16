@@ -9,13 +9,19 @@ import com.u2tzjtne.telephonehelper.base.App;
 /**
  * 彩铃视频数据库
  */
-@Database(entities = {RingVideo.class}, version = 1, exportSchema = false)
+@Database(
+    entities = {RingVideo.class, RingtonePhoneBinding.class}, 
+    version = 2, 
+    exportSchema = false
+)
 public abstract class RingVideoDatabase extends RoomDatabase {
 
     private static volatile RingVideoDatabase INSTANCE;
     private static final String DB_NAME = "ring_video.db";
 
     public abstract RingVideoDao ringVideoDao();
+    
+    public abstract RingtonePhoneBindingDao ringtonePhoneBindingDao();
 
     public static RingVideoDatabase getInstance() {
         if (INSTANCE == null) {
@@ -25,7 +31,8 @@ public abstract class RingVideoDatabase extends RoomDatabase {
                             App.getContext(),
                             RingVideoDatabase.class,
                             DB_NAME)
-                        .build();
+                            .fallbackToDestructiveMigration() // 版本变更时重建数据库
+                            .build();
                 }
             }
         }

@@ -42,6 +42,8 @@
 
         <activity android:name=".ui.activity.AddCallRecordActivity" />
         <activity android:name=".ui.activity.RingVideoManageActivity" />
+        <activity android:name=".ui.activity.RingtoneBindingManageActivity"
+            android:label="彩铃号码绑定" />
     </application>
 
 </manifest>

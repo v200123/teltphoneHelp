@@ -540,7 +540,7 @@
                         android:paddingBottom="12dp"
                         android:text="视频模式"
                         android:textColor="@color/white_50"
-                        android:textSize="15dp"
+                        android:textSize="15sp"
                         app:drawableTint="@color/white_50" />
                 </LinearLayout>
 
@@ -566,7 +566,7 @@
                         android:drawableTint="@color/white_50"
                         android:text="添加通话"
                         android:textColor="@color/white_50"
-                        android:textSize="15dp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -590,7 +590,7 @@
                         android:drawableTop="@drawable/ic_new_note"
                         android:text="笔记"
                         android:textColor="@color/white"
-                        android:textSize="15dp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -615,7 +615,6 @@
                     <TextView
                         android:id="@+id/tv_action_3"
                         android:drawablePadding="8dp"
-
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -623,7 +622,7 @@
                         android:drawableTint="@color/white_50"
                         android:text="静音"
                         android:textColor="@color/white_50"
-                        android:textSize="15dp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -648,7 +647,7 @@
                         android:drawableTint="@color/white_50"
                         android:text="暂停通话"
                         android:textColor="@color/white_50"
-                        android:textSize="15dp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -664,7 +663,6 @@
 
                     <Chronometer
                         android:drawablePadding="8dp"
-
                         android:id="@+id/tv_action_5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -672,7 +670,7 @@
                         android:drawableTop="@drawable/ic_new_record"
                         android:text="录音"
                         android:textColor="@color/white"
-                        android:textSize="16sp" />
+                        android:textSize="15sp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -703,7 +701,7 @@
                     android:layout_height="wrap_content"
                     android:text="免提"
                     android:textColor="@color/white"
-                    android:textSize="16dp" />
+                    android:textSize="17sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -743,7 +741,7 @@
                     android:src="@drawable/ic_speaker_normal"
                     android:text="键盘"
                     android:textColor="@color/white"
-                    android:textSize="16dp" />
+                    android:textSize="17sp" />
             </LinearLayout>
 
         </LinearLayout>

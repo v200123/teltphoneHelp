@@ -72,12 +72,12 @@
             android:text="预览" />
 
         <Button
-            android:id="@+id/btn_set_current"
+            android:id="@+id/btn_bind_phone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="设为当前" />
+            android:text="绑定号码" />
 
         <Button
             android:id="@+id/btn_delete"

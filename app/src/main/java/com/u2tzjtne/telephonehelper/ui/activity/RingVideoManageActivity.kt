@@ -26,7 +26,7 @@ class RingVideoManageActivity : BaseActivity() {
 
     private val adapter: RingVideoAdapter by lazy {
         RingVideoAdapter(
-            onSetCurrentClick = ::setCurrentVideo,
+            onBindPhoneClick = ::openBindPhoneActivity,
             onPreviewClick = ::previewVideo,
             onDeleteClick = ::deleteVideo,
         )
@@ -123,23 +123,15 @@ class RingVideoManageActivity : BaseActivity() {
         binding.rvVideoList.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
     }
 
-    private fun setCurrentVideo(item: RingVideo) {
-        Completable.fromAction {
-            val db = RingVideoDatabase.getInstance()
-            db.runInTransaction {
-                val dao = db.ringVideoDao()
-                dao.clearSelectedSync()
-                dao.setSelectedSync(item.id)
-            }
+    /**
+     * 打开彩铃号码绑定管理界面
+     */
+    private fun openBindPhoneActivity(item: RingVideo) {
+        val intent = Intent(this, RingtoneBindingManageActivity::class.java).apply {
+            putExtra("ringtone_id", item.id)
+            putExtra("ringtone_name", item.videoName)
         }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                Toast.makeText(this, "已切换当前彩铃视频", Toast.LENGTH_SHORT).show()
-                loadVideos()
-            }, {
-                Toast.makeText(this, "切换当前彩铃失败", Toast.LENGTH_SHORT).show()
-            })
+        startActivity(intent)
     }
 
     private fun deleteVideo(item: RingVideo) {
