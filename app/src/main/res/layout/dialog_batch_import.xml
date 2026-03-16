@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="批量导入号码"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="请输入手机号码，每行一个，支持以下格式："
+        android:textColor="#666666"
+        android:textSize="12sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="13800138000&#10;13900139000&#10;13500135000,13600136000&#10;13700137000 13800138000"
+        android:textColor="#999999"
+        android:textSize="11sp" />
+
+    <EditText
+        android:id="@+id/etPhoneNumbers"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_input"
+        android:gravity="top|start"
+        android:hint="在此输入手机号码..."
+        android:inputType="textMultiLine"
+        android:padding="12dp"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvParseResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="识别到 0 个有效号码"
+        android:textColor="#4CAF50"
+        android:textSize="13sp" />
+
+</LinearLayout>
