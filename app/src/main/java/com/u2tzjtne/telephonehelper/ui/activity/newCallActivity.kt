@@ -365,7 +365,7 @@ class newCallActivity : BaseActivity() {
         // 检查并请求录音权限
         AndPermission.with(this)
             .runtime()
-            .permission(Manifest.permission.RECORD_AUDIO)
+            .permission(Permission.RECORD_AUDIO)
             .onDenied { 
                 ToastUtils.s("需要录音权限才能使用录音功能")
                 // 重置录音按钮状态
@@ -491,7 +491,6 @@ class newCallActivity : BaseActivity() {
 
     private fun getNumberData() {
         number = intent.getStringExtra("phoneNumber") ?: ""
-
         AppDatabase.getInstance().callRecordModel()
             .getByNumber(number)
             .subscribeOn(Schedulers.io())
@@ -559,7 +558,7 @@ class newCallActivity : BaseActivity() {
                 // 将Drawable转换为Bitmap
                 val wallpaperBitmap =
                     (wallpaperDrawable as BitmapDrawable?)!!.bitmap
-                // 设置背景
+                // 设置根布局背景
                 bind.root.setBackground(BitmapDrawable(resources, wallpaperBitmap))
             }.start()
     }

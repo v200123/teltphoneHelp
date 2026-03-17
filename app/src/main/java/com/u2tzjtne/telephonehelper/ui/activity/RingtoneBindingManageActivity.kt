@@ -105,11 +105,6 @@ class RingtoneBindingManageActivity : BaseActivity() {
             addSingleBinding()
         }
 
-        // 批量导入
-        binding.tvBatchImport.setOnClickListener {
-            showBatchImportDialog()
-        }
-
         // 清空全部
         binding.tvClearAll.setOnClickListener {
             clearAllBindings()

@@ -1,6 +1,7 @@
 package com.u2tzjtne.telephonehelper.util
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.net.Uri
 import android.view.View
 import android.widget.VideoView
@@ -61,8 +62,20 @@ class VideoPlayerHelper private constructor() {
             isPrepared = true
             // 设置循环播放
             mediaPlayer.isLooping = true
-            // 开始播放
+            // 开始播放(但不显示视图,等待第一帧渲染)
             mediaPlayer.start()
+        }
+
+        // 监听视频渲染第一帧事件
+        videoView?.setOnInfoListener { mp, what, extra ->
+            if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                // 视频第一帧已渲染,现在可以显示了
+                videoView?.visibility = View.VISIBLE
+                videoView?.background = null
+                true
+            } else {
+                false
+            }
         }
 
         videoView?.setOnErrorListener { _, what, extra ->
@@ -84,9 +97,10 @@ class VideoPlayerHelper private constructor() {
     fun startPlaying(uri: Uri) {
         videoView?.let { view ->
             try {
+                // 先设置为不可见,等待视频准备完成后再显示
+                view.visibility = View.INVISIBLE
                 view.setVideoURI(uri)
-                view.visibility = View.VISIBLE
-                // 准备完成后自动播放
+                // 准备完成后在 onPrepared 中设置为 VISIBLE 并开始播放
             } catch (e: Exception) {
                 e.printStackTrace()
                 view.visibility = View.GONE
@@ -114,13 +128,13 @@ class VideoPlayerHelper private constructor() {
                 val file = File(videoPath)
                 if (file.exists()) {
                     view.setVideoPath(videoPath)
-                    view.visibility = View.VISIBLE
                 } else {
                     // 文件不存在，尝试作为 URI 解析
                     val uri = Uri.parse(videoPath)
                     view.setVideoURI(uri)
-                    view.visibility = View.VISIBLE
                 }
+                view.visibility = View.VISIBLE
+                // 准备完成后自动播放
             } catch (e: Exception) {
                 e.printStackTrace()
                 view.visibility = View.GONE
@@ -269,62 +283,6 @@ class VideoPlayerHelper private constructor() {
     }
 
 
-
-    /**
-     * 检查是否存在彩铃视频（包括数据库和默认位置）
-     */
-    fun hasRingtoneVideo(context: Context, packageName: String, callback: (Boolean) -> Unit) {
-        thread {
-            try {
-                // 先检查数据库
-                val count = RingVideoDatabase.getInstance().ringVideoDao().getCount()
-                if (count > 0) {
-                    context.mainExecutor.execute {
-                        callback(true)
-                    }
-                    return@thread
-                }
-
-                // 检查 res/raw
-                val resId = try {
-                    context.resources.getIdentifier("ringtone_video", "raw", packageName)
-                } catch (e: Exception) {
-                    0
-                }
-                if (resId != 0) {
-                    context.mainExecutor.execute {
-                        callback(true)
-                    }
-                    return@thread
-                }
-
-                // 检查 assets
-                try {
-                    context.assets.openFd(RINGTONE_VIDEO_ASSETS_PATH).use {
-                        context.mainExecutor.execute {
-                            callback(true)
-                        }
-                        return@thread
-                    }
-                } catch (e: Exception) {
-                    // ignore
-                }
-
-                // 检查外部存储
-                val externalVideoFile = File(context.getExternalFilesDir(null), RINGTONE_VIDEO_FILENAME)
-                val exists = externalVideoFile.exists()
-
-                context.mainExecutor.execute {
-                    callback(exists)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                context.mainExecutor.execute {
-                    callback(false)
-                }
-            }
-        }
-    }
 
     /**
      * 停止播放并隐藏视频

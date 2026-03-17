@@ -39,6 +39,11 @@ class AddCallRecordActivity : BaseActivity() {
 
         setContentView(binding.root)
 
+        // 返回按钮点击事件
+        binding.ivBack.setOnClickListener {
+            finish()
+        }
+
         // 粘贴按钮点击事件
         binding.btnPaste.setOnClickListener {
             val clipboardText = ClipboardUtils.getText(this)
@@ -142,6 +147,4 @@ class AddCallRecordActivity : BaseActivity() {
         }
 
     }
-
-
 }
