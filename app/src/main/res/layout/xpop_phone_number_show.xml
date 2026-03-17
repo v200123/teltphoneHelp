@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
     <TextView
         android:id="@+id/tv_copy_phone_number"
-        android:textColor="#28B17A"
+        android:textColor="@color/black"
         android:layout_marginTop="2dp"
 
         android:textSize="26dp"

@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#CC000000" />
-    <!-- 彩铃视频播放视图 - 接通前显示 -->
-    <VideoView
+    <!-- 彩铃视频播放视图 - 使用自定义无控制UI播放器 -->
+    <com.u2tzjtne.telephonehelper.ui.widget.EmptyControlVideo
         android:id="@+id/video_ringtone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,6 +31,7 @@
         app:shape_solidColor="@color/white_50" />
 
     <LinearLayout
+        app:layout_goneMarginTop="65dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -46,8 +47,8 @@
             android:layout_marginEnd="12dp"
             android:gravity="center"
             android:textColor="@color/white"
-            android:textSize="24dp"
-            android:textStyle="bold" />
+            android:textSize="24sp"
+            />
 
         <TextView
             android:id="@+id/tv_new_call_number_local"
@@ -59,7 +60,7 @@
             android:layout_marginEnd="12dp"
             android:gravity="center"
             android:textSize="16dp"
-            android:textColor="@color/white_50"
+            android:textColor="#94A7D9"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number" />
 
@@ -80,7 +81,6 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number_local" />
 
         <TextView
-
             android:id="@+id/tv_new_call_status"
             android:layout_width="wrap_content"
             android:layout_height="24dp"
@@ -91,7 +91,7 @@
             android:gravity="center"
             android:textSize="16dp"
             android:text="正在拨号"
-            android:textColor="@color/white_50"
+            android:textColor="#94A7D9"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number_local" />
@@ -108,10 +108,28 @@
             android:paddingBottom="5dp"
             android:text="AI通话"
             android:textColor="@color/white"
-            android:textSize="17dp"
-            android:textStyle="bold"
+            android:textSize="17sp"
             app:shape_radius="20dp"
             app:shape_solidColor="@color/gray" />
+
+        <TextView
+
+            android:id="@+id/tv_new_call_playing_ring"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="12dp"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:visibility="gone"
+            android:text="正在播放视频彩铃"
+            android:textColor="@color/white_70"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number_local" />
+
     </LinearLayout>
 
 

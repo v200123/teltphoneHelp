@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,173 +11,272 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="20dp"
-        android:paddingTop="36dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="40dp">
+        android:orientation="vertical">
 
+        <!-- 返回按钮 -->
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:src="@drawable/baseline_arrow_back_24" />
+
+        <!-- 通话时间 -->
+        <TextView
+            android:id="@+id/tv_call_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:text="17:32"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+           />
+
+        <!-- 通话类型和时长 -->
+        <TextView
+            android:id="@+id/tv_call_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="4dp"
+            android:text="呼出17秒"
+            android:textColor="#666666"
+            android:textSize="16sp" />
+
+        <!-- 电话号码和操作按钮区域 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="20dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_call_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15062159138"
+                    android:textColor="@color/black"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- 通话按钮 -->
             <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
-                android:src="@drawable/baseline_arrow_back_24" />
+                android:id="@+id/btn_call"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/circle_green"
+                android:padding="14dp"
+                android:src="@drawable/ic_call_white" />
+
+            <!-- 短信按钮 -->
+            <ImageView
+                android:id="@+id/btn_sms"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/circle_blue"
+                android:padding="14dp"
+                android:src="@drawable/ic_sms_white" />
+        </LinearLayout>
+
+        <!-- 通话笔记 -->
+        <LinearLayout
+            android:id="@+id/layout_call_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="录音详情"
+                android:text="通话笔记"
                 android:textColor="@color/black"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <View
-                android:layout_width="40dp"
-                android:layout_height="40dp" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_right_gray" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_call_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="号码：173 2612 5059"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_call_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="通话时间：3月13日 09:30"
-            android:textColor="#666666"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/tv_call_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="通话状态：呼出，已接通（1分钟20秒）"
-            android:textColor="#666666"
-            android:textSize="15sp" />
-
+        <!-- 分隔线 -->
         <View
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
             android:background="#EAEAEA" />
 
+        <!-- 通话录音 -->
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="24dp"
-            android:text="当前录音信息"
+            android:text="通话录音"
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tv_recording_status"
+        <!-- 录音播放控制区域 -->
+        <LinearLayout
+            android:id="@+id/layout_recording_player"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="16dp"
-            android:text="录音状态：暂无录音"
-            android:textColor="#333333"
-            android:textSize="15sp" />
+            android:layout_marginEnd="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_recording_duration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="录音时长：暂无"
-            android:textColor="#333333"
-            android:textSize="15sp" />
+            <!-- 播放按钮 -->
+            <ImageView
+                android:id="@+id/btn_play_pause"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_gray_light"
+                android:padding="10dp"
+                android:src="@drawable/ic_play_gray" />
 
-        <TextView
-            android:id="@+id/tv_recording_file"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="录音文件：未选择"
-            android:textColor="#333333"
-            android:textSize="15sp" />
+            <!-- 进度条 -->
+            <SeekBar
+                android:id="@+id/seekbar_recording"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/seekbar_progress"
+                android:thumb="@drawable/seekbar_thumb" />
 
-        <TextView
-            android:id="@+id/tv_recording_tip"
+
+        </LinearLayout>
+        <FrameLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_current_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="4dp"
+                android:text="00:00"
+                android:textColor="#999999"
+                android:textSize="14sp" />
+            <!-- 总时长 -->
+            <TextView
+                android:id="@+id/tv_recording_duration"
+                android:layout_gravity="end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                android:layout_marginTop="4dp"
+                android:text="00:00"
+                android:textColor="#999999"
+                android:textSize="14sp" />
+        </FrameLayout>
+        <!-- 当前播放时间 -->
+
+
+        <!-- 无录音时的提示 -->
+        <TextView
+            android:id="@+id/tv_no_recording"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:lineSpacingExtra="4dp"
-            android:text="当前通话记录还没有录音，点击下方按钮即可增加录音文件。"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:text="暂无录音"
             android:textColor="#999999"
-            android:textSize="14sp" />
+            android:textSize="16sp"
+            android:visibility="gone" />
 
+        <!-- 添加录音按钮 -->
         <Button
             android:id="@+id/btn_pick_audio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="增加录音文件" />
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="20dp"
+            android:text="添加录音文件" />
 
-        <Button
-            android:id="@+id/btn_play_audio"
+        <!-- 伪造时长设置 -->
+        <LinearLayout
+            android:id="@+id/layout_fake_duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="播放当前录音"
-            android:visibility="gone" />
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="20dp"
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="伪造录音时长（单位：秒）"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="伪造录音时长（单位：秒）"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/et_fake_duration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:gravity="center_vertical"
-            android:hint="不填写则优先使用本地文件真实时长"
-            android:inputType="number"
-            android:paddingStart="12dp"
-            android:paddingTop="14dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="14dp"
-            android:textColor="@color/black"
-            android:textSize="15sp" />
+            <EditText
+                android:id="@+id/et_fake_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_edit_text"
+                android:gravity="center_vertical"
+                android:hint="不填写则优先使用本地文件真实时长"
+                android:inputType="number"
+                android:paddingStart="12dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="14dp"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:lineSpacingExtra="4dp"
-            android:text="说明：你可以只上传本地录音文件，也可以额外填写一个假的录音时长；如果只想伪造展示效果，也可以不上传文件，直接保存时长。"
-            android:textColor="#999999"
-            android:textSize="14sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp"
+                android:text="说明：你可以只上传本地录音文件，也可以额外填写一个假的录音时长；如果只想伪造展示效果，也可以不上传文件，直接保存时长。"
+                android:textColor="#999999"
+                android:textSize="13sp" />
+        </LinearLayout>
 
+        <!-- 保存按钮 -->
         <Button
             android:id="@+id/btn_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="24dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="40dp"
             android:text="保存录音信息" />
+
     </LinearLayout>
 </ScrollView>

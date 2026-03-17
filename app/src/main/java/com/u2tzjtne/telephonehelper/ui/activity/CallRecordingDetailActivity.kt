@@ -6,16 +6,23 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.OpenableColumns
 import android.view.View
+import android.widget.SeekBar
 import android.widget.Toast
 import com.u2tzjtne.telephonehelper.databinding.ActivityCallRecordingDetailBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
+import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean
 import com.u2tzjtne.telephonehelper.util.DateUtils
+import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import me.ihxq.projects.pna.ISP
+import me.ihxq.projects.pna.PhoneNumberLookup
 import java.io.File
 
 class CallRecordingDetailActivity : BaseActivity() {
@@ -26,6 +33,10 @@ class CallRecordingDetailActivity : BaseActivity() {
     private var currentAudioPath: String? = null
     private var currentRealDurationMs: Long = 0L
     private var mediaPlayer: MediaPlayer? = null
+    private var isPlaying = false
+    private val handler = Handler(Looper.getMainLooper())
+    private var updateSeekBarRunnable: Runnable? = null
+    private val phoneNumberLookup = PhoneNumberLookup()
 
     companion object {
         private const val EXTRA_CALL_RECORD_ID = "callRecordId"
@@ -56,15 +67,42 @@ class CallRecordingDetailActivity : BaseActivity() {
 
     private fun initView() {
         binding.ivBack.setOnClickListener { finish() }
+        binding.btnCall.setOnClickListener { onCallClicked() }
+        binding.btnSms.setOnClickListener { onSmsClicked() }
+        binding.layoutCallNote.setOnClickListener { onCallNoteClicked() }
+        binding.btnPlayPause.setOnClickListener { togglePlayPause() }
         binding.btnPickAudio.setOnClickListener { openAudioPicker() }
-        binding.btnPlayAudio.setOnClickListener {
-            if (mediaPlayer?.isPlaying == true) {
-                stopAudioPlayback()
-            } else {
-                playCurrentAudio()
-            }
-        }
         binding.btnSave.setOnClickListener { saveRecordingInfo() }
+
+        binding.seekbarRecording.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser && mediaPlayer != null) {
+                    val duration = mediaPlayer?.duration ?: 0
+                    val position = (duration * progress / 100f).toInt()
+                    mediaPlayer?.seekTo(position)
+                    updateCurrentTime(position)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+    }
+
+    private fun onCallClicked() {
+        val phoneNumber = callRecord?.phoneNumber ?: return
+        val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
+        startActivity(intent)
+    }
+
+    private fun onSmsClicked() {
+        val phoneNumber = callRecord?.phoneNumber ?: return
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$phoneNumber"))
+        startActivity(intent)
+    }
+
+    private fun onCallNoteClicked() {
+        showToast("通话笔记功能开发中")
     }
 
     private fun loadCallRecord() {
@@ -86,12 +124,21 @@ class CallRecordingDetailActivity : BaseActivity() {
     }
 
     private fun bindCallRecord(record: CallRecord) {
-        binding.tvCallNumber.text = "号码：${record.phoneNumber}"
-        binding.tvCallTime.text = "通话时间：${DateUtils.convertTimestamp(record.startTime, false)}"
-        binding.tvCallStatus.text = "通话状态：${buildCallStatus(record)}"
+        // 设置通话时间（跨天显示日期，当天显示时间）
+        binding.tvCallTime.text = formatCallTime(record.startTime)
+        
+        // 设置通话状态
+        binding.tvCallStatus.text = buildCallStatusText(record)
 
-        currentAudioPath = record.recordingPath
-        currentRealDurationMs = if (!currentAudioPath.isNullOrBlank()) {
+        // 设置电话号码（不带空格）
+        binding.tvCallNumber.text = record.phoneNumber.replace(" ", "")
+
+
+
+        // 加载录音信息
+        // 修复：空字符串和 "null" 字符串都应该被视为无效
+        currentAudioPath = record.recordingPath?.takeIf { it.isNotBlank() && it != "null" }
+        currentRealDurationMs = if (currentAudioPath != null) {
             resolveAudioDuration(buildUri(currentAudioPath!!))
         } else {
             0L
@@ -106,53 +153,214 @@ class CallRecordingDetailActivity : BaseActivity() {
         updateRecordingSection()
     }
 
-    private fun buildCallStatus(record: CallRecord): String {
-        if (record.isConnected) {
-            val duration = DateUtils.getCallDuration(record.endTime - record.connectedTime)
-            return if (record.callType == 0) {
-                "呼出，已接通（$duration）"
-            } else {
-                "呼入，已接通（$duration）"
-            }
-        }
-        return if (record.callType == 1) {
-            "呼入，响铃${record.callNumber}声"
+    private fun formatCallTime(timestamp: Long): String {
+        val instant = java.time.Instant.ofEpochMilli(timestamp)
+        val dateTime = java.time.LocalDateTime.ofInstant(instant, java.time.ZoneId.of("Asia/Shanghai"))
+        val today = java.time.LocalDate.now()
+        val date = dateTime.toLocalDate()
+        
+        return if (date.equals(today)) {
+            // 当天，只显示时:分
+            dateTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
         } else {
-            "呼出，未接通"
+            // 跨天，显示完整日期时间：3月17日 16:47:38
+            dateTime.format(java.time.format.DateTimeFormatter.ofPattern("M月d日 HH:mm:ss"))
+        }
+    }
+
+    private fun buildLocationText(phoneNumber: String): String {
+        val cleanNumber = phoneNumber.replace(" ", "")
+        if (cleanNumber.length < 7) {
+            return "手机  |  ..."
+        }
+
+        return try {
+            val info = phoneNumberLookup.lookup(cleanNumber)
+            info.map { phoneInfo ->
+                val attribution = phoneInfo.attribution
+                val location = if (attribution.province == attribution.city) {
+                    attribution.province
+                } else {
+                    attribution.province + attribution.city
+                }
+                val carrier = phoneInfo.isp.cnName.replace("中国", "")
+                "手机  |  $location $carrier  |  ..."
+            }.orElse("手机  |  ...")
+        } catch (e: Exception) {
+            "手机  |  ..."
+        }
+    }
+
+    private fun buildCallStatusText(record: CallRecord): String {
+        val typeText = if (record.callType == 0) "呼出" else "呼入"
+        
+        if (record.isConnected) {
+            val duration = record.endTime - record.connectedTime
+            val durationText = formatDurationSimple(duration)
+            return "$typeText$durationText"
+        }
+        
+        return if (record.callType == 1) {
+            val ringCount = (record.endTime - record.startTime) / 3000 // 约3秒一声
+            "$typeText 响铃${ringCount}声"
+        } else {
+            "$typeText 未接通"
+        }
+    }
+
+    private fun formatDurationSimple(durationMs: Long): String {
+        val totalSeconds = (durationMs / 1000).toInt()
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return if (minutes > 0) {
+            "${minutes}分${seconds}秒"
+        } else {
+            "${seconds}秒"
         }
     }
 
     private fun updateRecordingSection() {
         val durationMs = getCurrentDisplayDurationMs()
-        val hasFile = !currentAudioPath.isNullOrBlank()
+        // 修复：空字符串和 "null" 字符串都应该被视为无效
+        val hasFile = !currentAudioPath.isNullOrBlank() && currentAudioPath != "null"
         val hasDuration = durationMs > 0L
+        // 有录音文件或有录音时长（包括伪造），都认为已有录音
+        val hasRecording = hasFile || hasDuration
 
-        binding.tvRecordingStatus.text = when {
-            hasFile && hasDuration -> "录音状态：已配置本地录音"
-            hasFile -> "录音状态：已选择本地录音文件"
-            hasDuration -> "录音状态：仅设置了伪造时长"
-            else -> "录音状态：暂无录音"
-        }
-        binding.tvRecordingDuration.text = if (hasDuration) {
-            "录音时长：${DateUtils.getCallDuration(durationMs)}"
+        // 更新录音时长显示
+        binding.tvRecordingDuration.text = formatDurationTime(durationMs)
+
+        // 更新播放控制区域的可见性
+        if (hasRecording) {
+            // 有录音：显示播放器，隐藏上传和伪造区域
+            binding.layoutRecordingPlayer.visibility = View.VISIBLE
+            binding.tvCurrentTime.visibility = View.VISIBLE
+            binding.tvNoRecording.visibility = View.GONE
+            binding.btnPlayPause.visibility = if (hasFile) View.VISIBLE else View.GONE
+            // 隐藏上传和伪造区域
+            binding.btnPickAudio.visibility = View.GONE
+            binding.layoutFakeDuration.visibility = View.GONE
+            binding.btnSave.visibility = View.GONE
         } else {
-            "录音时长：暂无"
+            // 无录音无时长
+            binding.layoutRecordingPlayer.visibility = View.GONE
+            binding.tvCurrentTime.visibility = View.GONE
+            binding.tvNoRecording.visibility = View.VISIBLE
+            // 显示上传和伪造区域
+            binding.btnPickAudio.visibility = View.VISIBLE
+            binding.layoutFakeDuration.visibility = View.VISIBLE
+            binding.btnSave.visibility = View.VISIBLE
         }
-        binding.tvRecordingFile.text = if (hasFile) {
-            "录音文件：${resolveDisplayName(currentAudioPath)}"
+
+        // 重置播放状态
+        binding.seekbarRecording.progress = 0
+        binding.tvCurrentTime.text = "00:00"
+        updatePlayPauseIcon(false)
+
+        // 更新按钮文本
+        binding.btnPickAudio.text = if (hasFile) "更换本地录音文件" else "添加录音文件"
+    }
+
+    private fun formatDurationTime(durationMs: Long): String {
+        if (durationMs <= 0) return "00:00"
+        val totalSeconds = (durationMs / 1000).toInt()
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
+    }
+
+    private fun togglePlayPause() {
+        if (isPlaying) {
+            pauseAudio()
         } else {
-            "录音文件：未选择"
+            playAudio()
         }
-        binding.tvRecordingTip.text = when {
-            hasFile -> "你可以直接播放当前录音，也可以重新上传文件或修改伪造时长。"
-            hasDuration -> "当前没有实际音频文件，只展示一个伪造的录音时长。"
-            else -> "当前通话记录还没有录音，点击下方按钮即可增加录音文件。"
+    }
+
+    private fun playAudio() {
+        val audioPath = currentAudioPath
+        if (audioPath.isNullOrBlank()) {
+            showToast("当前没有可播放的录音文件")
+            return
         }
-        binding.btnPickAudio.text = if (hasFile) "更换本地录音文件" else "增加录音文件"
-        binding.btnPlayAudio.visibility = if (hasFile) View.VISIBLE else View.GONE
-        if (binding.btnPlayAudio.visibility == View.VISIBLE && mediaPlayer?.isPlaying != true) {
-            binding.btnPlayAudio.text = "播放当前录音"
+
+        try {
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(this@CallRecordingDetailActivity, buildUri(audioPath))
+                    setOnCompletionListener {
+                        onAudioCompleted()
+                    }
+                    prepare()
+                }
+            }
+
+            mediaPlayer?.start()
+            isPlaying = true
+            updatePlayPauseIcon(true)
+            startSeekBarUpdate()
+        } catch (e: Exception) {
+            stopAudioPlayback()
+            showToast("录音文件无法播放")
         }
+    }
+
+    private fun pauseAudio() {
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.pause()
+                isPlaying = false
+                updatePlayPauseIcon(false)
+                stopSeekBarUpdate()
+            }
+        }
+    }
+
+    private fun onAudioCompleted() {
+        isPlaying = false
+        updatePlayPauseIcon(false)
+        stopSeekBarUpdate()
+        binding.seekbarRecording.progress = 0
+        binding.tvCurrentTime.text = "00:00"
+        mediaPlayer?.seekTo(0)
+    }
+
+    private fun startSeekBarUpdate() {
+        stopSeekBarUpdate()
+        updateSeekBarRunnable = object : Runnable {
+            override fun run() {
+                mediaPlayer?.let { player ->
+                    if (player.isPlaying) {
+                        val duration = player.duration
+                        val position = player.currentPosition
+                        val progress = (position * 100f / duration).toInt()
+                        binding.seekbarRecording.progress = progress
+                        updateCurrentTime(position)
+                        handler.postDelayed(this, 100)
+                    }
+                }
+            }
+        }
+        handler.post(updateSeekBarRunnable!!)
+    }
+
+    private fun stopSeekBarUpdate() {
+        updateSeekBarRunnable?.let {
+            handler.removeCallbacks(it)
+        }
+        updateSeekBarRunnable = null
+    }
+
+    private fun updateCurrentTime(positionMs: Int) {
+        val totalSeconds = positionMs / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        binding.tvCurrentTime.text = String.format("%02d:%02d", minutes, seconds)
+    }
+
+    private fun updatePlayPauseIcon(isPlaying: Boolean) {
+        // 可以根据播放状态切换不同的图标
+        // binding.btnPlayPause.setImageResource(if (isPlaying) R.drawable.ic_pause_gray else R.drawable.ic_play_gray)
     }
 
     private fun openAudioPicker() {
@@ -178,12 +386,14 @@ class CallRecordingDetailActivity : BaseActivity() {
             } catch (_: SecurityException) {
             }
         }
+        
+        stopAudioPlayback()
         currentAudioPath = uri.toString()
         currentRealDurationMs = resolveAudioDuration(uri)
+        
         if (currentRealDurationMs > 0L && binding.etFakeDuration.text?.toString()?.trim().isNullOrEmpty()) {
             binding.etFakeDuration.setText((currentRealDurationMs / 1000).toString())
         }
-        stopAudioPlayback()
         updateRecordingSection()
     }
 
@@ -232,31 +442,8 @@ class CallRecordingDetailActivity : BaseActivity() {
             })
     }
 
-    private fun playCurrentAudio() {
-        val audioPath = currentAudioPath
-        if (audioPath.isNullOrBlank()) {
-            showToast("当前没有可播放的录音文件")
-            return
-        }
-        try {
-            stopAudioPlayback()
-            val uri = buildUri(audioPath)
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(this@CallRecordingDetailActivity, uri)
-                setOnCompletionListener {
-                    stopAudioPlayback()
-                }
-                prepare()
-                start()
-            }
-            binding.btnPlayAudio.text = "停止播放"
-        } catch (e: Exception) {
-            stopAudioPlayback()
-            showToast("录音文件无法播放")
-        }
-    }
-
     private fun stopAudioPlayback() {
+        stopSeekBarUpdate()
         mediaPlayer?.let {
             try {
                 if (it.isPlaying) {
@@ -271,8 +458,9 @@ class CallRecordingDetailActivity : BaseActivity() {
             it.release()
         }
         mediaPlayer = null
+        isPlaying = false
         if (::binding.isInitialized) {
-            binding.btnPlayAudio.text = "播放当前录音"
+            updatePlayPauseIcon(false)
         }
     }
 
@@ -311,31 +499,6 @@ class CallRecordingDetailActivity : BaseActivity() {
                 retriever?.release()
             } catch (_: Exception) {
             }
-        }
-    }
-
-    private fun resolveDisplayName(path: String?): String {
-        if (path.isNullOrBlank()) {
-            return "未选择"
-        }
-        return try {
-            val uri = buildUri(path)
-            if ("content" == uri.scheme) {
-                contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
-                    val columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (cursor.moveToFirst() && columnIndex >= 0) {
-                        return cursor.getString(columnIndex)
-                    }
-                }
-            }
-            val file = if ("file" == uri.scheme) {
-                File(uri.path ?: path)
-            } else {
-                File(path)
-            }
-            if (file.name.isNotBlank()) file.name else path
-        } catch (_: Exception) {
-            path
         }
     }
 

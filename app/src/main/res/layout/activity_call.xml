@@ -11,8 +11,8 @@
         android:layout_height="match_parent"
         android:background="#CC000000" />
 
-    <!-- 彩铃视频播放视图 - 接通前显示 -->
-    <VideoView
+    <!-- 彩铃视频播放视图 - 使用自定义无控制UI播放器 -->
+    <com.u2tzjtne.telephonehelper.ui.widget.EmptyControlVideo
         android:id="@+id/video_ringtone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

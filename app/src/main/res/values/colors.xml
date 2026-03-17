@@ -71,6 +71,7 @@
     <color name="black">#000000</color>
     <color name="gray">#9E9E9E</color>
     <color name="white_50">#787B89</color>
+    <color name="white_70">#B3FFFFFF</color>
 
     <!-- 兼容旧命名 -->
     <color name="text_call_record_missed">@color/textCallRecordMissed</color>

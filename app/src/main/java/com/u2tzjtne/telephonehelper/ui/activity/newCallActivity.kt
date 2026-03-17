@@ -23,10 +23,10 @@ import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback
 import com.u2tzjtne.telephonehelper.ui.activity.AddCallRecordActivity.Companion.formatWithSpaces
 import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper
+import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import com.u2tzjtne.telephonehelper.util.ToastUtils
-import com.u2tzjtne.telephonehelper.util.VideoPlayerHelper
 import com.yanzhenjie.permission.AndPermission
 import com.yanzhenjie.permission.runtime.Permission
 import io.reactivex.MaybeObserver
@@ -85,8 +85,8 @@ class newCallActivity : BaseActivity() {
 
         bind.tvNewCallNumber.setText(callRecord.phoneNumber.formatWithSpaces())
 
-        // 初始化视频播放器
-        VideoPlayerHelper.getInstance().init(bind.videoRingtone)
+        // 初始化 GSY 视频播放器
+        GSYVideoPlayerHelper.getInstance().init(bind.videoRingtone)
 
         bind.llDialSwitch.setOnClickListener {
 
@@ -133,7 +133,9 @@ class newCallActivity : BaseActivity() {
 
                 CONNECTED_STATUS -> {
                     // 接通后停止播放彩铃视频
-                    VideoPlayerHelper.getInstance().stopPlaying()
+                    GSYVideoPlayerHelper.getInstance().stopPlaying()
+                    // 恢复正常界面样式
+                    updateUIForRingtoneVideo(false)
 
                     MediaPlayerHelper.getInstance().stopAudio()
                     callRecord.isConnected = true
@@ -151,10 +153,13 @@ class newCallActivity : BaseActivity() {
                     }
                     // 开始播放彩铃视频（根据号码查找绑定的彩铃）
                     // 如果有视频在播放，则不播放拨号等待音
-                    VideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
+                    GSYVideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
                         if (!isVideoPlaying) {
                             // 没有视频时播放拨号等待音
                             MediaPlayerHelper.getInstance().playCallSound(this)
+                        } else {
+                            // 有彩铃视频播放时，调整界面样式
+                            updateUIForRingtoneVideo(true)
                         }
                     }
                 }
@@ -253,8 +258,8 @@ class newCallActivity : BaseActivity() {
         // 确保停止录音
         stopAndSaveRecording()
         
-        // 释放视频播放器资源
-        VideoPlayerHelper.getInstance().release()
+        // 释放 GSY 视频播放器资源
+        GSYVideoPlayerHelper.getInstance().release()
         
         MediaPlayerHelper.getInstance().stopAudio()
         bind.cmCallTime.stop()
@@ -538,7 +543,6 @@ class newCallActivity : BaseActivity() {
                     }
                 }
             })
-
     }
 
     private fun setBackGround() {
@@ -549,7 +553,7 @@ class newCallActivity : BaseActivity() {
                 ToastUtils.s("请授予权限后再试！")
                 finish()
             }
-            .onGranted { data: List<String?>? ->
+            .onGranted { data: List<String?>? -> 
                 // 获取WallpaperManager实例
                 val wallpaperManager =
                     WallpaperManager.getInstance(this)
@@ -561,6 +565,38 @@ class newCallActivity : BaseActivity() {
                 // 设置根布局背景
                 bind.root.setBackground(BitmapDrawable(resources, wallpaperBitmap))
             }.start()
+    }
+
+    /**
+     * 根据是否播放彩铃视频更新界面样式
+     * @param isPlayingVideo 是否正在播放彩铃视频
+     */
+    private fun updateUIForRingtoneVideo(isPlayingVideo: Boolean) {
+        if (isPlayingVideo) {
+            // 播放彩铃视频时的界面调整
+            // 1. 隐藏半透明黑色遮罩层（视频本身就是背景）
+            bind.tvNewCallStatus.text = "正在等待对方接听电话"
+            bind.tvAICallStatus.visibility = View.GONE
+            bind.tvNewCallPlayingRing.visibility = View.VISIBLE
+            // 2. 可选：隐藏头像（视频中有更好的视觉效果）
+             bind.ivNewCallHead.visibility = View.GONE
+            bind.tvNewCallNumberLocal.setCompoundDrawables(null,
+                null,
+                null,
+                null
+            )
+            // 3. 或者让头像更小、更透明
+//            bind.ivNewCallHead.alpha = 0.3f
+            
+        } else {
+            // 恢复正常界面
+            // 1. 恢复半透明黑色遮罩层
+            bind.tvNewCallPlayingRing.visibility = View.GONE
+
+            // 2. 恢复头像显示
+            bind.ivNewCallHead.visibility = View.VISIBLE
+//            bind.ivNewCallHead.alpha = 1.0f
+        }
     }
 
 

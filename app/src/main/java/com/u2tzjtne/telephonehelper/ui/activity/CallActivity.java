@@ -30,11 +30,11 @@ import com.u2tzjtne.telephonehelper.db.Recording;
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean;
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback;
 import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper;
+import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
-import com.u2tzjtne.telephonehelper.util.VideoPlayerHelper;
-import android.widget.VideoView;
+import com.u2tzjtne.telephonehelper.ui.widget.EmptyControlVideo;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
@@ -143,7 +143,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
      */
     private void initVideoPlayer() {
         videoRingtone = findViewById(R.id.video_ringtone);
-        VideoPlayerHelper.getInstance().init(videoRingtone);
+        GSYVideoPlayerHelper.getInstance().init(videoRingtone);
     }
 
 
@@ -171,6 +171,8 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     Bitmap wallpaperBitmap = ((BitmapDrawable) wallpaperDrawable).getBitmap();
                     // 设置背景
                     llPageRoot.setBackground(new BitmapDrawable(getResources(), wallpaperBitmap));
+                    // 同时给 GSY 视频播放器设置相同的壁纸背景,避免视频加载时黑屏
+                    GSYVideoPlayerHelper.getInstance().setBackground(wallpaperBitmap);
                 }).start();
     }
 
@@ -303,7 +305,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
             switch (msg.what) {
                 case CONNECTED:
                     // 接通后停止播放彩铃视频
-                    VideoPlayerHelper.getInstance().stopPlaying();
+                    GSYVideoPlayerHelper.getInstance().stopPlaying();
                     MediaPlayerHelper.getInstance().stopAudio();
                     callRecord.isConnected = true;
                     callRecord.connectedTime = System.currentTimeMillis();
@@ -314,7 +316,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     tvCallStatus.setText("对方已振铃");
                     // 开始播放彩铃视频（根据号码查找绑定的彩铃）
                     // 如果有视频在播放，则不播放拨号等待音
-                    VideoPlayerHelper.getInstance().playRingtoneVideo(CallActivity.this, getPackageName(), number, isVideoPlaying -> {
+                    GSYVideoPlayerHelper.getInstance().playRingtoneVideo(CallActivity.this, getPackageName(), number, isVideoPlaying -> {
                         if (!isVideoPlaying) {
                             // 没有视频时播放拨号等待音
                             MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
@@ -574,7 +576,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
 
     private boolean isSpeakerOn = false;
     private boolean isAction0On = false;
-    private VideoView videoRingtone;
+    private EmptyControlVideo videoRingtone;
 
     private void switchSpeaker() {
         if (isSpeakerOn) {
@@ -624,8 +626,8 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         // 确保停止录音
         stopAndSaveRecording();
         
-        // 释放视频播放器资源
-        VideoPlayerHelper.getInstance().release();
+        // 释放 GSY 视频播放器资源
+        GSYVideoPlayerHelper.getInstance().release();
         
         MediaPlayerHelper.getInstance().stopAudio();
         handler.removeCallbacksAndMessages(null);
