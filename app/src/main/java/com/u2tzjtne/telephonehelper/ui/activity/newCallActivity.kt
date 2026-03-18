@@ -149,19 +149,21 @@ class newCallActivity : BaseActivity() {
                 }
 
                 PLAY_RING -> {
+                    Log.d(TAG, "PLAY_RING 状态触发，准备播放彩铃")
                     bind.llAction4.setOnClickListener {
-
                         mStatusObserver.value = GUADUAN
-
                     }
                     // 开始播放彩铃视频（根据号码查找绑定的彩铃）
                     // 如果有视频在播放，则不播放拨号等待音
                     GSYVideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
+                        Log.d(TAG, "彩铃播放回调: isVideoPlaying=$isVideoPlaying")
                         if (!isVideoPlaying) {
                             // 没有视频时播放拨号等待音
+                            Log.d(TAG, "没有彩铃，播放拨号等待音")
                             MediaPlayerHelper.getInstance().playCallSound(this)
                         } else {
                             // 有彩铃视频播放时，调整界面样式
+                            Log.d(TAG, "彩铃正在播放，更新UI")
                             updateUIForRingtoneVideo(true)
                         }
                     }

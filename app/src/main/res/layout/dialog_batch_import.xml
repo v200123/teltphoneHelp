@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="批量导入号码"
-        android:textColor="#333333"
+        android:textColor="?attr/textPrimaryColor"
         android:textSize="16sp"
         android:textStyle="bold" />
 
@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="请输入手机号码，每行一个，支持以下格式："
-        android:textColor="#666666"
+        android:textColor="?attr/textSecondaryColor"
         android:textSize="12sp" />
 
     <TextView
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="13800138000&#10;13900139000&#10;13500135000,13600136000&#10;13700137000 13800138000"
-        android:textColor="#999999"
+        android:textColor="?attr/textTertiaryColor"
         android:textSize="11sp" />
 
     <EditText
@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="识别到 0 个有效号码"
-        android:textColor="#4CAF50"
+        android:textColor="?attr/accentGreenColor"
         android:textSize="13sp" />
 
 </LinearLayout>

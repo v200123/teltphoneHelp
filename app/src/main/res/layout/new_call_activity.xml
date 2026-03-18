@@ -9,7 +9,7 @@
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#CC000000" />
+        android:background="@color/callBackground" />
     <!-- 彩铃视频播放视图 - 使用自定义无控制UI播放器 -->
     <com.u2tzjtne.telephonehelper.ui.widget.EmptyControlVideo
         android:id="@+id/video_ringtone"
@@ -46,7 +46,7 @@
             android:layout_marginTop="6dp"
             android:layout_marginEnd="12dp"
             android:gravity="center"
-            android:textColor="@color/white"
+            android:textColor="@color/callTextPrimary"
             android:textSize="24sp"
             />
 
@@ -60,7 +60,7 @@
             android:layout_marginEnd="12dp"
             android:gravity="center"
             android:textSize="16dp"
-            android:textColor="#94A7D9"
+            android:textColor="@color/accentBlue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number" />
 
@@ -73,7 +73,7 @@
             android:format="%s"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:textColor="@color/white"
+            android:textColor="@color/callTextPrimary"
             android:textSize="21dp"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="@+id/tv_new_call_number_local"
@@ -91,7 +91,7 @@
             android:gravity="center"
             android:textSize="16dp"
             android:text="正在拨号"
-            android:textColor="#94A7D9"
+            android:textColor="@color/accentBlue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_new_call_number_local" />
@@ -107,7 +107,7 @@
             android:paddingEnd="18dp"
             android:paddingBottom="5dp"
             android:text="AI通话"
-            android:textColor="@color/white"
+            android:textColor="@color/callTextPrimary"
             android:textSize="17sp"
             app:shape_radius="20dp"
             app:shape_solidColor="@color/gray" />
@@ -170,7 +170,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="1"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -196,7 +196,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="2"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -205,7 +205,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="ABC"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -225,7 +225,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="3"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -234,7 +234,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="DEF"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -261,7 +261,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="4"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -270,7 +270,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="GHI"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -290,7 +290,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="5"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -299,7 +299,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="JKL"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -319,7 +319,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="6"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -328,7 +328,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="MNO"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -355,7 +355,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="7"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -364,7 +364,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="PQRS"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -384,7 +384,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="8"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -393,7 +393,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="TUV"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -413,7 +413,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="9"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -422,7 +422,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="WXYZ"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -449,7 +449,7 @@
                         android:layout_height="25dp"
                         android:includeFontPadding="false"
                         android:text="*"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="39sp"
                         android:textStyle="bold" />
 
@@ -458,7 +458,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text=","
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -478,7 +478,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="0"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -487,7 +487,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="+"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -507,7 +507,7 @@
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
                         android:text="#"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="29sp"
                         android:textStyle="bold" />
 
@@ -515,7 +515,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
-                        android:textColor="#787B89"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -556,9 +556,9 @@
                         android:paddingTop="12dp"
                         android:paddingBottom="12dp"
                         android:text="视频模式"
-                        android:textColor="@color/white_50"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="15sp"
-                        app:drawableTint="@color/white_50" />
+                        app:drawableTint="@color/callTextSecondary" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -580,9 +580,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:drawableTop="@drawable/ic_new_add"
-                        android:drawableTint="@color/white_50"
+                        android:drawableTint="@color/callTextSecondary"
                         android:text="添加通话"
-                        android:textColor="@color/white_50"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="15sp" />
                 </LinearLayout>
 
@@ -606,7 +606,7 @@
                         android:layout_marginTop="5dp"
                         android:drawableTop="@drawable/ic_new_note"
                         android:text="笔记"
-                        android:textColor="@color/white"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="15sp" />
                 </LinearLayout>
 
@@ -636,9 +636,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:drawableTop="@drawable/ic_new_jingyin"
-                        android:drawableTint="@color/white_50"
+                        android:drawableTint="@color/callTextSecondary"
                         android:text="静音"
-                        android:textColor="@color/white_50"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="15sp" />
                 </LinearLayout>
 
@@ -661,9 +661,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:drawableTop="@drawable/ic_new_stop"
-                        android:drawableTint="@color/white_50"
+                        android:drawableTint="@color/callTextSecondary"
                         android:text="暂停通话"
-                        android:textColor="@color/white_50"
+                        android:textColor="@color/callTextSecondary"
                         android:textSize="15sp" />
                 </LinearLayout>
 
@@ -686,7 +686,7 @@
                         android:layout_marginTop="5dp"
                         android:drawableTop="@drawable/ic_new_record"
                         android:text="录音"
-                        android:textColor="@color/white"
+                        android:textColor="@color/callTextPrimary"
                         android:textSize="15sp" />
                 </LinearLayout>
 
@@ -698,8 +698,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="18dp"
-            android:paddingBottom="16dp">
+            android:paddingTop="23dp"
+            android:paddingBottom="38dp">
 
             <LinearLayout
                 android:id="@+id/ll_dial_switch"
@@ -717,7 +717,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="免提"
-                    android:textColor="@color/white"
+                    android:textColor="@color/callTextPrimary"
                     android:textSize="17sp" />
             </LinearLayout>
 
@@ -757,7 +757,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_speaker_normal"
                     android:text="键盘"
-                    android:textColor="@color/white"
+                    android:textColor="@color/callTextPrimary"
                     android:textSize="17sp" />
             </LinearLayout>
 

@@ -39,7 +39,6 @@ class GSYVideoPlayerHelper private constructor() {
 
         @JvmStatic
         fun getInstance(): GSYVideoPlayerHelper {
-            GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_CUSTOM)
             return instance ?: synchronized(this) {
                 instance ?: GSYVideoPlayerHelper().also { instance = it }
             }
@@ -51,6 +50,7 @@ class GSYVideoPlayerHelper private constructor() {
      * @param player 视频播放视图
      */
     fun init(player: EmptyControlVideo) {
+        android.util.Log.d("GSYVideoPlayerHelper", "初始化播放器")
         this.videoPlayer = player
         this.currentContext = player.context
         // EmptyControlVideo 已经在布局和构造函数中移除了所有控制UI,无需额外设置
@@ -76,7 +76,6 @@ class GSYVideoPlayerHelper private constructor() {
                     .setCacheWithPlay(true)
                     .setLooping(true)
                     .build(player)
-                
                 player.visibility = View.VISIBLE
                 player.startPlayLogic()
                 isPlaying = true
@@ -103,15 +102,20 @@ class GSYVideoPlayerHelper private constructor() {
      * @param videoPath 视频文件路径
      */
     fun startPlaying(videoPath: String) {
+        android.util.Log.d("GSYVideoPlayerHelper", "startPlaying 被调用，路径: $videoPath")
         videoPlayer?.let { player ->
             try {
                 val file = File(videoPath)
                 val uri = if (file.exists()) {
+                    android.util.Log.d("GSYVideoPlayerHelper", "文件存在，使用文件URI")
                     Uri.fromFile(file)
                 } else {
+                    android.util.Log.d("GSYVideoPlayerHelper", "文件不存在，尝试作为URI解析")
                     Uri.parse(videoPath)
                 }
 
+                android.util.Log.d("GSYVideoPlayerHelper", "最终URI: $uri")
+                
                 GSYVideoOptionBuilder()
                     .setUrl(uri.toString())
                     .setCacheWithPlay(true)
@@ -121,12 +125,14 @@ class GSYVideoPlayerHelper private constructor() {
                 player.visibility = View.VISIBLE
                 player.startPlayLogic()
                 isPlaying = true
+                android.util.Log.d("GSYVideoPlayerHelper", "视频播放器启动成功")
             } catch (e: Exception) {
+                android.util.Log.e("GSYVideoPlayerHelper", "播放失败: ${e.message}", e)
                 e.printStackTrace()
                 player.visibility = View.GONE
                 isPlaying = false
             }
-        }
+        } ?: android.util.Log.e("GSYVideoPlayerHelper", "videoPlayer 为 null，无法播放")
     }
 
     /**
@@ -144,19 +150,25 @@ class GSYVideoPlayerHelper private constructor() {
             try {
                 val db = RingVideoDatabase.getInstance()
                 val normalizedNumber = normalizePhoneNumber(phoneNumber)
+                android.util.Log.d("GSYVideoPlayerHelper", "查询号码: $normalizedNumber (原始: $phoneNumber)")
+                
                 val ringtoneId = db.ringtonePhoneBindingDao().getRingtoneIdByPhone(normalizedNumber)
+                android.util.Log.d("GSYVideoPlayerHelper", "查询到的彩铃ID: $ringtoneId")
                 
                 if (ringtoneId != null) {
                     val ringVideo = db.ringVideoDao().getByIdSync(ringtoneId)
+                    android.util.Log.d("GSYVideoPlayerHelper", "查询到的视频: ${ringVideo?.videoName}, URI: ${ringVideo?.videoUri}")
                     videoPlayer?.post {
                         onResult(ringVideo)
                     }
                 } else {
+                    android.util.Log.d("GSYVideoPlayerHelper", "该号码未绑定彩铃")
                     videoPlayer?.post {
                         onResult(null)
                     }
                 }
             } catch (e: Exception) {
+                android.util.Log.e("GSYVideoPlayerHelper", "查询彩铃失败: ${e.message}", e)
                 e.printStackTrace()
                 videoPlayer?.post {
                     onResult(null)
@@ -173,11 +185,14 @@ class GSYVideoPlayerHelper private constructor() {
         phoneNumber: String,
         onVideoPlaying: ((Boolean) -> Unit)? = null
     ) {
+        android.util.Log.d("GSYVideoPlayerHelper", "准备播放彩铃，号码: $phoneNumber")
         getRingtoneByPhoneNumber(context, phoneNumber) { ringVideo ->
             if (ringVideo != null && !ringVideo.videoUri.isNullOrEmpty()) {
+                android.util.Log.d("GSYVideoPlayerHelper", "开始播放彩铃: ${ringVideo.videoName}")
                 startPlaying(ringVideo.videoUri)
                 onVideoPlaying?.invoke(true)
             } else {
+                android.util.Log.d("GSYVideoPlayerHelper", "没有找到彩铃或视频URI为空")
                 videoPlayer?.visibility = View.GONE
                 onVideoPlaying?.invoke(false)
             }

@@ -33,6 +33,10 @@
     <!-- ========== 功能色 ========== -->
     <!-- 成功/绿色 -->
     <color name="accentGreen">#4CAF50</color>
+    <!-- 标签绿色背景 -->
+    <color name="tagGreenBackground">#DFF3E6</color>
+    <!-- 标签绿色文字 -->
+    <color name="tagGreenText">#1B8A4B</color>
     <!-- 蓝色/链接 -->
     <color name="accentBlue">#2196F3</color>
     <!-- 红色/警告 -->
@@ -51,6 +55,7 @@
     <!-- ========== 通话记录 ========== -->
     <color name="textCallRecordMissed">#D9021B</color>
     <color name="textCallRecordNormal">#333333</color>
+    <color name="textCallRecordNumber">#212121</color>
 
     <!-- ========== 验证码按钮 ========== -->
     <color name="textGetCodeEnable">#0476F2</color>
@@ -80,4 +85,10 @@
     <color name="text_home_tab_checked">@color/textHomeTabChecked</color>
     <color name="text_get_code_enable">@color/textGetCodeEnable</color>
     <color name="text_get_code_disable">@color/textGetCodeDisable</color>
+
+    <!-- ========== 新增：搜索框和输入框背景色 ========== -->
+    <color name="inputBackground">#F5F5F5</color>
+    <color name="inputBorderColor">#DDDDDD</color>
+    <color name="cardItemBackground">#F7F8FA</color>
+    <color name="statusBarColor">#FFFFFF</color>
 </resources>

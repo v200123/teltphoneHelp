@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5"
+    android:background="?attr/windowBackgroundColor"
     android:paddingTop="25dp">
 
     <!-- 标题栏 -->
@@ -21,6 +21,7 @@
             android:padding="17dp"
             android:src="@drawable/baseline_arrow_back_24"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="?attr/textPrimaryColor"
             android:contentDescription="返回" />
 
         <TextView
@@ -30,7 +31,7 @@
             android:gravity="center"
             android:paddingEnd="60dp"
             android:text="彩铃号码绑定"
-            android:textColor="@color/black"
+            android:textColor="?attr/textPrimaryColor"
             android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -41,7 +42,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
         app:cardCornerRadius="8dp"
-        app:cardElevation="2dp">
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="?attr/cardBackgroundColor">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="当前选择彩铃"
-                android:textColor="#999999"
+                android:textColor="?attr/textTertiaryColor"
                 android:textSize="12sp" />
 
             <TextView
@@ -62,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="请选择一个彩铃"
-                android:textColor="#333333"
+                android:textColor="?attr/textPrimaryColor"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -72,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="已绑定 0 个号码"
-                android:textColor="#666666"
+                android:textColor="?attr/textSecondaryColor"
                 android:textSize="13sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -85,7 +87,8 @@
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="12dp"
         app:cardCornerRadius="8dp"
-        app:cardElevation="2dp">
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="?attr/cardBackgroundColor">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -97,7 +100,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="添加绑定号码"
-                android:textColor="#333333"
+                android:textColor="?attr/textPrimaryColor"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -118,6 +121,8 @@
                     android:maxLength="13"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textColorHint="?attr/textHintColor"
                     android:textSize="15sp" />
 
                 <Button
@@ -144,7 +149,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="已绑定号码列表"
-            android:textColor="#333333"
+            android:textColor="?attr/textPrimaryColor"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -154,7 +159,7 @@
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:text="清空全部"
-            android:textColor="#FF5722"
+            android:textColor="@color/accentRed"
             android:textSize="13sp"
             android:background="?attr/selectableItemBackground" />
     </LinearLayout>
@@ -183,7 +188,7 @@
             android:drawablePadding="16dp"
             android:gravity="center"
             android:text="暂无绑定的号码\n点击上方添加或批量导入"
-            android:textColor="#999999"
+            android:textColor="?attr/textTertiaryColor"
             android:textSize="14sp" />
     </FrameLayout>
 
@@ -191,11 +196,11 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
+        android:background="?attr/cardBackgroundColor"
         android:gravity="center"
         android:padding="12dp"
         android:text="提示：拨打电话时，如果号码绑定了彩铃则播放该彩铃，否则播放拨号音"
-        android:textColor="#999999"
+        android:textColor="?attr/textTertiaryColor"
         android:textSize="12sp" />
 
 </LinearLayout>

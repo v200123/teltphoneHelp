@@ -167,7 +167,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mediaPlayer.release();
+        if(mediaPlayer!=null) {
+            mediaPlayer.release();
+        }
     }
 
     @Override
@@ -191,7 +193,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 View childView = viewGroup.getChildAt(0);
                 if (childView instanceof TextView) {
                     soundPool.play(soundId, 1, 1, 1, 0, 1);
-
                     TextView textView = (TextView) childView;
                     String currentText;
                     if (tvDialNumber.getText() != null) {
@@ -210,9 +211,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     // 获取纯数字号码进行筛选
                     String pureNumber = currentText.replace(" ", "");
                     filterByPrefix(pureNumber);
-                    
                     if (pureNumber.length() == 7) {
                         setLocation(currentText + " 0000");
+                    }else if(pureNumber.length()>5){
+                        setLocation(currentText);
                     }
                 }
             }

@@ -16,10 +16,11 @@ import com.u2tzjtne.telephonehelper.base.App;
  * - v2: 未知变更
  * - v3: 添加录音字段到 CallRecord (recordingPath, recordingStartTime, recordingEndTime)
  * - v4: 添加独立的 Recording 表，支持一次通话多条录音
+ * - v5: 添加 CustomPhoneLocation 表，支持自定义号码归属地
  *
  * @author u2tzjtne
  */
-@Database(entities = {CallRecord.class, Recording.class}, version = 4, exportSchema = false)
+@Database(entities = {CallRecord.class, Recording.class, CustomPhoneLocation.class}, version = 5, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -34,6 +35,11 @@ public abstract class AppDatabase extends RoomDatabase {
      * 录音记录数据访问
      */
     public abstract RecordingDao recordingModel();
+
+    /**
+     * 自定义号码归属地数据访问
+     */
+    public abstract CustomPhoneLocationDao customPhoneLocationModel();
 
     public static synchronized AppDatabase getInstance() {
         if (INSTANCE == null) {
@@ -95,12 +101,34 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    /**
+     * 从版本 4 迁移到版本 5
+     * 添加自定义号码归属地表
+     */
+    private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // 创建 custom_phone_location 表
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS custom_phone_location (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "phone TEXT, " +
+                "province TEXT, " +
+                "city TEXT, " +
+                "carrier TEXT, " +
+                "create_time INTEGER NOT NULL DEFAULT 0)"
+            );
+            // 创建唯一索引
+            database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_custom_phone_location_phone ON custom_phone_location(phone)");
+        }
+    };
+
     private static AppDatabase create() {
         return Room.databaseBuilder(
                 App.getContext(),
                 AppDatabase.class,
                 DB_NAME)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build();
     }
 }

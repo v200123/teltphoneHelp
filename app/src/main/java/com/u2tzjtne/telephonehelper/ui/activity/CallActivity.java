@@ -171,13 +171,10 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     Bitmap wallpaperBitmap = ((BitmapDrawable) wallpaperDrawable).getBitmap();
                     // 设置背景
                     llPageRoot.setBackground(new BitmapDrawable(getResources(), wallpaperBitmap));
-                    // 同时给 GSY 视频播放器设置相同的壁纸背景,避免视频加载时黑屏
-                    GSYVideoPlayerHelper.getInstance().setBackground(wallpaperBitmap);
                 }).start();
     }
 
     private void initView() {
-
         tvCallNumber = findViewById(R.id.tv_call_number);
         tvAttribution = findViewById(R.id.tv_attribution);
         tvCallStatus = findViewById(R.id.tv_call_status);
@@ -190,7 +187,6 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         ivAction1 = findViewById(R.id.iv_action_1);
         tvAction1 = findViewById(R.id.tv_action_1);
         ivAction2 = findViewById(R.id.iv_action_2);
-
         tvAction2 = findViewById(R.id.tv_action_2);
         ivAction3 = findViewById(R.id.iv_action_3);
         tvAction3 = findViewById(R.id.tv_action_3);
@@ -201,7 +197,6 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         llPageRoot = findViewById(R.id.ll_page_root);
         llCallTime = findViewById(R.id.ll_call_time);
         llDial1 = findViewById(R.id.ll_dial_1);
-
         findViewById(R.id.ll_dial_switch).setOnClickListener(this);
         findViewById(R.id.ll_dial_hang_up).setOnClickListener(this);
         findViewById(R.id.ll_dial_speaker).setOnClickListener(this);
@@ -209,12 +204,10 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         findViewById(R.id.ll_action_3).setOnClickListener(this);
         findViewById(R.id.ll_action_4).setOnClickListener(this);
         findViewById(R.id.ll_action_1).setOnClickListener(this);
-
         //未接通
         updateCallTip(false);
         callRecord.startTime = System.currentTimeMillis();
         callRecord.phoneNumber = number;
-
         tvCallNumber.setText(callRecord.phoneNumber);
     }
 

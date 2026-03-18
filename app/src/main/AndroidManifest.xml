@@ -43,6 +43,8 @@
         <activity android:name=".ui.activity.RingVideoManageActivity" />
         <activity android:name=".ui.activity.RingtoneBindingManageActivity"
             android:label="彩铃号码绑定" />
+        <activity android:name=".ui.activity.CustomLocationListActivity"
+            android:label="自定义归属地列表" />
     </application>
 
 </manifest>

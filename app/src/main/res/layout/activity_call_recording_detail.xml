@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="?attr/windowBackgroundColor"
     android:fillViewport="true"
     tools:context=".ui.activity.CallRecordingDetailActivity">
 
@@ -21,7 +21,8 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:padding="12dp"
-            android:src="@drawable/baseline_arrow_back_24" />
+            android:src="@drawable/baseline_arrow_back_24"
+            android:tint="?attr/textPrimaryColor" />
 
         <!-- 通话时间 -->
         <TextView
@@ -31,7 +32,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="16dp"
             android:text="17:32"
-            android:textColor="@color/black"
+            android:textColor="?attr/textPrimaryColor"
             android:textSize="30sp"
            />
 
@@ -43,7 +44,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="4dp"
             android:text="呼出17秒"
-            android:textColor="#666666"
+            android:textColor="?attr/textSecondaryColor"
             android:textSize="16sp" />
 
         <!-- 电话号码和操作按钮区域 -->
@@ -67,7 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="15062159138"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/textPrimaryColor"
                     android:textSize="26sp"
                     android:textStyle="bold" />
 
@@ -109,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="通话笔记"
-                android:textColor="@color/black"
+                android:textColor="?attr/textPrimaryColor"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -126,7 +127,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
-            android:background="#EAEAEA" />
+            android:background="?attr/dividerColor" />
 
         <!-- 通话录音 -->
         <TextView
@@ -135,7 +136,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="24dp"
             android:text="通话录音"
-            android:textColor="@color/black"
+            android:textColor="?attr/textPrimaryColor"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -184,7 +185,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="4dp"
                 android:text="00:00"
-                android:textColor="#999999"
+                android:textColor="?attr/textTertiaryColor"
                 android:textSize="14sp" />
             <!-- 总时长 -->
             <TextView
@@ -195,7 +196,7 @@
                 android:layout_marginEnd="30dp"
                 android:layout_marginTop="4dp"
                 android:text="00:00"
-                android:textColor="#999999"
+                android:textColor="?attr/textTertiaryColor"
                 android:textSize="14sp" />
         </FrameLayout>
         <!-- 当前播放时间 -->
@@ -209,7 +210,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="16dp"
             android:text="暂无录音"
-            android:textColor="#999999"
+            android:textColor="?attr/textTertiaryColor"
             android:textSize="16sp"
             android:visibility="gone" />
 
@@ -237,7 +238,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="伪造录音时长（单位：秒）"
-                android:textColor="@color/black"
+                android:textColor="?attr/textPrimaryColor"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -254,7 +255,8 @@
                 android:paddingTop="14dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="14dp"
-                android:textColor="@color/black"
+                android:textColor="?attr/textPrimaryColor"
+                android:textColorHint="?attr/textHintColor"
                 android:textSize="15sp" />
 
             <TextView
@@ -263,7 +265,7 @@
                 android:layout_marginTop="8dp"
                 android:lineSpacingExtra="4dp"
                 android:text="说明：你可以只上传本地录音文件，也可以额外填写一个假的录音时长；如果只想伪造展示效果，也可以不上传文件，直接保存时长。"
-                android:textColor="#999999"
+                android:textColor="?attr/textTertiaryColor"
                 android:textSize="13sp" />
         </LinearLayout>
 

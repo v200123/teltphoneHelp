@@ -10,6 +10,7 @@ import com.u2tzjtne.telephonehelper.R
 import com.u2tzjtne.telephonehelper.databinding.ActivityAddCallRecordBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
+import com.u2tzjtne.telephonehelper.db.CustomPhoneLocation
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback
 import com.u2tzjtne.telephonehelper.util.ClipboardUtils
@@ -28,9 +29,12 @@ class AddCallRecordActivity : BaseActivity() {
 
     companion object {
         fun String.formatWithSpaces(): String {
-            if (this.length > 3)
-                return this.replace(Regex("(\\d{3})(\\d{4})(\\d{4})"), "$1 $2 $3")
-            else return this
+            return when {
+                this.length == 11 -> this.replace(Regex("(\\d{3})(\\d{4})(\\d{4})"), "$1 $2 $3")
+                this.length == 12 -> this.replace(Regex("(\\d{4})(\\d{4})(\\d{4})"), "$1 $2 $3")
+                this.length > 3 -> this.replace(Regex("(\\d{3})(\\d{4})(\\d{4})"), "$1 $2 $3")
+                else -> this
+            }
         }
     }
 
@@ -107,6 +111,43 @@ class AddCallRecordActivity : BaseActivity() {
 
         binding.btnManageRingVideo.setOnClickListener {
             startActivity(Intent(this, RingVideoManageActivity::class.java))
+        }
+
+        // 保存自定义归属地按钮
+        binding.btnSaveCustomLocation.setOnClickListener {
+            val phoneNumber = binding.etPhoneNumber.text.toString().trim()
+            val province = binding.etProvince.text.toString().trim()
+            val city = binding.etCity.text.toString().trim()
+            val carrier = binding.etCarrier.text.toString().trim()
+
+            if (phoneNumber.isEmpty()) {
+                Toast.makeText(this, "请先输入手机号码", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (province.isEmpty() && city.isEmpty() && carrier.isEmpty()) {
+                Toast.makeText(this, "请至少填写一项归属地信息", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // 保存完整号码（去除空格）
+            val fullPhoneNumber = phoneNumber.replace(" ", "")
+            val customLocation = CustomPhoneLocation(fullPhoneNumber, province, city, carrier)
+            AppDatabase.getInstance().customPhoneLocationModel()
+                .insert(customLocation)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Toast.makeText(this, "自定义归属地保存成功", Toast.LENGTH_SHORT).show()
+                }, { error ->
+                    Toast.makeText(this, "保存失败: ${error.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("AddCallRecord", "保存自定义归属地失败", error)
+                })
+        }
+
+        // 查看已保存的自定义归属地
+        binding.btnViewCustomLocation.setOnClickListener {
+            startActivity(Intent(this, CustomLocationListActivity::class.java))
         }
 
         binding.submit.setOnClickListener {

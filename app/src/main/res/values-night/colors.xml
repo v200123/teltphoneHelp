@@ -2,75 +2,81 @@
 <resources>
     <!-- ========== 主题色（黑夜模式）========== -->
     <color name="colorPrimary">#BB86FC</color>
-    <color name="colorPrimaryDark">#1F1F1F</color>
+    <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="colorPrimaryVariant">#3700B3</color>
 
-    <!-- ========== 背景色（黑夜模式）========== -->
-    <!-- 窗口背景 - Material Dark 推荐 -->
+    <!-- ========== 背景色（黑夜模式 - 遵循Material Design层级原则）========== -->
+    <!-- 窗口背景 - 最底层，最深色 -->
     <color name="windowBackground">#121212</color>
-    <!-- 卡片背景 - 稍微亮一点 -->
+    <!-- 卡片背景 - 第一层级（比背景亮2%左右）-->
     <color name="cardBackground">#1E1E1E</color>
-    <!-- 列表项背景 -->
+    <!-- 列表项背景 - 第二层级 -->
     <color name="itemBackground">#2C2C2C</color>
-    <!-- 对话框背景 -->
+    <!-- 对话框背景 - 浮起元素，更亮 -->
     <color name="dialogBackground">#2D2D2D</color>
-    <!-- 表面颜色 -->
+    <!-- 表面颜色（用于搜索框、输入框等）-->
     <color name="surfaceColor">#2C2C2C</color>
-    <!-- 分割线颜色 -->
-    <color name="dividerColor">#424242</color>
+    <!-- 分割线颜色 - 可见但不突兀 -->
+    <color name="dividerColor">#333333</color>
 
-    <!-- ========== 文字主色（黑夜模式）========== -->
-    <!-- 主要文字 - 高对比度 -->
+    <!-- ========== 文字主色（黑夜模式 - WCAG AA标准对比度）========== -->
+    <!-- 主要文字 - 纯白或接近纯白，对比度 > 15:1 -->
     <color name="textPrimary">#FFFFFF</color>
-    <!-- 次要文字 -->
-    <color name="textSecondary">#B0B0B0</color>
-    <!-- 第三级文字 -->
-    <color name="textTertiary">#808080</color>
-    <!-- 提示文字 -->
-    <color name="textHint">#666666</color>
+    <!-- 次要文字 - 87%不透明度白色，对比度 > 7:1 -->
+    <color name="textSecondary">#B3FFFFFF</color>
+    <!-- 第三级文字 - 60%不透明度白色，对比度 > 4.5:1 -->
+    <color name="textTertiary">#99FFFFFF</color>
+    <!-- 提示文字 - 38%不透明度白色，对比度 > 3:1 -->
+    <color name="textHint">#61FFFFFF</color>
 
-    <!-- ========== 功能色（黑夜模式适当降低饱和度）========== -->
-    <!-- 成功/绿色 -->
-    <color name="accentGreen">#66BB6A</color>
+    <!-- ========== 功能色（黑夜模式 - 适当提亮以确保可见性）========== -->
+    <!-- 成功/绿色 - 降低饱和度，提高亮度 -->
+    <color name="accentGreen">#81C784</color>
+    <!-- 标签绿色背景 -->
+    <color name="tagGreenBackground">#1B3D2A</color>
+    <!-- 标签绿色文字 -->
+    <color name="tagGreenText">#81C784</color>
     <!-- 蓝色/链接 -->
-    <color name="accentBlue">#64B5F6</color>
+    <color name="accentBlue">#90CAF9</color>
     <!-- 红色/警告 -->
-    <color name="accentRed">#EF5350</color>
+    <color name="accentRed">#EF9A9A</color>
     <!-- 橙色/提示 -->
-    <color name="accentOrange">#FFB74D</color>
+    <color name="accentOrange">#FFCC80</color>
     <!-- 拨号键绿色 -->
-    <color name="dialGreen">#4CAF50</color>
+    <color name="dialGreen">#66BB6A</color>
     <!-- 挂断红色 -->
     <color name="hangUpRed">#EF5350</color>
 
     <!-- ========== Tab/导航 ========== -->
-    <color name="textHomeTabNormal">#808080</color>
-    <color name="textHomeTabChecked">#66BB6A</color>
+    <color name="textHomeTabNormal">#99FFFFFF</color>
+    <color name="textHomeTabChecked">#81C784</color>
 
     <!-- ========== 通话记录 ========== -->
-    <color name="textCallRecordMissed">#EF5350</color>
+    <color name="textCallRecordMissed">#EF9A9A</color>
     <color name="textCallRecordNormal">#FFFFFF</color>
+    <color name="textCallRecordNumber">#FFFFFF</color>
 
     <!-- ========== 验证码按钮 ========== -->
-    <color name="textGetCodeEnable">#64B5F6</color>
-    <color name="textGetCodeDisable">#7364B5F6</color>
+    <color name="textGetCodeEnable">#90CAF9</color>
+    <color name="textGetCodeDisable">#7390CAF9</color>
 
     <!-- ========== 拨号盘颜色 ========== -->
     <color name="dialPadNumber">#FFFFFF</color>
-    <color name="dialPadLetter">#787B89</color>
+    <color name="dialPadLetter">#B3FFFFFF</color>
     <color name="dialPadBackground">#1E1E1E</color>
 
-    <!-- ========== 通话界面颜色（黑夜模式下保持不变）========== -->
-    <color name="callBackground">#CC000000</color>
+    <!-- ========== 通话界面颜色 ========== -->
+    <color name="callBackground">#E6000000</color>
     <color name="callTextPrimary">#FFFFFF</color>
-    <color name="callTextSecondary">#B0B0B0</color>
+    <color name="callTextSecondary">#B3FFFFFF</color>
 
     <!-- ========== 兼容旧代码 ========== -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="gray">#666666</color>
-    <color name="white_50">#808080</color>
+    <color name="gray">#B3FFFFFF</color>
+    <color name="white_50">#99FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
 
     <!-- 兼容旧命名 -->
     <color name="text_call_record_missed">@color/textCallRecordMissed</color>
@@ -79,4 +85,10 @@
     <color name="text_home_tab_checked">@color/textHomeTabChecked</color>
     <color name="text_get_code_enable">@color/textGetCodeEnable</color>
     <color name="text_get_code_disable">@color/textGetCodeDisable</color>
+
+    <!-- ========== 新增：搜索框和输入框背景色 ========== -->
+    <color name="inputBackground">#2C2C2C</color>
+    <color name="inputBorderColor">#444444</color>
+    <color name="cardItemBackground">#1E1E1E</color>
+    <color name="statusBarColor">#121212</color>
 </resources>
