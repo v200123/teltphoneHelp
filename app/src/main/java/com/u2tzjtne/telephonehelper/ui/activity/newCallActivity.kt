@@ -38,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -104,12 +105,14 @@ class newCallActivity : BaseActivity() {
 
 
         bind.llAction0.setOnClickListener {
-            lifecycleScope.cancel()
+            // 取消自动接通的协程，但保留其他协程
+            lifecycleScope.coroutineContext.cancelChildren()
+            
+            // 启动无人接听倒计时（15秒后触发）
             GlobalScope.launch(Dispatchers.Default) {
-                Log.e(TAG, "updateAction: 开始26秒的延时" )
+                Log.e(TAG, "updateAction: 开始15秒的无人接听倒计时" )
                 delay(15 * 1000)
                 mStatusObserver.postValue(PLAY_NO_RESPONSE_SOUND)
-
             }
         }
 
@@ -165,6 +168,11 @@ class newCallActivity : BaseActivity() {
                 }
 
                 PLAY_NO_RESPONSE_SOUND -> {
+                    // 停止彩铃视频播放
+                    GSYVideoPlayerHelper.getInstance().stopPlaying()
+                    // 恢复正常界面样式
+                    updateUIForRingtoneVideo(false)
+                    
                     MediaPlayerHelper.getInstance().playNoResponseSound(this)
                     lifecycleScope.launch(Dispatchers.Default) {
                         delay(23200)
@@ -592,9 +600,11 @@ class newCallActivity : BaseActivity() {
             // 恢复正常界面
             // 1. 恢复半透明黑色遮罩层
             bind.tvNewCallPlayingRing.visibility = View.GONE
-
+            bind.tvNewCallStatus.text = "正在拨号中"
             // 2. 恢复头像显示
             bind.ivNewCallHead.visibility = View.VISIBLE
+            bind.tvAICallStatus.visibility = View.VISIBLE
+
 //            bind.ivNewCallHead.alpha = 1.0f
         }
     }

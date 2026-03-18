@@ -40,7 +40,6 @@ class GSYVideoPlayerHelper private constructor() {
         @JvmStatic
         fun getInstance(): GSYVideoPlayerHelper {
             GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_CUSTOM)
-            GSYVideoType.setScreenScaleRatio(16f/10)
             return instance ?: synchronized(this) {
                 instance ?: GSYVideoPlayerHelper().also { instance = it }
             }
