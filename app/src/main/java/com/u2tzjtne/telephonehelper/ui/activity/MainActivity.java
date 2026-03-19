@@ -107,8 +107,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        requestAppPermissionsIfNeeded();
 
     }
+
 
     @Override
     public void onResume() {
@@ -200,22 +202,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     } else {
                         return;
                     }
+                    String pureNumber = currentText.replace(" ", "") + textView.getText().toString();
                     // 从输入第一位就开始筛选
-                    showActionPage(currentText.length() >= 0);
-                    if (currentText.length() == 3 || currentText.length() == 8) {
-                        currentText = currentText + " ";
-                    }
-                    currentText = currentText + textView.getText().toString();
-                    tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(currentText));
-                    
+                    showActionPage(!pureNumber.isEmpty());
+                    tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(pureNumber));
+
                     // 获取纯数字号码进行筛选
-                    String pureNumber = currentText.replace(" ", "");
                     filterByPrefix(pureNumber);
                     if (pureNumber.length() == 7) {
-                        setLocation(currentText + " 0000");
-                    }else if(pureNumber.length()>5){
-                        setLocation(currentText);
+                        setLocation(pureNumber + "0000");
+                    } else if (pureNumber.length() > 5) {
+                        setLocation(pureNumber);
                     }
+
                 }
             }
         }
@@ -409,21 +408,32 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private void deleteNumber() {
         if (!TextUtils.isEmpty(tvDialNumber.getText())) {
-            String currentText = tvDialNumber.getText().toString();
-            String afterText = currentText.substring(0, currentText.length() - 1);
-            tvDialNumber.setText(afterText);
-            if (afterText.length() < 1) {
+            String pureNumber = tvDialNumber.getText().toString().replace(" ", "");
+            if (pureNumber.isEmpty()) {
+                hideNumber(true);
+                return;
+            }
+            String afterText = pureNumber.substring(0, pureNumber.length() - 1);
+            if (afterText.isEmpty()) {
                 hideNumber(true);
             } else {
+                tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(afterText));
                 // 更新筛选结果
-                String pureNumber = afterText.replace(" ", "");
-                filterByPrefix(pureNumber);
+                filterByPrefix(afterText);
+                showActionPage(true);
+                if (afterText.length() == 7) {
+                    setLocation(afterText + "0000");
+                } else if (afterText.length() > 5) {
+                    setLocation(afterText);
+                } else {
+                    tvLocation.setText("");
+                }
             }
-            showActionPage(tvDialNumber.getText().length() >= 0);
         } else {
             hideNumber(true);
         }
     }
+
 
     private String getAndCheckNumber() {
         if (tvDialNumber.getText() == null) {

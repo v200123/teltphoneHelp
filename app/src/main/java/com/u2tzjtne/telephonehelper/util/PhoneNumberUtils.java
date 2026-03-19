@@ -67,23 +67,20 @@ public class PhoneNumberUtils {
             .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
             .subscribe(
                 customLocation -> {
-                    if (customLocation != null) {
-                        PhoneLocalBean bean = new PhoneLocalBean(
-                            customLocation.province,
-                            customLocation.city,
-                            customLocation.carrier != null ? customLocation.carrier : ""
-                        );
-                        customCache.put(fullPhoneNumber, bean);
-                        Log.d("local", "getProvince: 从自定义数据库读取了");
-                        callback.result(bean);
-                    } else {
-                        // 没有自定义归属地，继续执行后续查询逻辑
-                        continueQueryAfterCustom(fullPhoneNumber, callback);
-                    }
+                    // 找到自定义归属地
+                    PhoneLocalBean bean = new PhoneLocalBean(
+                        customLocation.province,
+                        customLocation.city,
+                        customLocation.carrier != null ? customLocation.carrier : ""
+                    );
+                    customCache.put(fullPhoneNumber, bean);
+                    Log.d("local", "getProvince: 从自定义数据库读取了");
+                    callback.result(bean);
                 },
                 error -> {
-                    Log.e("local", "查询自定义归属地失败: " + error.getMessage());
-                    // 出错时继续执行后续查询逻辑
+                    // 没有找到自定义归属地（Single在没有数据时会抛出异常）
+                    Log.d("local", "未找到自定义归属地: " + error.getMessage());
+                    // 继续执行后续查询逻辑
                     continueQueryAfterCustom(fullPhoneNumber, callback);
                 }
             );
@@ -96,9 +93,10 @@ public class PhoneNumberUtils {
     private static void continueQueryAfterCustom(String fullPhoneNumber, getLocalCallback callback) {
         // 切换到IO线程执行后续查询
         io.reactivex.schedulers.Schedulers.io().scheduleDirect(() -> {
-            // 如果不是正常的中国手机号，直接返回未知
+            // 如果不是正常的中国手机号，不进行本地库和网络查询
+            // 但自定义归属地已经在前面的步骤中查询过了
             if (!isValidChinesePhoneNumber(fullPhoneNumber)) {
-                Log.d("local", "getProvince: 非正常手机号码，跳过查询");
+                Log.d("local", "getProvince: 非正常手机号码，无法通过本地库和网络查询");
                 notifyCallbackOnMainThread(callback, new PhoneLocalBean("未知", "未知", "未知"));
                 return;
             }
@@ -199,5 +197,27 @@ public class PhoneNumberUtils {
                 .orElse("");
         LogUtils.d("运营商: " + province);
         return province.replace("中国", "");
+    }
+
+    /**
+     * 格式化电话号码显示
+     * 12位号码按照4-4-4格式展示，如：1234 5678 9012
+     * 其他长度号码保持原样
+     *
+     * @param phoneNumber 原始电话号码
+     * @return 格式化后的电话号码
+     */
+    public static String formatPhoneNumber(String phoneNumber) {
+        if (TextUtils.isEmpty(phoneNumber)) {
+            return phoneNumber;
+        }
+        // 移除非数字字符
+        String digits = phoneNumber.replaceAll("[^0-9]", "");
+        // 如果是12位号码，按照4-4-4格式展示
+        if (digits.length() == 12) {
+            return digits.substring(0, 4) + " " + digits.substring(4, 8) + " " + digits.substring(8);
+        }
+        // 其他情况返回原始号码
+        return phoneNumber;
     }
 }

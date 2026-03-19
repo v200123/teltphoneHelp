@@ -29,14 +29,17 @@ class AddCallRecordActivity : BaseActivity() {
 
     companion object {
         fun String.formatWithSpaces(): String {
+            val digits = this.filter { it.isDigit() }
             return when {
-                this.length == 11 -> this.replace(Regex("(\\d{3})(\\d{4})(\\d{4})"), "$1 $2 $3")
-                this.length == 12 -> this.replace(Regex("(\\d{4})(\\d{4})(\\d{4})"), "$1 $2 $3")
-                this.length > 3 -> this.replace(Regex("(\\d{3})(\\d{4})(\\d{4})"), "$1 $2 $3")
-                else -> this
+                digits.isEmpty() -> ""
+                digits.length <= 3 -> digits
+                digits.length == 12 -> digits.substring(0, 4) + " " + digits.substring(4, 8) + " " + digits.substring(8, 12)
+                digits.length <= 7 -> digits.substring(0, 3) + " " + digits.substring(3)
+                else -> digits.substring(0, 3) + " " + digits.substring(3, 7) + " " + digits.substring(7)
             }
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

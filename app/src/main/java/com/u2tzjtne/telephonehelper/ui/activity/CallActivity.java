@@ -2,7 +2,7 @@ package com.u2tzjtne.telephonehelper.ui.activity;
 
 import static com.u2tzjtne.telephonehelper.ui.activity.newCallActivity.GUADUAN;
 
-import android.Manifest;
+
 import android.annotation.SuppressLint;
 import android.app.WallpaperManager;
 import android.content.Context;
@@ -35,8 +35,7 @@ import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
 import com.u2tzjtne.telephonehelper.ui.widget.EmptyControlVideo;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.runtime.Permission;
+
 
 import java.io.File;
 import java.util.ArrayList;
@@ -155,24 +154,20 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
 
 
     private void setBackGround() {
-        AndPermission.with(this)
-                .runtime()
-                .permission(Permission.READ_EXTERNAL_STORAGE)
-                .onDenied(data -> {
-                    ToastUtils.s("请授予权限后再试！");
-                    finish();
-                })
-                .onGranted(data -> {
-                    // 获取WallpaperManager实例
-                    WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
-                    // 获取当前的壁纸
-                    Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-                    // 将Drawable转换为Bitmap
-                    Bitmap wallpaperBitmap = ((BitmapDrawable) wallpaperDrawable).getBitmap();
-                    // 设置背景
-                    llPageRoot.setBackground(new BitmapDrawable(getResources(), wallpaperBitmap));
-                }).start();
+        if (!hasReadStoragePermission()) {
+            ToastUtils.s("存储权限未开启，当前将使用默认通话背景");
+            return;
+        }
+        // 获取WallpaperManager实例
+        WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
+        // 获取当前的壁纸
+        Drawable wallpaperDrawable = wallpaperManager.getDrawable();
+        // 将Drawable转换为Bitmap
+        Bitmap wallpaperBitmap = ((BitmapDrawable) wallpaperDrawable).getBitmap();
+        // 设置背景
+        llPageRoot.setBackground(new BitmapDrawable(getResources(), wallpaperBitmap));
     }
+
 
     private void initView() {
         tvCallNumber = findViewById(R.id.tv_call_number);
@@ -208,7 +203,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         updateCallTip(false);
         callRecord.startTime = System.currentTimeMillis();
         callRecord.phoneNumber = number;
-        tvCallNumber.setText(callRecord.phoneNumber);
+        tvCallNumber.setText(PhoneNumberUtils.formatPhoneNumber(callRecord.phoneNumber));
     }
 
     private void getData() {
@@ -458,39 +453,35 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
      * 开始录音
      */
     private void startRecording() {
-        // 检查并请求录音权限
-        AndPermission.with(this)
-                .runtime()
-                .permission(Permission.RECORD_AUDIO)
-                .onDenied(data -> {
-                    ToastUtils.s("需要录音权限才能使用录音功能");
-                    // 重置录音按钮状态
-                    isRecording = false;
-                    ivAction0.setImageResource(R.drawable.ic_call_action_0_0);
-                    tvAction0.setTextColor(getResources().getColor(R.color.white_50));
-                    tvAction0.setText("录音");
-                })
-                .onGranted(data -> {
-                    // 开始录音
-                    String recordingPath = audioRecorderHelper.startRecording(number);
-                    if (recordingPath != null) {
-                        Log.d("CallActivity", "录音开始: " + recordingPath);
-                        ToastUtils.s("开始录音");
-                    } else {
-                        ToastUtils.s("录音启动失败");
-                        // 重置状态
-                        isRecording = false;
-                        ivAction0.setImageResource(R.drawable.ic_call_action_0_0);
-                        tvAction0.setTextColor(getResources().getColor(R.color.white_50));
-                        tvAction0.setText("录音");
-                    }
-                }).start();
+        if (!hasRecordAudioPermission()) {
+            ToastUtils.s("需要录音权限才能使用录音功能，请先在首页完成授权");
+            resetRecordingButton();
+            return;
+        }
+        // 开始录音
+        String recordingPath = audioRecorderHelper.startRecording(number);
+        if (recordingPath != null) {
+            Log.d("CallActivity", "录音开始: " + recordingPath);
+            ToastUtils.s("开始录音");
+        } else {
+            ToastUtils.s("录音启动失败");
+            resetRecordingButton();
+        }
+    }
+
+
+    private void resetRecordingButton() {
+        isRecording = false;
+        ivAction0.setImageResource(R.drawable.ic_call_action_0_0);
+        tvAction0.setTextColor(getResources().getColor(R.color.white_50));
+        tvAction0.setText("录音");
     }
 
     /**
      * 停止录音并将录音信息添加到待保存列表
      */
     private void stopAndSaveRecording() {
+
         if (audioRecorderHelper.isCurrentlyRecording()) {
             AudioRecorderHelper.RecordingInfo recordingInfo = audioRecorderHelper.stopRecording();
             if (recordingInfo != null) {

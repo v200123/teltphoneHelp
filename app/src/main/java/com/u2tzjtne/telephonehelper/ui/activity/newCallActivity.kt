@@ -1,7 +1,7 @@
 package com.u2tzjtne.telephonehelper.ui.activity
 
-import android.Manifest
 import android.annotation.SuppressLint
+
 import android.app.WallpaperManager
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -27,8 +27,7 @@ import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import com.u2tzjtne.telephonehelper.util.ToastUtils
-import com.yanzhenjie.permission.AndPermission
-import com.yanzhenjie.permission.runtime.Permission
+
 import io.reactivex.MaybeObserver
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -139,7 +138,16 @@ class newCallActivity : BaseActivity() {
                     GSYVideoPlayerHelper.getInstance().stopPlaying()
                     // 恢复正常界面样式
                     updateUIForRingtoneVideo(false)
-
+                    bind.tvNewCallNumberLocal.setCompoundDrawables(null,
+                        null,
+                        AppCompatResources.getDrawable(
+                            this@newCallActivity,
+                            R.drawable.ic_hd
+                        )!!.apply { setBounds(0, 0, 105, 105)
+                            setTint(getColor(R.color.white_50))
+                        },
+                        null
+                    )
                     MediaPlayerHelper.getInstance().stopAudio()
                     callRecord.isConnected = true
                     callRecord.connectedTime = System.currentTimeMillis()
@@ -218,16 +226,7 @@ class newCallActivity : BaseActivity() {
 
             delay(1000)
             withContext(Dispatchers.Main) {
-                bind.tvNewCallNumberLocal.setCompoundDrawables(null,
-                    null,
-                    AppCompatResources.getDrawable(
-                        this@newCallActivity,
-                        R.drawable.ic_hd
-                    )!!.apply { setBounds(0, 0, 105, 105)
-                              setTint(getColor(R.color.white_50))
-                              },
-                    null
-                )
+
             }
         }
 
@@ -377,41 +376,37 @@ class newCallActivity : BaseActivity() {
      * 开始录音
      */
     private fun startRecording() {
-        // 检查并请求录音权限
-        AndPermission.with(this)
-            .runtime()
-            .permission(Permission.RECORD_AUDIO)
-            .onDenied { 
-                ToastUtils.s("需要录音权限才能使用录音功能")
-                // 重置录音按钮状态
-                isLuYin = false
-                bind.tvAction5.setTextColor(Color.WHITE)
-                bind.tvAction5.stop()
-                bind.tvAction5.setText("录音")
-                bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-            }
-            .onGranted { 
-                // 开始录音
-                val recordingPath = audioRecorderHelper.startRecording(number)
-                if (recordingPath != null) {
-                    Log.d(TAG, "录音开始: $recordingPath")
-                    ToastUtils.s("开始录音")
-                } else {
-                    ToastUtils.s("录音启动失败")
-                    // 重置状态
-                    isLuYin = false
-                    bind.tvAction5.setTextColor(Color.WHITE)
-                    bind.tvAction5.stop()
-                    bind.tvAction5.setText("录音")
-                    bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-                }
-            }.start()
+        if (!hasRecordAudioPermission()) {
+            ToastUtils.s("需要录音权限才能使用录音功能，请先在首页完成授权")
+            resetRecordingButton()
+            return
+        }
+
+        // 开始录音
+        val recordingPath = audioRecorderHelper.startRecording(number)
+        if (recordingPath != null) {
+            Log.d(TAG, "录音开始: $recordingPath")
+            ToastUtils.s("开始录音")
+        } else {
+            ToastUtils.s("录音启动失败")
+            resetRecordingButton()
+        }
+    }
+
+
+    private fun resetRecordingButton() {
+        isLuYin = false
+        bind.tvAction5.setTextColor(Color.WHITE)
+        bind.tvAction5.stop()
+        bind.tvAction5.setText("录音")
+        bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
     }
 
     /**
      * 停止录音并将录音信息添加到待保存列表
      */
     private fun stopAndSaveRecording() {
+
         if (audioRecorderHelper.isCurrentlyRecording()) {
             val recordingInfo = audioRecorderHelper.stopRecording()
             recordingInfo?.let { info ->
@@ -556,26 +551,20 @@ class newCallActivity : BaseActivity() {
     }
 
     private fun setBackGround() {
-        AndPermission.with(this)
-            .runtime()
-            .permission(Permission.READ_EXTERNAL_STORAGE)
-            .onDenied { data: List<String?>? ->
-                ToastUtils.s("请授予权限后再试！")
-                finish()
-            }
-            .onGranted { data: List<String?>? -> 
-                // 获取WallpaperManager实例
-                val wallpaperManager =
-                    WallpaperManager.getInstance(this)
-                // 获取当前的壁纸
-                val wallpaperDrawable = wallpaperManager.drawable
-                // 将Drawable转换为Bitmap
-                val wallpaperBitmap =
-                    (wallpaperDrawable as BitmapDrawable?)!!.bitmap
-                // 设置根布局背景
-                bind.root.setBackground(BitmapDrawable(resources, wallpaperBitmap))
-            }.start()
+        if (!hasReadStoragePermission()) {
+            ToastUtils.s("存储权限未开启，当前将使用默认通话背景")
+            return
+        }
+        // 获取WallpaperManager实例
+        val wallpaperManager = WallpaperManager.getInstance(this)
+        // 获取当前的壁纸
+        val wallpaperDrawable = wallpaperManager.drawable
+        // 将Drawable转换为Bitmap
+        val wallpaperBitmap = (wallpaperDrawable as BitmapDrawable).bitmap
+        // 设置根布局背景
+        bind.root.background = BitmapDrawable(resources, wallpaperBitmap)
     }
+
 
     /**
      * 根据是否播放彩铃视频更新界面样式
@@ -590,11 +579,6 @@ class newCallActivity : BaseActivity() {
             bind.tvNewCallPlayingRing.visibility = View.VISIBLE
             // 2. 可选：隐藏头像（视频中有更好的视觉效果）
              bind.ivNewCallHead.visibility = View.GONE
-            bind.tvNewCallNumberLocal.setCompoundDrawables(null,
-                null,
-                null,
-                null
-            )
             // 3. 或者让头像更小、更透明
 //            bind.ivNewCallHead.alpha = 0.3f
             
