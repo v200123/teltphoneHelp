@@ -1,6 +1,6 @@
 package com.u2tzjtne.telephonehelper.ui.activity;
 
-import static com.u2tzjtne.telephonehelper.ui.activity.newCallActivity.GUADUAN;
+
 
 
 import android.annotation.SuppressLint;
@@ -108,6 +108,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     private final int WAIT_FINISH = 4;
     private final int PLAY_NO_RESPONSE_SOUND = 5;
     private final int CALL_END = 6;
+    private final int GUADUAN = 7;
 
     public static void start(Context context, String phoneNumber) {
         Intent intent;

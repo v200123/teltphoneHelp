@@ -12,7 +12,6 @@ public class MediaPlayerHelper {
     private final MediaPlayer mediaPlayer;
     private boolean isSpeakerOn;
 
-
     private MediaPlayerHelper() {
         mediaPlayer = new MediaPlayer();
         isSpeakerOn = false;
@@ -25,69 +24,78 @@ public class MediaPlayerHelper {
         return instance;
     }
 
-    public void playNoResponseSound(Context context) {
-        final Uri audioNoResponseUri = Uri.parse("android.resource://"+context.getPackageName()+"/" + R.raw.audio_no_response);
+    private Uri buildRawUri(Context context, int resId) {
+        return Uri.parse("android.resource://" + context.getPackageName() + "/" + resId);
+    }
 
+    private boolean playRawInternal(Context context, Uri uri, boolean looping, Runnable onCompletion) {
         try {
             mediaPlayer.reset();
-            mediaPlayer.setDataSource(context, audioNoResponseUri);
-            mediaPlayer.setLooping(true);
+            mediaPlayer.setOnCompletionListener(null);
+            mediaPlayer.setDataSource(context, uri);
+            mediaPlayer.setLooping(looping);
+            if (!looping && onCompletion != null) {
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    mp.setOnCompletionListener(null);
+                    onCompletion.run();
+                });
+            }
             mediaPlayer.prepare();
             mediaPlayer.start();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
+    }
+
+    public boolean playRawResource(Context context, int resId, boolean looping, Runnable onCompletion) {
+        return playRawInternal(context, buildRawUri(context, resId), looping, onCompletion);
+    }
+
+    public boolean playRawByName(Context context, String rawName, boolean looping, Runnable onCompletion) {
+        int resId = context.getResources().getIdentifier(rawName, "raw", context.getPackageName());
+        if (resId == 0) {
+            return false;
+        }
+        return playRawResource(context, resId, looping, onCompletion);
+    }
+
+    public void playNoResponseSound(Context context) {
+        playRawResource(context, R.raw.audio_no_response, true, null);
     }
 
     public void playGuaduanSound(Context context) {
-      final Uri audioGuaDuanUri = Uri.parse("android.resource://"+context.getPackageName()+"/" + + R.raw.calling);
-
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(context, audioGuaDuanUri);
-            mediaPlayer.setLooping(false);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        playRawResource(context, R.raw.calling, false, null);
     }
 
-
     public void playCallSound(Context context) {
-        final Uri audioCallUri = Uri.parse("android.resource://"+context.getPackageName()+"/" + R.raw.audio_call);
+        playRawResource(context, R.raw.audio_call, true, null);
+    }
 
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(context, audioCallUri);
-            mediaPlayer.setLooping(true);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public boolean playCallSoundOnce(Context context, Runnable onCompletion) {
+        return playRawResource(context, R.raw.audio_call, false, onCompletion);
+    }
+
+    public boolean playBusySound(Context context, String rawName, Runnable onCompletion) {
+        return playRawByName(context, rawName, false, onCompletion);
     }
 
     /**
      * 播放通话结束提示音
      */
     public void playCallEndSound(Context context) {
-        final Uri audioCallEndUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.audio_call);
-
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(context, audioCallEndUri);
-            mediaPlayer.setLooping(false);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        playRawResource(context, R.raw.audio_call, false, null);
     }
 
     public void stopAudio() {
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
+        try {
+            mediaPlayer.setOnCompletionListener(null);
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         }
     }
 
