@@ -144,7 +144,7 @@ class newCallActivity : BaseActivity() {
                             this@newCallActivity,
                             R.drawable.ic_hd
                         )!!.apply { setBounds(0, 0, 105, 105)
-                            setTint(getColor(R.color.white_50))
+                            setTint(getColor(R.color.white_70))
                         },
                         null
                     )
