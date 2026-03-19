@@ -508,221 +508,175 @@
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
+        <GridLayout
             android:id="@+id/ll_action_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
-            android:orientation="vertical"
+            android:alignmentMode="alignMargins"
+            android:columnCount="3"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
+            android:rowCount="2"
+            android:useDefaultMargins="false"
             android:visibility="visible">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:id="@+id/ll_action_0"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
 
-                <LinearLayout
-                    android:id="@+id/ll_action_0"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="?attr/selectableItemBackground"
-                    android:gravity="center_horizontal"
-                    android:minHeight="88dp"
-                    android:orientation="vertical"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp">
-
-
-                    <TextView
-                        android:id="@+id/tv_action_0"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:drawablePadding="8dp"
-                        android:drawableTop="@drawable/ic_new_video"
-                        android:gravity="center_horizontal"
-                        android:includeFontPadding="false"
-                        android:minHeight="72dp"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:text="视频模式"
-                        android:textAlignment="center"
-                        android:textColor="@color/callTextSecondary"
-                        android:textSize="15sp"
-                        app:drawableTint="@color/callTextSecondary" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_action_1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:minHeight="88dp"
-                    android:orientation="vertical"
-                    android:paddingStart="4dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="4dp"
-                    android:paddingBottom="12dp">
-
-
-                    <TextView
-                        android:id="@+id/tv_action_1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:drawablePadding="8dp"
-                        android:drawableTop="@drawable/ic_new_add"
-                        android:drawableTint="@color/callTextSecondary"
-                        android:gravity="center_horizontal"
-                        android:includeFontPadding="false"
-                        android:minHeight="72dp"
-                        android:text="添加通话"
-                        android:textAlignment="center"
-                        android:textColor="@color/callTextSecondary"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
-                <LinearLayout
-
-                    android:id="@+id/ll_action_2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:minHeight="88dp"
-                    android:orientation="vertical"
-                    android:paddingStart="4dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="4dp"
-                    android:paddingBottom="12dp">
-
-                    <TextView
-                        android:id="@+id/tv_action_2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:drawablePadding="8dp"
-                        android:drawableTop="@drawable/ic_new_note"
-                        android:gravity="center_horizontal"
-                        android:includeFontPadding="false"
-                        android:minHeight="72dp"
-                        android:text="笔记"
-                        android:textAlignment="center"
-                        android:textColor="@color/callTextPrimary"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
+                <TextView
+                    android:id="@+id/tv_action_0"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:drawablePadding="8dp"
+                    android:drawableTop="@drawable/ic_new_video"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:text="视频模式"
+                    android:textAlignment="center"
+                    android:textColor="@color/callTextSecondary"
+                    android:textSize="15sp"
+                    app:drawableTint="@color/callTextSecondary" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:baselineAligned="false"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:id="@+id/ll_action_1"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
 
-                <LinearLayout
-                    android:id="@+id/ll_action_3"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:minHeight="88dp"
-                    android:orientation="vertical"
-                    android:paddingStart="4dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="4dp"
-                    android:paddingBottom="12dp">
-
-
-                    <TextView
-                        android:id="@+id/tv_action_3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:drawablePadding="8dp"
-                        android:drawableTop="@drawable/ic_new_jingyin"
-                        android:drawableTint="@color/callTextSecondary"
-                        android:gravity="center_horizontal"
-                        android:includeFontPadding="false"
-                        android:minHeight="72dp"
-                        android:text="静音"
-                        android:textAlignment="center"
-                        android:textColor="@color/callTextSecondary"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_action_4"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:minHeight="88dp"
-                    android:orientation="vertical"
-                    android:paddingStart="4dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="4dp"
-                    android:paddingBottom="12dp">
-
-
-                    <TextView
-                        android:id="@+id/tv_action_4"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:drawablePadding="8dp"
-                        android:drawableTop="@drawable/ic_new_stop"
-                        android:drawableTint="@color/callTextSecondary"
-                        android:gravity="center_horizontal"
-                        android:includeFontPadding="false"
-                        android:minHeight="72dp"
-                        android:text="暂停通话"
-                        android:textAlignment="center"
-                        android:textColor="@color/callTextSecondary"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_action_5"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:minHeight="88dp"
-                    android:orientation="vertical"
-                    android:paddingStart="4dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="4dp"
-                    android:paddingBottom="12dp">
-
-
-                    <Chronometer
-                        android:id="@+id/tv_action_5"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:drawablePadding="8dp"
-                        android:drawableTop="@drawable/ic_new_record"
-                        android:gravity="center_horizontal"
-                        android:includeFontPadding="false"
-                        android:minHeight="72dp"
-                        android:text="录音"
-                        android:textAlignment="center"
-                        android:textColor="@color/callTextPrimary"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
+                <TextView
+                    android:id="@+id/tv_action_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:drawablePadding="8dp"
+                    android:drawableTop="@drawable/ic_new_add"
+                    android:drawableTint="@color/callTextSecondary"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:text="添加通话"
+                    android:textAlignment="center"
+                    android:textColor="@color/callTextSecondary"
+                    android:textSize="15sp" />
             </LinearLayout>
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_action_2"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
+
+                <TextView
+                    android:id="@+id/tv_action_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:drawablePadding="8dp"
+                    android:drawableTop="@drawable/ic_new_note"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:text="笔记"
+                    android:textAlignment="center"
+                    android:textColor="@color/callTextPrimary"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_action_3"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
+
+                <TextView
+                    android:id="@+id/tv_action_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:drawablePadding="8dp"
+                    android:drawableTop="@drawable/ic_new_jingyin"
+                    android:drawableTint="@color/callTextSecondary"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:text="静音"
+                    android:textAlignment="center"
+                    android:textColor="@color/callTextSecondary"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_action_4"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
+
+                <TextView
+                    android:id="@+id/tv_action_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:drawablePadding="8dp"
+                    android:drawableTop="@drawable/ic_new_stop"
+                    android:drawableTint="@color/callTextSecondary"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:text="暂停通话"
+                    android:textAlignment="center"
+                    android:textColor="@color/callTextSecondary"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_action_5"
+                android:layout_width="0dp"
+                android:layout_height="96dp"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
+
+                <Chronometer
+                    android:id="@+id/tv_action_5"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:drawablePadding="8dp"
+                    android:drawableTop="@drawable/ic_new_record"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+
+                    android:textAlignment="center"
+                    android:textColor="@color/callTextPrimary"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+        </GridLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
