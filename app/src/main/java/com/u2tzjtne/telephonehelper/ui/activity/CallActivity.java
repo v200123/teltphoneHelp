@@ -625,14 +625,15 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.ll_dial_switch:
-                hangUp("通话结束", true);
+                switchDial();
                 break;
             case R.id.ll_dial_hang_up:
-                hangUp("正在挂断...", false);
+                hangUp("正在挂断...", true);
                 break;
             case R.id.ll_dial_speaker:
                 switchSpeaker();
                 break;
+
             case R.id.ll_action_0:
                 switchAction0(); // 录音按钮
                 break;

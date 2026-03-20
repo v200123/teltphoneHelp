@@ -104,8 +104,12 @@ class newCallActivity : BaseActivity() {
             hangUp("通话结束", true)
         }
 
+        bind.llDialHangUp.setOnClickListener {
+            hangUp("正在挂断...", true)
+        }
+
         bind.ivDialHangUp.setOnClickListener {
-            hangUp("正在挂断...", false)
+            hangUp("正在挂断...", true)
         }
     }
 
