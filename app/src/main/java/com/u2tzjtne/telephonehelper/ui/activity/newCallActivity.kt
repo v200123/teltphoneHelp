@@ -74,7 +74,6 @@ class newCallActivity : BaseActivity() {
         bind.tvAction5.text = "录音"
         configurePreConnectActions()
         getNumberData()
-
         // 未接通
         updateCallTip(false)
         callRecord.startTime = System.currentTimeMillis()

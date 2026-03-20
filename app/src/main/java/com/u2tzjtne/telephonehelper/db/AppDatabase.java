@@ -26,6 +26,22 @@ public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase INSTANCE;
     private static final String DB_NAME = "app.db";
 
+    private static final Callback NORMALIZE_PHONE_NUMBER_CALLBACK = new Callback() {
+        @Override
+        public void onOpen(SupportSQLiteDatabase database) {
+            super.onOpen(database);
+            database.beginTransaction();
+            try {
+                database.execSQL("UPDATE CallRecord SET phoneNumber = REPLACE(phoneNumber, ' ', '') WHERE phoneNumber IS NOT NULL AND phoneNumber LIKE '% %'");
+                database.execSQL("DELETE FROM custom_phone_location WHERE id NOT IN (SELECT MAX(id) FROM custom_phone_location GROUP BY COALESCE(REPLACE(phone, ' ', ''), ''))");
+                database.execSQL("UPDATE custom_phone_location SET phone = REPLACE(phone, ' ', '') WHERE phone IS NOT NULL AND phone LIKE '% %'");
+                database.setTransactionSuccessful();
+            } finally {
+                database.endTransaction();
+            }
+        }
+    };
+
     /**
      * 通话记录数据访问
      */
@@ -129,6 +145,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 AppDatabase.class,
                 DB_NAME)
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addCallback(NORMALIZE_PHONE_NUMBER_CALLBACK)
                 .build();
     }
 }

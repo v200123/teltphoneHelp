@@ -6,11 +6,12 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
+
 import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 
 import static androidx.room.OnConflictStrategy.IGNORE;
 
@@ -48,23 +49,45 @@ public interface CallRecordDao {
     /**
      * 根据号码查询
      */
-    @Query("select * from CallRecord where phoneNumber = :number order by startTime desc limit 1")
-    Maybe<CallRecord> getByNumber(String number);
+    @Query("select * from CallRecord where REPLACE(phoneNumber, ' ', '') = :number order by startTime desc limit 1")
+    Maybe<CallRecord> getByNumberInternal(String number);
 
-    @Query("select * from CallRecord where phoneNumber = :number order by startTime desc")
-    Maybe<List<CallRecord>> getByNumberMuti(String number);
+    default Maybe<CallRecord> getByNumber(String number) {
+        return getByNumberInternal(PhoneNumberUtils.normalizePhoneNumber(number));
+    }
+
+    @Query("select * from CallRecord where REPLACE(phoneNumber, ' ', '') = :number order by startTime desc")
+    Maybe<List<CallRecord>> getByNumberMutiInternal(String number);
+
+    default Maybe<List<CallRecord>> getByNumberMuti(String number) {
+        return getByNumberMutiInternal(PhoneNumberUtils.normalizePhoneNumber(number));
+    }
 
     /**
      * 插入数据
      */
     @Insert(onConflict = IGNORE)
-    Completable insert(CallRecord record);
+    Completable insertInternal(CallRecord record);
+
+    default Completable insert(CallRecord record) {
+        if (record != null) {
+            record.phoneNumber = PhoneNumberUtils.normalizePhoneNumber(record.phoneNumber);
+        }
+        return insertInternal(record);
+    }
 
     /**
      * 更新数据
      */
     @Update
-    Completable update(CallRecord record);
+    Completable updateInternal(CallRecord record);
+
+    default Completable update(CallRecord record) {
+        if (record != null) {
+            record.phoneNumber = PhoneNumberUtils.normalizePhoneNumber(record.phoneNumber);
+        }
+        return updateInternal(record);
+    }
 
     /**
      * 更新录音路径
@@ -91,8 +114,12 @@ public interface CallRecordDao {
     /**
      * 根据number删除数据
      */
-    @Query("delete from CallRecord where phoneNumber like :number")
-    Completable deleteByNumber(String number);
+    @Query("delete from CallRecord where REPLACE(phoneNumber, ' ', '') = :number")
+    Completable deleteByNumberInternal(String number);
+
+    default Completable deleteByNumber(String number) {
+        return deleteByNumberInternal(PhoneNumberUtils.normalizePhoneNumber(number));
+    }
 
     /**
      * 删除所有数据
@@ -106,7 +133,11 @@ public interface CallRecordDao {
      * @param prefix 号码前缀（纯数字）
      */
     @Query("select * from CallRecord where REPLACE(phoneNumber, ' ', '') like :prefix || '%' order by startTime desc")
-    Maybe<List<CallRecord>> getByPrefix(String prefix);
+    Maybe<List<CallRecord>> getByPrefixInternal(String prefix);
+
+    default Maybe<List<CallRecord>> getByPrefix(String prefix) {
+        return getByPrefixInternal(PhoneNumberUtils.normalizePhoneNumber(prefix));
+    }
 
     /**
      * 根据号码前缀筛选并按号码分组（获取每个号码的最新记录）
@@ -114,7 +145,11 @@ public interface CallRecordDao {
      * @param prefix 号码前缀（纯数字）
      */
     @Query("select * from CallRecord where REPLACE(phoneNumber, ' ', '') like :prefix || '%' and endTime in(select max(endTime) from CallRecord where REPLACE(phoneNumber, ' ', '') like :prefix || '%' group by phoneNumber) order by startTime desc")
-    Maybe<List<CallRecord>> getByPrefixGroup(String prefix);
+    Maybe<List<CallRecord>> getByPrefixGroupInternal(String prefix);
+
+    default Maybe<List<CallRecord>> getByPrefixGroup(String prefix) {
+        return getByPrefixGroupInternal(PhoneNumberUtils.normalizePhoneNumber(prefix));
+    }
 
     /**
      * 获取有录音的通话记录

@@ -65,7 +65,8 @@ public class HistoryActivity extends BaseActivity implements View.OnClickListene
         findViewById(R.id.iv_call).setOnClickListener(this);
 
 
-        tvNumber.setText(number);
+        tvNumber.setText(PhoneNumberUtils.formatPhoneNumber(number));
+
 
         PhoneNumberUtils.getProvince(number, new getLocalCallback() {
             @Override

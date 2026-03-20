@@ -133,8 +133,9 @@ class AddCallRecordActivity : BaseActivity() {
                 return@setOnClickListener
             }
 
-            // 保存完整号码（去除空格）
-            val fullPhoneNumber = phoneNumber.replace(" ", "")
+            // 保存完整号码（统一去掉空白字符）
+            val fullPhoneNumber = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+
             val customLocation = CustomPhoneLocation(fullPhoneNumber, province, city, carrier)
             AppDatabase.getInstance().customPhoneLocationModel()
                 .insert(customLocation)
@@ -181,7 +182,8 @@ class AddCallRecordActivity : BaseActivity() {
                     callRecord.operator = bean.carrier
                 }
             })
-            callRecord.phoneNumber = phoneNumber.formatWithSpaces()
+            callRecord.phoneNumber = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+
             AppDatabase.getInstance().callRecordModel()
                 .insert(callRecord)
                 .subscribeOn(Schedulers.io())

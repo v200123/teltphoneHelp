@@ -34,6 +34,17 @@ public class PhoneNumberUtils {
     private static Map<String, PhoneLocalBean> customCache = new HashMap<>(); // 自定义归属地缓存
 
     /**
+     * 统一规范化号码：去掉所有空白字符，保证数据库存储和查询使用同一格式
+     */
+    public static String normalizePhoneNumber(String phoneNumber) {
+        if (TextUtils.isEmpty(phoneNumber)) {
+            return "";
+        }
+        return phoneNumber.replaceAll("\\s+", "");
+    }
+
+
+    /**
      * 判断是否为正常的中国手机号码
      * 中国大陆手机号：1开头，第二位为3-9，共11位
      * @param phoneNumber 纯数字号码
@@ -51,7 +62,8 @@ public class PhoneNumberUtils {
         if (TextUtils.isEmpty(phoneNumber)) {
             return;
         }
-        final String fullPhoneNumber = phoneNumber.replaceAll(" ", "");
+        final String fullPhoneNumber = normalizePhoneNumber(phoneNumber);
+
         
         // 1. 先检查自定义归属地缓存（完整号码精确匹配）
         if (customCache.containsKey(fullPhoneNumber)) {
@@ -97,7 +109,7 @@ public class PhoneNumberUtils {
             // 但自定义归属地已经在前面的步骤中查询过了
             if (!isValidChinesePhoneNumber(fullPhoneNumber)) {
                 Log.d("local", "getProvince: 非正常手机号码，无法通过本地库和网络查询");
-                notifyCallbackOnMainThread(callback, new PhoneLocalBean("未知", "未知", "未知"));
+//                notifyCallbackOnMainThread(callback, new PhoneLocalBean("", "", ""));
                 return;
             }
 
@@ -190,7 +202,8 @@ public class PhoneNumberUtils {
         if (TextUtils.isEmpty(phoneNumber)) {
             return "未知";
         }
-        phoneNumber = phoneNumber.replaceAll(" ", "");
+        phoneNumber = normalizePhoneNumber(phoneNumber);
+
         String province = phoneNumberLookup.lookup(phoneNumber)
                 .map(PhoneNumberInfo::getIsp)
                 .map(ISP::getCnName)
@@ -211,13 +224,23 @@ public class PhoneNumberUtils {
         if (TextUtils.isEmpty(phoneNumber)) {
             return phoneNumber;
         }
-        // 移除非数字字符
-        String digits = phoneNumber.replaceAll("[^0-9]", "");
-        // 如果是12位号码，按照4-4-4格式展示
-        if (digits.length() == 12) {
-            return digits.substring(0, 4) + " " + digits.substring(4, 8) + " " + digits.substring(8);
+        String digits = normalizePhoneNumber(phoneNumber).replaceAll("[^0-9]", "");
+        if (TextUtils.isEmpty(digits)) {
+            return phoneNumber;
         }
-        // 其他情况返回原始号码
-        return phoneNumber;
+        if (digits.length() <= 3) {
+            return digits;
+        }
+        if (digits.length() == 12) {
+            return digits.substring(0, 4) + " " + digits.substring(4, 8) + " " + digits.substring(8, 12);
+        }
+        if (digits.length() <= 7) {
+            return digits.substring(0, 3) + " " + digits.substring(3);
+        }
+        if (digits.length() <= 11) {
+            return digits.substring(0, 3) + " " + digits.substring(3, 7) + " " + digits.substring(7);
+        }
+        return digits;
     }
+
 }
