@@ -66,7 +66,7 @@ public class MediaPlayerHelper {
     }
 
     public void playGuaduanSound(Context context) {
-        playRawResource(context, R.raw.calling, false, null);
+        playRawResource(context, R.raw.telephone_hang_up_call, false, null);
     }
 
     public void playCallSound(Context context) {

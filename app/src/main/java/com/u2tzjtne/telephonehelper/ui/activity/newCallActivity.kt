@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.os.SystemClock
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
@@ -64,7 +65,7 @@ class newCallActivity : BaseActivity() {
         private const val AUTO_CONNECT_DELAY_MILLIS = 10_000L
         private const val NO_RESPONSE_DELAY_MILLIS = 15_000L
         private const val NO_RESPONSE_AUDIO_DURATION_MILLIS = 23_200L
-        private const val FINISH_DELAY_MILLIS = 1_000L
+        private const val FINISH_DELAY_MILLIS = 3_200L
         private const val BUSY_AUDIO_RES_NAME = "audio_busy"
     }
 
@@ -193,6 +194,12 @@ class newCallActivity : BaseActivity() {
     private fun handleConnectedStatus() {
         if (isEnding || callRecord.isConnected) return
 
+        bind.tvNewCallPlayingRing.visibility = View.GONE
+        bind.tvNewCallNumber.apply {
+            setTextColor(getColor(R.color.white_70))
+            setTextSize(18.0f)
+        }
+
         cancelPreConnectJobs()
         callRecord.isConnected = true
         callRecord.connectedTime = System.currentTimeMillis()
@@ -291,8 +298,13 @@ class newCallActivity : BaseActivity() {
         isEnding = true
 
         cancelAllJobs()
+        finishJob = lifecycleScope.launch {
+            delay(finishDelayMillis)
+            finish()
+        }
         stopAndSaveRecording()
         stopRingtonePlayback()
+        MediaPlayerHelper.getInstance().playGuaduanSound(this)
         updateHangUpColor()
         updateCallTip(false)
         bind.tvNewCallStatus.text = statusText
@@ -301,10 +313,7 @@ class newCallActivity : BaseActivity() {
             saveCallRecord()
         }
 
-        finishJob = lifecycleScope.launch {
-            delay(finishDelayMillis)
-            finish()
-        }
+
     }
 
     private fun saveCallRecord() {
@@ -600,7 +609,7 @@ class newCallActivity : BaseActivity() {
             bind.tvNewCallPlayingRing.visibility = View.VISIBLE
             bind.ivNewCallHead.visibility = View.GONE
         } else {
-            bind.tvNewCallPlayingRing.visibility = View.GONE
+
             bind.ivNewCallHead.visibility = View.VISIBLE
             bind.tvAICallStatus.visibility = View.VISIBLE
         }

@@ -67,7 +67,7 @@
     <color name="dialPadBackground">#1E1E1E</color>
 
     <!-- ========== 通话界面颜色 ========== -->
-    <color name="callBackground">#E6000000</color>
+    <color name="callBackground">#E4000000</color>
     <color name="callTextPrimary">#FFFFFF</color>
     <color name="callTextSecondary">#B3FFFFFF</color>
 

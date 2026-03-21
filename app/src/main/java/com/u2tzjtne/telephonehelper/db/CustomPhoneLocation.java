@@ -2,6 +2,7 @@ package com.u2tzjtne.telephonehelper.db;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
@@ -50,7 +51,7 @@ public class CustomPhoneLocation {
 
     public CustomPhoneLocation() {
     }
-
+@Ignore
     public CustomPhoneLocation(String phone, String province, String city, String carrier) {
         this.phone = phone;
         this.province = province;
