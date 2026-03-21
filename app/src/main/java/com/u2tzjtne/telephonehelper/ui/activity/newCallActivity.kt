@@ -572,9 +572,6 @@ class newCallActivity : BaseActivity() {
                 bind.tvAction5.start()
                 bind.tvAction5.compoundDrawableTintList =
                     ColorStateList.valueOf("#13A8E1".toColorInt())
-                ToastUtils.s("开始录音")
-            } else {
-                ToastUtils.s("录音启动失败")
             }
         }
     }
@@ -625,7 +622,6 @@ class newCallActivity : BaseActivity() {
             val info = audioRecorderHelper.stopRecording()
             info?.let {
                 pendingRecordings.add(it)
-                ToastUtils.s("录音已停止，共 ${pendingRecordings.size} 条录音")
             }
         }
     }
