@@ -83,7 +83,7 @@
             android:includeFontPadding="false"
             android:text="正在拨号"
             android:textColor="@color/white_70"
-            android:textSize="15sp" />
+            android:textSize="13sp" />
 
         <com.hjq.shape.view.ShapeTextView
             android:id="@+id/tv_AI_call_status"

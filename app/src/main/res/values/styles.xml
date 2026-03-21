@@ -29,6 +29,7 @@
         <item name="accentRedColor">@color/accentRed</item>
         <item name="dialGreenColor">@color/dialGreen</item>
         <item name="hangUpRedColor">@color/hangUpRed</item>
+        <item name="dialNumberColor">@color/black</item>
 
         <!-- Tab颜色 -->
         <item name="tabNormalColor">@color/textHomeTabNormal</item>
@@ -85,6 +86,7 @@
         <item name="accentRedColor">@color/accentRed</item>
         <item name="dialGreenColor">@color/dialGreen</item>
         <item name="hangUpRedColor">@color/hangUpRed</item>
+        <item name="dialNumberColor">@color/dialGreen</item>
 
         <!-- Tab颜色 -->
         <item name="tabNormalColor">@color/textHomeTabNormal</item>

@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.os.SystemClock
-import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
@@ -35,10 +34,44 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class newCallActivity : BaseActivity() {
+
+    // ===================== 通话状态枚举 =====================
+    /**
+     * 通话状态机：
+     *
+     * DIALING  ──(2s)──► RINGING ──(8s)──► CONNECTED（自动接通）
+     *                         │
+     *                    [用户触发]
+     *                    ├── 静音按钮 ──► NO_ANSWER（等待15s → 无人接听音 → 自动结束）
+     *                    └── 暂停按钮 ──► BUSY（忙线音 → 自动结束）
+     *
+     * CONNECTED ──[挂断]──► HUNG_UP（延迟3.2s finish）
+     * RINGING   ──[挂断]──► HUNG_UP
+     * DIALING   ──[挂断]──► HUNG_UP
+     */
+    enum class CallState {
+        /** 拨打中：从启动到真正振铃前，显示"正在拨号" */
+        DIALING,
+        /** 响铃中：对方已振铃，可能播放彩铃，等待接听 */
+        RINGING,
+        /** 通话中：已接通，计时开始，全功能可用 */
+        CONNECTED,
+        /** 忙音：对方正在通话中，播放忙线音后自动结束 */
+        BUSY,
+        /** 无人接听：等待超时后触发，播放无人接听音后自动结束 */
+        NO_ANSWER,
+        /** 挂断：用户主动挂断或通话结束，延迟后finish */
+        HUNG_UP
+    }
+
+    // ===================== 成员变量 =====================
     private var isSpeakerOn: Boolean = false
     private var number: String = ""
     private val bind by lazy { NewCallActivityBinding.inflate(layoutInflater) }
-    private val mStatusObserver: MutableLiveData<Int> = MutableLiveData()
+
+    /** 通话状态 LiveData，所有状态变更必须通过此发布 */
+    private val callStateLD: MutableLiveData<CallState> = MutableLiveData()
+
     private val callRecord = CallRecord()
     private val TAG = "newCallActivity"
 
@@ -50,232 +83,513 @@ class newCallActivity : BaseActivity() {
     // 临时存储本次通话的所有录音信息（等待通话记录保存后关联）
     private val pendingRecordings = mutableListOf<AudioRecorderHelper.RecordingInfo>()
 
-    private var playRingJob: Job? = null
-    private var autoConnectJob: Job? = null
-    private var noResponseJob: Job? = null
-    private var finishJob: Job? = null
-    private var isEnding = false
+    // 协程 Job
+    private var ringJob: Job? = null          // 延迟进入RINGING状态
+    private var autoConnectJob: Job? = null   // 延迟自动接通
+    private var noAnswerWaitJob: Job? = null  // 无人接听等待计时
+    private var noAnswerAudioJob: Job? = null // 无人接听音播放计时
+    private var finishJob: Job? = null        // 延迟finish
 
     companion object {
-        const val PLAY_RING = 2 // 响铃
-        const val CONNECTED_STATUS = 3
-        const val PLAY_NO_RESPONSE_SOUND = 7
-
-        private const val RING_DELAY_MILLIS = 2_000L
-        private const val AUTO_CONNECT_DELAY_MILLIS = 10_000L
-        private const val NO_RESPONSE_DELAY_MILLIS = 15_000L
-        private const val NO_RESPONSE_AUDIO_DURATION_MILLIS = 23_200L
-        private const val FINISH_DELAY_MILLIS = 3_200L
+        // 时间常量（毫秒）
+        private const val RING_DELAY_MILLIS = 2_000L           // 拨号→振铃 延迟
+        private const val AUTO_CONNECT_DELAY_MILLIS = 10_000L  // 振铃→自动接通 延迟
+        private const val NO_ANSWER_TRIGGER_MILLIS = 15_000L   // 触发无人接听的等待时间
+        private const val NO_ANSWER_AUDIO_MILLIS = 23_200L     // 无人接听音时长
+        private const val FINISH_DELAY_MILLIS = 3_200L         // 挂断后延迟finish
         private const val BUSY_AUDIO_RES_NAME = "audio_busy"
     }
+
+    // ===================== 生命周期 =====================
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(bind.root)
-        bind.tvAction5.text = "录音"
-        configurePreConnectActions()
+
         getNumberData()
-        // 未接通
-        updateCallTip(false)
-        callRecord.startTime = System.currentTimeMillis()
-        callRecord.phoneNumber = number
-        callRecord.callType = 0
-        bind.tvNewCallNumber.text = callRecord.phoneNumber.formatWithSpaces()
-
-        // 初始化 GSY 视频播放器
-        GSYVideoPlayerHelper.getInstance().init(bind.videoRingtone)
-
-        bind.llDialSwitch.setOnClickListener {
-            switchSpeaker()
-        }
-
-        mStatusObserver.observe(this) { status ->
-            when (status) {
-                PLAY_RING -> handlePlayRing()
-                CONNECTED_STATUS -> handleConnectedStatus()
-                PLAY_NO_RESPONSE_SOUND -> handleNoResponseSound()
-            }
-        }
-
-        scheduleInitialCallFlow()
+        initCallRecord()
+        initUI()
+        initGSYVideo()
+        observeCallState()
         setBackGround()
         MediaPlayerHelper.getInstance().switchAudioOutput(this, isSpeakerOn)
 
-        bind.llDialSpeaker.setOnClickListener {
-            hangUp("通话结束", true)
-        }
-
-        bind.llDialHangUp.setOnClickListener {
-            hangUp("正在挂断...", true)
-        }
-
-        bind.ivDialHangUp.setOnClickListener {
-            hangUp("正在挂断...", true)
-        }
+        // 启动通话流程：进入拨打中状态
+        callStateLD.value = CallState.DIALING
     }
 
     override fun onBackPressed() {
-        hangUp("正在挂断...", true)
+        dispatchHangUp(userInitiated = true)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         cancelAllJobs()
-
-        // 确保停止录音
         stopAndSaveRecording()
-
-        // 释放 GSY 视频播放器资源
         GSYVideoPlayerHelper.getInstance().release()
-
         MediaPlayerHelper.getInstance().stopAudio()
         bind.cmCallTime.stop()
     }
 
-    private fun scheduleInitialCallFlow() {
-        playRingJob?.cancel()
-        autoConnectJob?.cancel()
+    // ===================== 状态观察 & 分发 =====================
 
-        playRingJob = lifecycleScope.launch {
-            delay(RING_DELAY_MILLIS)
-            mStatusObserver.postValue(PLAY_RING)
-        }
-
-        autoConnectJob = lifecycleScope.launch {
-            delay(AUTO_CONNECT_DELAY_MILLIS)
-            mStatusObserver.postValue(CONNECTED_STATUS)
-        }
-    }
-
-    private fun cancelPreConnectJobs() {
-        playRingJob?.cancel()
-        autoConnectJob?.cancel()
-        noResponseJob?.cancel()
-    }
-
-    private fun cancelAllJobs() {
-        cancelPreConnectJobs()
-        finishJob?.cancel()
-    }
-
-    private fun configurePreConnectActions() {
-        bind.llAction0.setOnClickListener(null)
-        bind.llAction3.setOnClickListener {
-            startMissedCallFlow()
-        }
-        bind.llAction4.setOnClickListener {
-            startRejectCallFlow()
-        }
-        bind.llAction5.setOnClickListener(null)
-    }
-
-    private fun handlePlayRing() {
-        if (isEnding || callRecord.isConnected) return
-
-        Log.d(TAG, "PLAY_RING 状态触发，准备播放彩铃")
-        bind.tvNewCallStatus.text = "对方已振铃"
-
-        // 开始播放彩铃视频（根据号码查找绑定的彩铃）
-        // 如果有视频在播放，则不播放拨号等待音
-        GSYVideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
-            Log.d(TAG, "彩铃播放回调: isVideoPlaying=$isVideoPlaying")
-            if (!isVideoPlaying) {
-                Log.d(TAG, "没有彩铃视频，播放拨号等待音")
-                updateUIForRingtoneVideo(false)
-                bind.tvNewCallStatus.text = "对方已振铃"
-                MediaPlayerHelper.getInstance().playCallSound(this)
-            } else {
-                Log.d(TAG, "彩铃正在播放，更新UI")
-                updateUIForRingtoneVideo(true)
+    /**
+     * 监听通话状态，集中分发到各处理函数
+     */
+    private fun observeCallState() {
+        callStateLD.observe(this) { state ->
+            Log.d(TAG, "通话状态变更 → $state")
+            when (state) {
+                CallState.DIALING    -> onStateDialing()
+                CallState.RINGING    -> onStateRinging()
+                CallState.CONNECTED  -> onStateConnected()
+                CallState.BUSY       -> onStateBusy()
+                CallState.NO_ANSWER  -> onStateNoAnswer()
+                CallState.HUNG_UP    -> onStateHungUp()
             }
         }
     }
 
-    private fun handleConnectedStatus() {
-        if (isEnding || callRecord.isConnected) return
+    // ===================== 各状态处理 =====================
 
-        bind.tvNewCallPlayingRing.visibility = View.GONE
-        bind.tvNewCallNumber.apply {
-            setTextColor(getColor(R.color.white_70))
-            setTextSize(18.0f)
+    /**
+     * 状态：拨打中
+     * - UI：显示"正在拨号"，计时器隐藏
+     * - 音频：无
+     * - 按钮：action区灰显（仅预连接模式），键盘按钮不可用
+     * - 调度：2s后进入RINGING
+     */
+    private fun onStateDialing() {
+        // UI
+        bind.tvNewCallStatus.text = "正在拨号"
+        showCallStatus(connected = false)
+        setActionAreaEnabled(false)
+        setBottomBarMode(dialMode = false)
+
+        // 预连接阶段的按钮交互：静音=触发无人接听流程，暂停=触发忙线流程
+        setupPreConnectActions()
+
+        // 调度：2s → RINGING，10s → CONNECTED
+        ringJob = lifecycleScope.launch {
+            delay(RING_DELAY_MILLIS)
+            callStateLD.postValue(CallState.RINGING)
         }
+        autoConnectJob = lifecycleScope.launch {
+            delay(AUTO_CONNECT_DELAY_MILLIS)
+            callStateLD.postValue(CallState.CONNECTED)
+        }
+    }
 
-        cancelPreConnectJobs()
+    /**
+     * 状态：响铃中
+     * - UI：显示"对方已振铃"，可能切换为彩铃视频UI
+     * - 音频：播放彩铃视频 或 拨号等待音（循环）
+     * - 按钮：预连接模式保持不变（可触发未接/忙线）
+     */
+    private fun onStateRinging() {
+        if (callRecord.isConnected) return
+
+        bind.tvNewCallStatus.text = "对方已振铃"
+
+        // 尝试播放彩铃视频，否则播放拨号等待音
+        GSYVideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
+            Log.d(TAG, "彩铃回调: isVideoPlaying=$isVideoPlaying")
+            if (isVideoPlaying) {
+                updateUIForRingtoneVideo(true)
+            } else {
+                updateUIForRingtoneVideo(false)
+                bind.tvNewCallStatus.text = "对方已振铃"
+                MediaPlayerHelper.getInstance().playCallSound(this)
+            }
+        }
+    }
+
+    /**
+     * 状态：通话中（已接通）
+     * - UI：隐藏状态文字，显示计时器，号码缩小，HD图标
+     * - 音频：停止彩铃/等待音
+     * - 计时器：开始
+     * - 按钮：全功能可用（静音/录音/键盘/免提）
+     */
+    private fun onStateConnected() {
+        if (callRecord.isConnected) return
         callRecord.isConnected = true
         callRecord.connectedTime = System.currentTimeMillis()
 
+        // 取消预连接调度（若是自动接通则autoConnectJob已触发，若是手动则需取消其余）
+        cancelPreConnectJobs()
         stopRingtonePlayback()
+
+        // UI：号码文字缩小
+        bind.tvNewCallPlayingRing.visibility = View.GONE
+        bind.tvNewCallNumber.apply {
+            setTextColor(getColor(R.color.white_70))
+            textSize = 18.0f
+        }
+
+        // HD 图标
         bind.tvNewCallNumberLocal.setCompoundDrawables(
-            null,
-            null,
+            null, null,
             AppCompatResources.getDrawable(this, R.drawable.ic_hd)!!.apply {
                 setBounds(0, 0, 105, 105)
                 setTint(getColor(R.color.white_70))
             },
             null
         )
-        updateCallTip(true)
-        bind.tvNewCallStatus.text = ""
-        updateAction()
+
+        // 计时器
+        showCallStatus(connected = true)
+
+        // 按钮：切换为通话中全功能模式
+        setActionAreaEnabled(true)
+        setupConnectedActions()
+        setBottomBarMode(dialMode = false)
     }
 
-    private fun handleNoResponseSound() {
-        if (isEnding || callRecord.isConnected) return
+    /**
+     * 状态：忙音
+     * - 触发条件：预连接阶段用户点击"暂停通话"按钮（模拟对方忙线拒接）
+     * - UI：显示"对方正在通话中"
+     * - 音频：先播完一次拨号音，再播忙线音，完成后自动挂断
+     * - 按钮：全部禁用
+     */
+    private fun onStateBusy() {
+        if (callRecord.isConnected) return
 
+        cancelPreConnectJobs()
         stopRingtonePlayback()
+        setActionAreaEnabled(false)
+        setBottomBarDisabled()
+
+        bind.tvNewCallStatus.text = "对方正在通话中"
+        showCallStatus(connected = false)
+
+        // 先播完一次拨号音，再播忙线音
+        val ringStarted = MediaPlayerHelper.getInstance().playCallSoundOnce(this) {
+            runOnUiThread { playBusyThenFinish() }
+        }
+        if (!ringStarted) {
+            playBusyThenFinish()
+        }
+    }
+
+    /**
+     * 状态：无人接听
+     * - 触发条件：预连接阶段用户点击"静音"按钮 或 超时自动触发
+     * - UI：显示"暂时无人接听"
+     * - 音频：播放无人接听音（23.2s后自动结束）
+     * - 按钮：全部禁用
+     */
+    private fun onStateNoAnswer() {
+        if (callRecord.isConnected) return
+
+        cancelPreConnectJobs()
+        stopRingtonePlayback()
+        setActionAreaEnabled(false)
+        setBottomBarDisabled()
+
         bind.tvNewCallStatus.text = "暂时无人接听"
+        showCallStatus(connected = false)
+
         MediaPlayerHelper.getInstance().playNoResponseSound(this)
 
-        noResponseJob?.cancel()
-        noResponseJob = lifecycleScope.launch {
-            delay(NO_RESPONSE_AUDIO_DURATION_MILLIS)
-            endCallAndFinish("暂时无人接听", true, 0L)
+        noAnswerAudioJob = lifecycleScope.launch {
+            delay(NO_ANSWER_AUDIO_MILLIS)
+            endCallAndFinish(statusText = "暂时无人接听", needSave = true, delayMillis = 0L)
         }
     }
 
-    private fun startMissedCallFlow() {
-        if (isEnding || callRecord.isConnected) return
-
-        cancelPreConnectJobs()
-        bind.tvNewCallStatus.text = "等待对方接听"
-        noResponseJob = lifecycleScope.launch {
-            delay(NO_RESPONSE_DELAY_MILLIS)
-            mStatusObserver.postValue(PLAY_NO_RESPONSE_SOUND)
-        }
+    /**
+     * 状态：挂断
+     * - 触发条件：用户点击挂断按钮 或 通话结束
+     * - UI：显示挂断文字，所有控件半透明禁用
+     * - 音频：播放挂断音
+     * - 计时器：停止
+     * - 延迟：3.2s后finish
+     */
+    private fun onStateHungUp() {
+        // 防止重复触发
     }
 
-    private fun startRejectCallFlow() {
-        if (isEnding || callRecord.isConnected) return
+    // ===================== 核心挂断逻辑 =====================
 
-        cancelPreConnectJobs()
+    /**
+     * 用户主动挂断入口
+     */
+    private fun dispatchHangUp(userInitiated: Boolean) {
+        val statusText = if (callRecord.isConnected) "通话结束" else "正在挂断..."
+        endCallAndFinish(statusText = statusText, needSave = userInitiated, delayMillis = FINISH_DELAY_MILLIS)
+    }
+
+    /**
+     * 结束通话并延迟关闭页面（防重入）
+     *
+     * @param statusText     状态栏显示文字
+     * @param needSave       是否保存通话记录
+     * @param delayMillis    finish前延迟时间（ms）
+     */
+    private fun endCallAndFinish(statusText: String, needSave: Boolean, delayMillis: Long) {
+        // 防重入保护：已在进行中则直接return
+        if (finishJob?.isActive == true) return
+
+        cancelAllJobs()
+        stopAndSaveRecording()
         stopRingtonePlayback()
-        bind.tvNewCallStatus.text = "对方正在通话中"
 
-        val ringStarted = MediaPlayerHelper.getInstance().playCallSoundOnce(this) {
-            runOnUiThread {
-                playBusyPromptThenFinish()
-            }
+        // 音频：播放挂断音
+        MediaPlayerHelper.getInstance().playGuaduanSound(this)
+
+        // UI
+        bind.tvNewCallStatus.text = statusText
+        showCallStatus(connected = false)
+        bind.cmCallTime.stop()
+        setBottomBarDisabled()
+        setActionAreaEnabled(false)
+
+        if (needSave) {
+            saveCallRecord()
         }
 
-        if (!ringStarted) {
-            playBusyPromptThenFinish()
+        finishJob = lifecycleScope.launch {
+            delay(delayMillis)
+            finish()
         }
     }
 
-    private fun playBusyPromptThenFinish() {
-        if (isEnding) return
+    // ===================== 忙线辅助 =====================
 
+    private fun playBusyThenFinish() {
         val busyStarted = MediaPlayerHelper.getInstance().playBusySound(this, BUSY_AUDIO_RES_NAME) {
             runOnUiThread {
-                endCallAndFinish("对方正在通话中", true, 0L)
+                endCallAndFinish(statusText = "对方正在通话中", needSave = true, delayMillis = 0L)
+            }
+        }
+        if (!busyStarted) {
+            Log.w(TAG, "未找到忙线音资源：$BUSY_AUDIO_RES_NAME")
+            endCallAndFinish(statusText = "对方正在通话中", needSave = true, delayMillis = 0L)
+        }
+    }
+
+    // ===================== 按钮配置 =====================
+
+    /**
+     * 预连接阶段按钮配置：
+     * - 静音按钮 → 触发无人接听流程（用户不等待了）
+     * - 暂停按钮 → 触发忙线拒接流程
+     * - 其他按钮 → 不可用
+     */
+    private fun setupPreConnectActions() {
+        bind.llAction0.setOnClickListener(null)
+        bind.llAction1.setOnClickListener(null)
+        bind.llAction2.setOnClickListener(null)
+        bind.llAction5.setOnClickListener(null)
+
+        // 静音：触发无人接听等待
+        bind.llAction3.setOnClickListener {
+            if (!callRecord.isConnected && finishJob?.isActive != true) {
+                cancelPreConnectJobs()
+                bind.tvNewCallStatus.text = "等待对方接听"
+                noAnswerWaitJob = lifecycleScope.launch {
+                    delay(NO_ANSWER_TRIGGER_MILLIS)
+                    callStateLD.postValue(CallState.NO_ANSWER)
+                }
             }
         }
 
-        if (!busyStarted) {
-            Log.w(TAG, "未找到忙线提示音资源：$BUSY_AUDIO_RES_NAME")
-            endCallAndFinish("对方正在通话中", true, 0L)
+        // 暂停通话：触发忙线流程
+        bind.llAction4.setOnClickListener {
+            if (!callRecord.isConnected && finishJob?.isActive != true) {
+                callStateLD.postValue(CallState.BUSY)
+            }
         }
     }
+
+    /**
+     * 通话中按钮配置：全功能可用
+     */
+    @SuppressLint("UseCompatTextViewDrawableApis")
+    private fun setupConnectedActions() {
+        // 激活所有action图标颜色
+        listOf(
+            bind.tvAction0, bind.tvAction1,
+            bind.tvAction3, bind.tvAction4
+        ).forEach { tv ->
+            tv.setTextColor(Color.WHITE)
+            tv.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+        }
+
+        // 视频模式：暂不实现，保留点击空操作
+        bind.llAction0.setOnClickListener(null)
+        // 添加通话：暂不实现
+        bind.llAction1.setOnClickListener(null)
+        // 笔记：暂不实现
+        bind.llAction2.setOnClickListener(null)
+
+        // 静音（已接通阶段）
+        bind.llAction3.setOnClickListener {
+            toggleMute()
+        }
+
+        // 暂停通话（已接通阶段）：切换键盘展开
+        bind.llAction4.setOnClickListener {
+            toggleDialPad()
+        }
+
+        // 录音
+        bind.llAction5.setOnClickListener {
+            toggleRecording()
+        }
+
+        // 免提
+        bind.llDialSwitch.setOnClickListener {
+            switchSpeaker()
+        }
+
+        // 键盘按钮
+        bind.llDialSpeaker.setOnClickListener {
+            toggleDialPad()
+        }
+
+        // 挂断按钮
+        bind.llDialHangUp.setOnClickListener {
+            dispatchHangUp(userInitiated = true)
+        }
+        bind.ivDialHangUp.setOnClickListener {
+            dispatchHangUp(userInitiated = true)
+        }
+    }
+
+    // ===================== UI 更新辅助 =====================
+
+    /**
+     * 切换计时器 / 状态文字显示
+     */
+    private fun showCallStatus(connected: Boolean) {
+        if (connected) {
+            bind.cmCallTime.visibility = View.VISIBLE
+            bind.cmCallTime.base = SystemClock.elapsedRealtime()
+            bind.cmCallTime.start()
+            bind.tvNewCallStatus.visibility = View.GONE
+        } else {
+            bind.tvNewCallStatus.visibility = View.VISIBLE
+            bind.cmCallTime.visibility = View.GONE
+            bind.cmCallTime.stop()
+        }
+    }
+
+    /**
+     * 设置底部操作栏（免提/挂断/键盘）为禁用状态（半透明）
+     */
+    private fun setBottomBarDisabled() {
+        bind.ivDialSwitch.alpha = 0.5f
+        bind.ivDialHangUp.alpha = 0.5f
+        bind.ivDialSpeaker.alpha = 0.5f
+        bind.llDialSwitch.setOnClickListener(null)
+        bind.llDialHangUp.setOnClickListener(null)
+        bind.llDialSpeaker.setOnClickListener(null)
+        bind.ivDialHangUp.setOnClickListener(null)
+    }
+
+    /**
+     * 设置底部按钮为通话模式（非键盘展开模式）
+     */
+    private fun setBottomBarMode(dialMode: Boolean) {
+        // dialMode=true 代表键盘展开状态，暂保留扩展
+        bind.ivDialSwitch.alpha = 1.0f
+        bind.ivDialHangUp.alpha = 1.0f
+        bind.ivDialSpeaker.alpha = 1.0f
+        bind.llDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
+        bind.ivDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
+    }
+
+    /**
+     * 设置 action 功能区（6宫格）是否可用（通过 alpha 反映）
+     */
+    private fun setActionAreaEnabled(enabled: Boolean) {
+        val alpha = if (enabled) 1.0f else 0.5f
+        bind.llActionRoot.alpha = alpha
+    }
+
+    /**
+     * 根据是否播放彩铃视频更新界面
+     */
+    private fun updateUIForRingtoneVideo(isPlayingVideo: Boolean) {
+        if (isPlayingVideo) {
+            bind.tvNewCallStatus.text = "正在等待对方接听电话"
+            bind.tvAICallStatus.visibility = View.GONE
+            bind.tvNewCallPlayingRing.visibility = View.VISIBLE
+            bind.ivNewCallHead.visibility = View.GONE
+        } else {
+            bind.ivNewCallHead.visibility = View.VISIBLE
+            bind.tvAICallStatus.visibility = View.VISIBLE
+            bind.tvNewCallPlayingRing.visibility = View.GONE
+        }
+    }
+
+    // ===================== 功能操作 =====================
+
+    /**
+     * 切换静音
+     */
+    private fun toggleMute() {
+        isJingYin = !isJingYin
+        val color = if (isJingYin) "#13A8E1".toColorInt() else Color.WHITE
+        bind.tvAction3.setTextColor(color)
+        bind.tvAction3.compoundDrawableTintList = ColorStateList.valueOf(color)
+    }
+
+    /**
+     * 切换键盘面板显示（ll_dial_root）
+     */
+    private fun toggleDialPad() {
+        val isVisible = bind.llDialRoot.visibility == View.VISIBLE
+        bind.llDialRoot.visibility = if (isVisible) View.GONE else View.VISIBLE
+    }
+
+    /**
+     * 切换录音
+     */
+    private fun toggleRecording() {
+        if (isLuYin) {
+            // 停止录音
+            isLuYin = false
+            bind.tvAction5.setTextColor(Color.WHITE)
+            bind.tvAction5.stop()
+            bind.tvAction5.text = "录音"
+            bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+            stopRecordingByUser()
+        } else {
+            // 开始录音
+            if (!hasRecordAudioPermission()) {
+                ToastUtils.s("需要录音权限才能使用录音功能，请先在首页完成授权")
+                return
+            }
+            val path = audioRecorderHelper.startRecording(number)
+            if (path != null) {
+                isLuYin = true
+                bind.tvAction5.setTextColor("#13A8E1".toColorInt())
+                bind.tvAction5.base = SystemClock.elapsedRealtime()
+                bind.tvAction5.start()
+                bind.tvAction5.compoundDrawableTintList =
+                    ColorStateList.valueOf("#13A8E1".toColorInt())
+                ToastUtils.s("开始录音")
+            } else {
+                ToastUtils.s("录音启动失败")
+            }
+        }
+    }
+
+    /**
+     * 切换免提/听筒
+     */
+    private fun switchSpeaker() {
+        isSpeakerOn = !isSpeakerOn
+        MediaPlayerHelper.getInstance().switchAudioOutput(this, isSpeakerOn)
+        val color = if (isSpeakerOn) "#13A8E1".toColorInt() else Color.WHITE
+        bind.ivDialSwitch.setTextColor(color)
+    }
+
+    // ===================== 音频控制 =====================
 
     private fun stopRingtonePlayback() {
         GSYVideoPlayerHelper.getInstance().stopPlaying()
@@ -283,43 +597,43 @@ class newCallActivity : BaseActivity() {
         updateUIForRingtoneVideo(false)
     }
 
-    private fun updateHangUpColor() {
-        bind.ivDialSwitch.alpha = 0.5f
-        bind.ivDialHangUp.alpha = 0.5f
-        bind.ivDialSpeaker.alpha = 0.5f
+    // ===================== 协程调度管理 =====================
+
+    private fun cancelPreConnectJobs() {
+        ringJob?.cancel()
+        autoConnectJob?.cancel()
+        noAnswerWaitJob?.cancel()
+        noAnswerAudioJob?.cancel()
     }
 
-    private fun hangUp(text: String, needSave: Boolean) {
-        endCallAndFinish(text, needSave, FINISH_DELAY_MILLIS)
+    private fun cancelAllJobs() {
+        cancelPreConnectJobs()
+        finishJob?.cancel()
     }
 
-    private fun endCallAndFinish(statusText: String, needSave: Boolean, finishDelayMillis: Long) {
-        if (isEnding) return
-        isEnding = true
+    // ===================== 录音存储 =====================
 
-        cancelAllJobs()
-        finishJob = lifecycleScope.launch {
-            delay(finishDelayMillis)
-            finish()
+    private fun stopAndSaveRecording() {
+        if (audioRecorderHelper.isCurrentlyRecording()) {
+            val info = audioRecorderHelper.stopRecording()
+            info?.let { pendingRecordings.add(it) }
         }
-        stopAndSaveRecording()
-        stopRingtonePlayback()
-        MediaPlayerHelper.getInstance().playGuaduanSound(this)
-        updateHangUpColor()
-        updateCallTip(false)
-        bind.tvNewCallStatus.text = statusText
-
-        if (needSave) {
-            saveCallRecord()
-        }
-
-
     }
+
+    private fun stopRecordingByUser() {
+        if (audioRecorderHelper.isCurrentlyRecording()) {
+            val info = audioRecorderHelper.stopRecording()
+            info?.let {
+                pendingRecordings.add(it)
+                ToastUtils.s("录音已停止，共 ${pendingRecordings.size} 条录音")
+            }
+        }
+    }
+
+    // ===================== 数据存储 =====================
 
     private fun saveCallRecord() {
         callRecord.endTime = System.currentTimeMillis()
-
-        // 如果有录音，设置第一个录音路径到 callRecord（向后兼容）
         if (pendingRecordings.isNotEmpty()) {
             callRecord.recordingPath = pendingRecordings[0].filePath
             callRecord.recordingStartTime = pendingRecordings[0].startTime
@@ -331,37 +645,27 @@ class newCallActivity : BaseActivity() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : io.reactivex.CompletableObserver {
-                override fun onSubscribe(d: Disposable) {
-                }
-
+                override fun onSubscribe(d: Disposable) {}
                 override fun onComplete() {
                     Log.d(TAG, "通话记录保存成功")
-                    // 获取刚插入的通话记录ID，然后保存录音记录
                     saveRecordingRecords()
                 }
-
                 override fun onError(e: Throwable) {
                     Log.e(TAG, "通话记录保存失败: ${e.message}")
                 }
             })
     }
 
-    /**
-     * 保存所有录音记录到 Recording 表
-     */
     private fun saveRecordingRecords() {
         if (pendingRecordings.isEmpty()) return
 
-        // 查询刚插入的通话记录获取ID
         AppDatabase.getInstance().callRecordModel()
             .getByNumber(number)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe(object : MaybeObserver<CallRecord?> {
                 override fun onSubscribe(d: Disposable) {}
-
                 override fun onSuccess(savedCallRecord: CallRecord) {
-                    // 为每条录音创建 Recording 记录
                     pendingRecordings.forEach { info ->
                         val recording = Recording().apply {
                             callRecordId = savedCallRecord.id
@@ -371,14 +675,8 @@ class newCallActivity : BaseActivity() {
                             duration = info.getDuration()
                             format = "m4a"
                             createdAt = System.currentTimeMillis()
-                            // 获取文件大小
-                            fileSize = try {
-                                File(info.filePath).length()
-                            } catch (e: Exception) {
-                                0L
-                            }
+                            fileSize = try { File(info.filePath).length() } catch (e: Exception) { 0L }
                         }
-
                         AppDatabase.getInstance().recordingModel()
                             .insert(recording)
                             .subscribeOn(Schedulers.io())
@@ -387,151 +685,32 @@ class newCallActivity : BaseActivity() {
                     Log.d(TAG, "已保存 ${pendingRecordings.size} 条录音记录")
                     pendingRecordings.clear()
                 }
-
-                override fun onError(e: Throwable) {
-                    Log.e(TAG, "查询通话记录失败: ${e.message}")
-                }
-
-                override fun onComplete() {
-                    Log.d(TAG, "未找到通话记录")
-                }
+                override fun onError(e: Throwable) { Log.e(TAG, "查询通话记录失败: ${e.message}") }
+                override fun onComplete() { Log.d(TAG, "未找到通话记录") }
             })
     }
 
-    /**
-     * 开始录音
-     */
-    private fun startRecording() {
-        if (!hasRecordAudioPermission()) {
-            ToastUtils.s("需要录音权限才能使用录音功能，请先在首页完成授权")
-            resetRecordingButton()
-            return
-        }
+    // ===================== 初始化 =====================
 
-        // 开始录音
-        val recordingPath = audioRecorderHelper.startRecording(number)
-        if (recordingPath != null) {
-            Log.d(TAG, "录音开始: $recordingPath")
-            ToastUtils.s("开始录音")
-        } else {
-            ToastUtils.s("录音启动失败")
-            resetRecordingButton()
-        }
+    private fun initCallRecord() {
+        callRecord.startTime = System.currentTimeMillis()
+        callRecord.phoneNumber = number
+        callRecord.callType = 0
     }
 
-    private fun resetRecordingButton() {
-        isLuYin = false
-        bind.tvAction5.setTextColor(Color.WHITE)
-        bind.tvAction5.stop()
+    private fun initUI() {
+        bind.tvNewCallNumber.text = callRecord.phoneNumber.formatWithSpaces()
         bind.tvAction5.text = "录音"
-        bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
+        // 初始状态：挂断按钮可用，其他底部按钮可用
+        bind.llDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
+        bind.ivDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
+        bind.llDialSwitch.setOnClickListener { switchSpeaker() }
+        // 键盘按钮在预连接阶段仅触发键盘展开（通话中才生效）
+        bind.llDialSpeaker.setOnClickListener { /* 预连接阶段不处理 */ }
     }
 
-    /**
-     * 停止录音并将录音信息添加到待保存列表
-     */
-    private fun stopAndSaveRecording() {
-        if (audioRecorderHelper.isCurrentlyRecording()) {
-            val recordingInfo = audioRecorderHelper.stopRecording()
-            recordingInfo?.let { info ->
-                Log.d(TAG, "录音停止: ${info.filePath}, 时长: ${info.getFormattedDuration()}")
-                // 将录音信息添加到待保存列表
-                pendingRecordings.add(info)
-            }
-        }
-    }
-
-    /**
-     * 停止录音（用户手动停止）
-     */
-    private fun stopRecordingByUser() {
-        if (audioRecorderHelper.isCurrentlyRecording()) {
-            val recordingInfo = audioRecorderHelper.stopRecording()
-            recordingInfo?.let { info ->
-                Log.d(TAG, "录音停止: ${info.filePath}, 时长: ${info.getFormattedDuration()}")
-                // 将录音信息添加到待保存列表
-                pendingRecordings.add(info)
-                ToastUtils.s("录音已停止，共 ${pendingRecordings.size} 条录音")
-            }
-        }
-    }
-
-    @SuppressLint("UseCompatTextViewDrawableApis")
-    private fun updateAction() {
-        bind.tvAction0.setTextColor(Color.WHITE)
-        bind.tvAction0.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-        bind.tvAction1.setTextColor(Color.WHITE)
-        bind.tvAction1.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-        bind.tvAction3.setTextColor(Color.WHITE)
-        bind.tvAction3.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-        bind.tvAction4.setTextColor(Color.WHITE)
-        bind.tvAction4.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-
-        bind.llAction0.setOnClickListener(null)
-        bind.llAction4.setOnClickListener(null)
-
-        bind.llAction3.setOnClickListener {
-            toggleMuteAction()
-        }
-
-        // 录音按钮点击事件
-        bind.llAction5.setOnClickListener {
-            if (isLuYin) {
-                // 停止录音
-                bind.tvAction5.setTextColor(Color.WHITE)
-                bind.tvAction5.stop()
-                bind.tvAction5.text = "录音"
-                bind.tvAction5.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-                stopRecordingByUser()
-            } else {
-                // 开始录音
-                bind.tvAction5.setTextColor("#13A8E1".toColorInt())
-                bind.tvAction5.base = SystemClock.elapsedRealtime()
-                bind.tvAction5.start()
-                bind.tvAction5.compoundDrawableTintList =
-                    ColorStateList.valueOf("#13A8E1".toColorInt())
-                startRecording()
-            }
-            isLuYin = !isLuYin
-        }
-    }
-
-    private fun toggleMuteAction() {
-        if (isJingYin) {
-            bind.tvAction3.setTextColor(Color.WHITE)
-            bind.tvAction3.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
-        } else {
-            bind.tvAction3.setTextColor("#13A8E1".toColorInt())
-            bind.tvAction3.compoundDrawableTintList =
-                ColorStateList.valueOf("#13A8E1".toColorInt())
-        }
-        isJingYin = !isJingYin
-    }
-
-    private fun switchSpeaker() {
-        if (isSpeakerOn) {
-            isSpeakerOn = !isSpeakerOn
-            MediaPlayerHelper.getInstance().switchAudioOutput(this, isSpeakerOn)
-            bind.ivDialSwitch.setTextColor(Color.WHITE)
-        } else {
-            isSpeakerOn = !isSpeakerOn
-            MediaPlayerHelper.getInstance().switchAudioOutput(this, isSpeakerOn)
-            bind.ivDialSwitch.setTextColor("#13A8E1".toColorInt())
-        }
-    }
-
-    private fun updateCallTip(isConnected: Boolean) {
-        if (isConnected) {
-            bind.cmCallTime.visibility = View.VISIBLE
-            // 设置初始值（重置）
-            bind.cmCallTime.base = SystemClock.elapsedRealtime()
-            bind.cmCallTime.start()
-            bind.tvNewCallStatus.visibility = View.GONE
-        } else {
-            bind.tvNewCallStatus.visibility = View.VISIBLE
-            bind.cmCallTime.visibility = View.GONE
-            bind.cmCallTime.stop()
-        }
+    private fun initGSYVideo() {
+        GSYVideoPlayerHelper.getInstance().init(bind.videoRingtone)
     }
 
     private fun getNumberData() {
@@ -541,46 +720,47 @@ class newCallActivity : BaseActivity() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : MaybeObserver<CallRecord?> {
-                override fun onSubscribe(d: Disposable) {
-                }
-
+                override fun onSubscribe(d: Disposable) {}
                 override fun onSuccess(oldCallRecord: CallRecord) {
-                    if (oldCallRecord.attribution == null || oldCallRecord.attribution == "null" || oldCallRecord.attribution.isBlank() || oldCallRecord.attribution == "未知") {
-                        PhoneNumberUtils.getProvince(number) { bean ->
-                            if (bean.province != bean.city) {
-                                callRecord.attribution = bean.province + bean.city
-                            } else {
-                                callRecord.attribution = bean.province
-                            }
-                            callRecord.operator = bean.carrier
-                            bind.tvNewCallNumberLocal.text = callRecord.attribution + " " + callRecord.operator
-                        }
+                    if (oldCallRecord.attribution.isNullOrBlank() ||
+                        oldCallRecord.attribution == "null" ||
+                        oldCallRecord.attribution == "未知"
+                    ) {
+                        fetchAndSetAttribution()
                     } else {
-                        bind.tvNewCallNumberLocal.text = oldCallRecord.attribution + " " + oldCallRecord.operator
+                        bind.tvNewCallNumberLocal.text =
+                            "${oldCallRecord.attribution} ${oldCallRecord.operator}"
                         callRecord.attribution = oldCallRecord.attribution
                         callRecord.operator = oldCallRecord.operator
                     }
                 }
-
                 override fun onError(e: Throwable) {
-                    Log.d(TAG, "onError: 走了onError流程")
+                    Log.d(TAG, "getNumberData onError")
+                    fetchAndSetAttribution()
                 }
-
                 override fun onComplete() {
-                    Log.d(TAG, "onComplete: 走了onComplete流程")
-                    if (callRecord.attribution == null || callRecord.attribution == "null" || callRecord.attribution.isBlank() || callRecord.attribution == "未知") {
-                        PhoneNumberUtils.getProvince(number) { bean ->
-                            if (bean.province != bean.city) {
-                                callRecord.attribution = bean.province + bean.city
-                            } else {
-                                callRecord.attribution = bean.province
-                            }
-                            callRecord.operator = bean.carrier
-                            bind.tvNewCallNumberLocal.text = callRecord.attribution + " " + callRecord.operator
-                        }
+                    Log.d(TAG, "getNumberData onComplete")
+                    if (callRecord.attribution.isNullOrBlank() ||
+                        callRecord.attribution == "null" ||
+                        callRecord.attribution == "未知"
+                    ) {
+                        fetchAndSetAttribution()
                     }
                 }
             })
+    }
+
+    private fun fetchAndSetAttribution() {
+        PhoneNumberUtils.getProvince(number) { bean ->
+            val attribution = if (bean.province != bean.city) {
+                bean.province + bean.city
+            } else {
+                bean.province
+            }
+            callRecord.attribution = attribution
+            callRecord.operator = bean.carrier
+            bind.tvNewCallNumberLocal.text = "$attribution ${bean.carrier}"
+        }
     }
 
     private fun setBackGround() {
@@ -588,30 +768,9 @@ class newCallActivity : BaseActivity() {
             ToastUtils.s("存储权限未开启，当前将使用默认通话背景")
             return
         }
-        // 获取 WallpaperManager 实例
         val wallpaperManager = WallpaperManager.getInstance(this)
-        // 获取当前的壁纸
         val wallpaperDrawable = wallpaperManager.drawable
-        // 将 Drawable 转换为 Bitmap
         val wallpaperBitmap = (wallpaperDrawable as BitmapDrawable).bitmap
-        // 设置根布局背景
         bind.root.background = BitmapDrawable(resources, wallpaperBitmap)
-    }
-
-    /**
-     * 根据是否播放彩铃视频更新界面样式
-     * @param isPlayingVideo 是否正在播放彩铃视频
-     */
-    private fun updateUIForRingtoneVideo(isPlayingVideo: Boolean) {
-        if (isPlayingVideo) {
-            bind.tvNewCallStatus.text = "正在等待对方接听电话"
-            bind.tvAICallStatus.visibility = View.GONE
-            bind.tvNewCallPlayingRing.visibility = View.VISIBLE
-            bind.ivNewCallHead.visibility = View.GONE
-        } else {
-
-            bind.ivNewCallHead.visibility = View.VISIBLE
-            bind.tvAICallStatus.visibility = View.VISIBLE
-        }
     }
 }

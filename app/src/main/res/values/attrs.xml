@@ -15,6 +15,9 @@
     <attr name="textTertiaryColor" format="reference|color" />
     <attr name="textHintColor" format="reference|color" />
 
+    <!-- 拨号数字显示颜色（白天黑色/黑夜绿色） -->
+    <attr name="dialNumberColor" format="reference|color" />
+
     <!-- 功能色 -->
     <attr name="accentGreenColor" format="reference|color" />
     <attr name="accentBlueColor" format="reference|color" />

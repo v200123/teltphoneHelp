@@ -360,21 +360,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         tvTabContact.setTextColor(getResources().getColor(R.color.textSecondary));
         tvTabBusiness.setTextColor(getResources().getColor(R.color.textSecondary));
         
-        // 设置选中 Tab 颜色
+        // 设置选中 Tab 颜色（跟随主题：白天黑色，黑夜白色）
+        int checkedColor = getResources().getColor(R.color.textPrimary);
         switch (index) {
             case 0:
-                tvTabCall.setTextColor(getResources().getColor(R.color.dialGreen));
+                tvTabCall.setTextColor(checkedColor);
                 // 通话 Tab，正常显示
                 break;
             case 1:
-                tvTabContact.setTextColor(getResources().getColor(R.color.dialGreen));
+                tvTabContact.setTextColor(checkedColor);
                 // 联系人 Tab，显示主题切换对话框
                 new XPopup.Builder(this)
                         .asCustom(new ThemeSwitchDialog(this))
                         .show();
                 break;
             case 2:
-                tvTabBusiness.setTextColor(getResources().getColor(R.color.dialGreen));
+                tvTabBusiness.setTextColor(checkedColor);
                 // 营业厅 Tab，暂无功能
                 break;
         }
