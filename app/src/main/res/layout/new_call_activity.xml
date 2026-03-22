@@ -49,29 +49,28 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:textColor="@color/white"
-            android:textSize="24sp" />
+            android:textSize="25sp" />
 
         <TextView
             android:id="@+id/tv_new_call_number_local"
             android:layout_width="wrap_content"
+            android:layout_marginTop="2dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:gravity="center"
             android:includeFontPadding="false"
             android:textColor="@color/white_70"
-            android:textSize="15sp" />
+            android:textSize="16sp" />
 
         <Chronometer
             android:id="@+id/cm_call_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="4dp"
             android:format="%s"
             android:gravity="center"
             android:includeFontPadding="false"
             android:textColor="@color/callTextPrimary"
             android:textSize="32sp"
-            android:textStyle="bold"
             android:visibility="gone" />
 
         <TextView
@@ -83,7 +82,7 @@
             android:includeFontPadding="false"
             android:text="正在拨号"
             android:textColor="@color/white_70"
-            android:textSize="13sp" />
+            android:textSize="16sp" />
 
         <com.hjq.shape.view.ShapeTextView
             android:id="@+id/tv_AI_call_status"
@@ -104,12 +103,12 @@
             android:id="@+id/tv_new_call_playing_ring"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:gravity="center"
             android:includeFontPadding="false"
             android:text="正在播放视频彩铃"
             android:textColor="@color/white_70"
-            android:textSize="15sp"
+            android:textSize="17sp"
             android:visibility="gone" />
 
     </LinearLayout>
@@ -531,8 +530,9 @@
                 android:paddingEnd="4dp">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:id="@+id/iv_action_0"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@drawable/ic_new_video"
                     android:tint="@color/callTextSecondary"
                     android:scaleType="fitCenter" />
@@ -561,8 +561,9 @@
                 android:paddingEnd="4dp">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:id="@+id/iv_action_1"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@drawable/ic_new_add"
                     android:tint="@color/callTextSecondary"
                     android:scaleType="fitCenter" />
@@ -621,8 +622,9 @@
                 android:paddingEnd="4dp">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:id="@+id/iv_action_3"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@drawable/ic_new_jingyin"
                     android:tint="@color/callTextSecondary"
                     android:scaleType="fitCenter" />
@@ -651,8 +653,9 @@
                 android:paddingEnd="4dp">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:id="@+id/iv_action_4"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@drawable/ic_new_stop"
                     android:tint="@color/callTextSecondary"
                     android:scaleType="fitCenter" />
@@ -681,8 +684,8 @@
                 android:paddingEnd="4dp">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@drawable/ic_new_record"
                     android:tint="@color/callTextPrimary"
                     android:scaleType="fitCenter" />

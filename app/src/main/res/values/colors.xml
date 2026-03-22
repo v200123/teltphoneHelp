@@ -56,6 +56,9 @@
     <color name="textCallRecordMissed">#D9021B</color>
     <color name="textCallRecordNormal">#333333</color>
     <color name="textCallRecordNumber">#212121</color>
+    <!-- 通话历史列表：号码颜色（已接通/呼出用黑色，来电未接用红色） -->
+    <color name="textCallHistoryConnected">#212121</color>
+    <color name="textCallHistoryMissed">#D9021B</color>
 
     <!-- ========== 验证码按钮 ========== -->
     <color name="textGetCodeEnable">#0476F2</color>
@@ -74,7 +77,7 @@
     <!-- ========== 兼容旧代码（保留别名）========== -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="gray">#9E9E9E</color>
+    <color name="gray">#9B9E9E9E</color>
     <color name="white_50">#787B89</color>
     <color name="white_70">#B3FFFFFF</color>
 

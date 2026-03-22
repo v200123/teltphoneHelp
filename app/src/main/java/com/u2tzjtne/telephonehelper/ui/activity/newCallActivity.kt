@@ -96,7 +96,7 @@ class newCallActivity : BaseActivity() {
         private const val AUTO_CONNECT_DELAY_MILLIS = 10_000L  // 振铃→自动接通 延迟
         private const val NO_ANSWER_TRIGGER_MILLIS = 15_000L   // 触发无人接听的等待时间
         private const val NO_ANSWER_AUDIO_MILLIS = 23_200L     // 无人接听音时长
-        private const val FINISH_DELAY_MILLIS = 3_200L         // 挂断后延迟finish
+        private const val FINISH_DELAY_MILLIS = 1_000L         // 挂断后延迟finish
         private const val BUSY_AUDIO_RES_NAME = "audio_busy"
     }
 
@@ -113,6 +113,9 @@ class newCallActivity : BaseActivity() {
         observeCallState()
         setBackGround()
         MediaPlayerHelper.getInstance().switchAudioOutput(this, isSpeakerOn)
+
+        // iv_dial_hang_up 无论任何状态均响应挂断，永久绑定且不可被覆盖
+        bind.ivDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
 
         // 启动通话流程：进入拨打中状态
         callStateLD.value = CallState.DIALING
@@ -224,7 +227,7 @@ class newCallActivity : BaseActivity() {
         bind.tvNewCallPlayingRing.visibility = View.GONE
         bind.tvNewCallNumber.apply {
             setTextColor(getColor(R.color.white_70))
-            textSize = 18.0f
+            textSize = 20.0f
         }
 
         // HD 图标
@@ -261,16 +264,11 @@ class newCallActivity : BaseActivity() {
         setActionAreaEnabled(false)
         setBottomBarDisabled()
 
-        bind.tvNewCallStatus.text = "对方正在通话中"
+        bind.tvNewCallStatus.text = "正在拨号"
         showCallStatus(connected = false)
 
         // 先播完一次拨号音，再播忙线音
-        val ringStarted = MediaPlayerHelper.getInstance().playCallSoundOnce(this) {
-            runOnUiThread { playBusyThenFinish() }
-        }
-        if (!ringStarted) {
-            playBusyThenFinish()
-        }
+        playBusyThenFinish()
     }
 
     /**
@@ -322,6 +320,16 @@ class newCallActivity : BaseActivity() {
     }
 
     /**
+     * 对方挂断入口（被动挂断）
+     * - 状态文字显示"对方已挂断"
+     * - 保存通话记录
+     */
+    private fun dispatchRemoteHangUp() {
+        val statusText = if (callRecord.isConnected) "通话结束" else "正在挂断..."
+        endCallAndFinish(statusText = statusText, needSave = true, delayMillis = FINISH_DELAY_MILLIS)
+    }
+
+    /**
      * 结束通话并延迟关闭页面（防重入）
      *
      * @param statusText     状态栏显示文字
@@ -341,10 +349,23 @@ class newCallActivity : BaseActivity() {
 
         // UI
         bind.tvNewCallStatus.text = statusText
+        bind.tvAICallStatus.visibility = View.GONE
         showCallStatus(connected = false)
         bind.cmCallTime.stop()
         setBottomBarDisabled()
         setActionAreaEnabled(false)
+        // 通话结束：将6个功能图标和文字统一设为白色（alpha 已由 setActionAreaEnabled 控制半透明）
+        val white = ColorStateList.valueOf(Color.WHITE)
+        listOf(bind.tvAction0, bind.tvAction1, bind.tvAction2,
+               bind.tvAction3, bind.tvAction4).forEach { tv ->
+            tv.setTextColor(Color.WHITE)
+            tv.compoundDrawableTintList = white
+        }
+        bind.tvAction5.setTextColor(Color.WHITE)
+        listOf(bind.ivAction0, bind.ivAction1,
+               bind.ivAction3, bind.ivAction4).forEach { iv ->
+            iv.imageTintList = white
+        }
 
         if (needSave) {
             saveCallRecord()
@@ -409,7 +430,7 @@ class newCallActivity : BaseActivity() {
      */
     @SuppressLint("UseCompatTextViewDrawableApis")
     private fun setupConnectedActions() {
-        // 激活所有action图标颜色
+        // 接通后：视频模式、添加通话、静音、暂停通话 图标和文字变白色
         listOf(
             bind.tvAction0, bind.tvAction1,
             bind.tvAction3, bind.tvAction4
@@ -417,6 +438,15 @@ class newCallActivity : BaseActivity() {
             tv.setTextColor(Color.WHITE)
             tv.compoundDrawableTintList = ColorStateList.valueOf(Color.WHITE)
         }
+        listOf(
+            bind.ivAction0, bind.ivAction1,
+            bind.ivAction3, bind.ivAction4
+        ).forEach { iv ->
+            iv.imageTintList = ColorStateList.valueOf(Color.WHITE)
+        }
+        // 笔记和录音保持常亮（已在 XML 中配置为 callTextPrimary，此处确保不受影响）
+        bind.tvAction2.setTextColor(Color.WHITE)
+        bind.tvAction5.setTextColor(Color.WHITE)
 
         // 视频模式：暂不实现，保留点击空操作
         bind.llAction0.setOnClickListener(null)
@@ -445,18 +475,16 @@ class newCallActivity : BaseActivity() {
             switchSpeaker()
         }
 
-        // 键盘按钮
+        // 键盘按钮：触发对方挂断流程
         bind.llDialSpeaker.setOnClickListener {
-            toggleDialPad()
+            dispatchRemoteHangUp()
         }
 
-        // 挂断按钮
+        // 挂断按钮（ll容器）
         bind.llDialHangUp.setOnClickListener {
             dispatchHangUp(userInitiated = true)
         }
-        bind.ivDialHangUp.setOnClickListener {
-            dispatchHangUp(userInitiated = true)
-        }
+        // ivDialHangUp 已在 onCreate 中永久绑定，此处不重复设置
     }
 
     // ===================== UI 更新辅助 =====================
@@ -487,7 +515,7 @@ class newCallActivity : BaseActivity() {
         bind.llDialSwitch.setOnClickListener(null)
         bind.llDialHangUp.setOnClickListener(null)
         bind.llDialSpeaker.setOnClickListener(null)
-        bind.ivDialHangUp.setOnClickListener(null)
+        // ivDialHangUp 不清除监听，始终保持可点击挂断
     }
 
     /**
@@ -499,15 +527,23 @@ class newCallActivity : BaseActivity() {
         bind.ivDialHangUp.alpha = 1.0f
         bind.ivDialSpeaker.alpha = 1.0f
         bind.llDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
-        bind.ivDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
     }
 
     /**
      * 设置 action 功能区（6宫格）是否可用（通过 alpha 反映）
+     * 笔记（action_2）和录音（action_5）始终保持常亮，不受状态影响
      */
     private fun setActionAreaEnabled(enabled: Boolean) {
-        val alpha = if (enabled) 1.0f else 0.5f
-        bind.llActionRoot.alpha = alpha
+//        val alpha = if (enabled) 1.0f else 0.5f
+        val alpha =1.0f
+        // 视频模式、添加通话、静音、暂停通话 跟随状态
+        bind.llAction0.alpha = alpha
+        bind.llAction1.alpha = alpha
+        bind.llAction3.alpha = alpha
+        bind.llAction4.alpha = alpha
+        // 笔记和录音始终常亮
+        bind.llAction2.alpha = 1.0f
+        bind.llAction5.alpha = 1.0f
     }
 
     /**
@@ -536,6 +572,7 @@ class newCallActivity : BaseActivity() {
         val color = if (isJingYin) "#13A8E1".toColorInt() else Color.WHITE
         bind.tvAction3.setTextColor(color)
         bind.tvAction3.compoundDrawableTintList = ColorStateList.valueOf(color)
+        bind.ivAction3.imageTintList = ColorStateList.valueOf(color)
     }
 
     /**
@@ -699,10 +736,10 @@ class newCallActivity : BaseActivity() {
         bind.tvAction5.text = "录音"
         // 初始状态：挂断按钮可用，其他底部按钮可用
         bind.llDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
-        bind.ivDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
+        // ivDialHangUp 已在 onCreate 中永久绑定，此处不重复设置
         bind.llDialSwitch.setOnClickListener { switchSpeaker() }
-        // 键盘按钮在预连接阶段仅触发键盘展开（通话中才生效）
-        bind.llDialSpeaker.setOnClickListener { /* 预连接阶段不处理 */ }
+        // 键盘按钮：触发对方挂断流程（预连接和通话中均可触发）
+        bind.llDialSpeaker.setOnClickListener { dispatchRemoteHangUp() }
     }
 
     private fun initGSYVideo() {

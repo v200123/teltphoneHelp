@@ -56,6 +56,9 @@
     <color name="textCallRecordMissed">#EF9A9A</color>
     <color name="textCallRecordNormal">#FFFFFF</color>
     <color name="textCallRecordNumber">#FFFFFF</color>
+    <!-- 通话历史列表：号码颜色（已接通/呼出用白色，来电未接用浅红色） -->
+    <color name="textCallHistoryConnected">#FFFFFF</color>
+    <color name="textCallHistoryMissed">#EF9A9A</color>
 
     <!-- ========== 验证码按钮 ========== -->
     <color name="textGetCodeEnable">#90CAF9</color>
