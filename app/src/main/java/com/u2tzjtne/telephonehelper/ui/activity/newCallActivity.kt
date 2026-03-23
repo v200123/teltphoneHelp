@@ -191,9 +191,7 @@ class newCallActivity : BaseActivity() {
      */
     private fun onStateRinging() {
         if (callRecord.isConnected) return
-
-        bind.tvNewCallStatus.text = "对方已振铃"
-
+        bind.tvNewCallStatus.text = "正在拨号"
         // 尝试播放彩铃视频，否则播放拨号等待音
         GSYVideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
             Log.d(TAG, "彩铃回调: isVideoPlaying=$isVideoPlaying")
@@ -262,7 +260,7 @@ class newCallActivity : BaseActivity() {
         cancelPreConnectJobs()
         stopRingtonePlayback()
         setActionAreaEnabled(false)
-        setBottomBarDisabled()
+//        setBottomBarDisabled()
 
         bind.tvNewCallStatus.text = "正在拨号"
         showCallStatus(connected = false)
@@ -286,14 +284,14 @@ class newCallActivity : BaseActivity() {
         setActionAreaEnabled(false)
         setBottomBarDisabled()
 
-        bind.tvNewCallStatus.text = "暂时无人接听"
+        bind.tvNewCallStatus.text = "正在拨号"
         showCallStatus(connected = false)
 
         MediaPlayerHelper.getInstance().playNoResponseSound(this)
 
         noAnswerAudioJob = lifecycleScope.launch {
             delay(NO_ANSWER_AUDIO_MILLIS)
-            endCallAndFinish(statusText = "暂时无人接听", needSave = true, delayMillis = 0L)
+            endCallAndFinish(statusText = "正在拨号", needSave = true, delayMillis = 0L)
         }
     }
 
@@ -382,7 +380,7 @@ class newCallActivity : BaseActivity() {
     private fun playBusyThenFinish() {
         val busyStarted = MediaPlayerHelper.getInstance().playBusySound(this, BUSY_AUDIO_RES_NAME) {
             runOnUiThread {
-                endCallAndFinish(statusText = "对方正在通话中", needSave = true, delayMillis = 0L)
+                endCallAndFinish(statusText = "通话结束", needSave = true, delayMillis = 0L)
             }
         }
         if (!busyStarted) {
@@ -409,7 +407,7 @@ class newCallActivity : BaseActivity() {
         bind.llAction3.setOnClickListener {
             if (!callRecord.isConnected && finishJob?.isActive != true) {
                 cancelPreConnectJobs()
-                bind.tvNewCallStatus.text = "等待对方接听"
+                bind.tvNewCallStatus.text = "正在拨号"
                 noAnswerWaitJob = lifecycleScope.launch {
                     delay(NO_ANSWER_TRIGGER_MILLIS)
                     callStateLD.postValue(CallState.NO_ANSWER)
