@@ -80,7 +80,7 @@
     <color name="gray">#9B9E9E9E</color>
     <color name="white_50">#787B89</color>
     <color name="white_70">#B3FFFFFF</color>
-
+    <color name="white_40">#66FFFFFF</color>
     <!-- 兼容旧命名 -->
     <color name="text_call_record_missed">@color/textCallRecordMissed</color>
     <color name="text_call_record_normal">@color/textCallRecordNormal</color>

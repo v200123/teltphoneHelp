@@ -77,6 +77,7 @@ class newCallActivity : BaseActivity() {
 
     private var isJingYin = false
     private var isLuYin = false
+    private var hasRingtone = false  // 是否有彩铃
 
     // 录音工具类
     private val audioRecorderHelper = AudioRecorderHelper.getInstance()
@@ -163,8 +164,8 @@ class newCallActivity : BaseActivity() {
      * - 调度：2s后进入RINGING
      */
     private fun onStateDialing() {
-        // UI
-        bind.tvNewCallStatus.text = "正在拨号"
+        // UI：根据是否有彩铃显示不同文字
+        bind.tvNewCallStatus.text = if (hasRingtone) "正在等待对方接听电话" else "正在拨号"
         showCallStatus(connected = false)
         setActionAreaEnabled(false)
         setBottomBarMode(dialMode = false)
@@ -191,15 +192,16 @@ class newCallActivity : BaseActivity() {
      */
     private fun onStateRinging() {
         if (callRecord.isConnected) return
-        bind.tvNewCallStatus.text = "正在拨号"
         // 尝试播放彩铃视频，否则播放拨号等待音
         GSYVideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
             Log.d(TAG, "彩铃回调: isVideoPlaying=$isVideoPlaying")
+            hasRingtone = isVideoPlaying
             if (isVideoPlaying) {
                 updateUIForRingtoneVideo(true)
+                bind.tvNewCallStatus.text = "正在等待对方接听电话"
             } else {
                 updateUIForRingtoneVideo(false)
-                bind.tvNewCallStatus.text = "对方已振铃"
+                bind.tvNewCallStatus.text = "正在拨号"
                 MediaPlayerHelper.getInstance().playCallSound(this)
             }
         }
@@ -227,12 +229,12 @@ class newCallActivity : BaseActivity() {
             setTextColor(getColor(R.color.white_70))
             textSize = 20.0f
         }
-
+        bind.tvNewCallNumberLocal.compoundDrawablePadding = 15
         // HD 图标
         bind.tvNewCallNumberLocal.setCompoundDrawables(
             null, null,
-            AppCompatResources.getDrawable(this, R.drawable.ic_hd)!!.apply {
-                setBounds(0, 0, 105, 105)
+            AppCompatResources.getDrawable(this, R.drawable.incall_callcard_speech_hd)!!.apply {
+                setBounds(0, 0, 48, 48)
                 setTint(getColor(R.color.white_70))
             },
             null
@@ -256,13 +258,13 @@ class newCallActivity : BaseActivity() {
      */
     private fun onStateBusy() {
         if (callRecord.isConnected) return
-
         cancelPreConnectJobs()
         stopRingtonePlayback()
         setActionAreaEnabled(false)
 //        setBottomBarDisabled()
 
-        bind.tvNewCallStatus.text = "正在拨号"
+        // 根据是否有彩铃显示不同文字
+        bind.tvNewCallStatus.text =/* if (hasRingtone) "正在等待对方接听电话" else*/ "正在拨号"
         showCallStatus(connected = false)
 
         // 先播完一次拨号音，再播忙线音
@@ -282,17 +284,18 @@ class newCallActivity : BaseActivity() {
         cancelPreConnectJobs()
         stopRingtonePlayback()
         setActionAreaEnabled(false)
-        setBottomBarDisabled()
+//        setBottomBarDisabled()
 
-        bind.tvNewCallStatus.text = "正在拨号"
+        // 根据是否有彩铃显示不同文字
+        bind.tvNewCallStatus.text = if (hasRingtone) "正在等待对方接听电话" else "正在拨号"
         showCallStatus(connected = false)
 
         MediaPlayerHelper.getInstance().playNoResponseSound(this)
 
-        noAnswerAudioJob = lifecycleScope.launch {
-            delay(NO_ANSWER_AUDIO_MILLIS)
-            endCallAndFinish(statusText = "正在拨号", needSave = true, delayMillis = 0L)
-        }
+//        noAnswerAudioJob = lifecycleScope.launch {
+//            delay(NO_ANSWER_AUDIO_MILLIS)
+//            endCallAndFinish(statusText = "正在拨号", needSave = true, delayMillis = 0L)
+//        }
     }
 
     /**
@@ -407,7 +410,7 @@ class newCallActivity : BaseActivity() {
         bind.llAction3.setOnClickListener {
             if (!callRecord.isConnected && finishJob?.isActive != true) {
                 cancelPreConnectJobs()
-                bind.tvNewCallStatus.text = "正在拨号"
+                bind.tvNewCallStatus.text =if(hasRingtone)"正在拨号" else "正在拨号"
                 noAnswerWaitJob = lifecycleScope.launch {
                     delay(NO_ANSWER_TRIGGER_MILLIS)
                     callStateLD.postValue(CallState.NO_ANSWER)

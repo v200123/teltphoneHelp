@@ -123,7 +123,6 @@ public class PhoneNumberUtils {
             } else {
                 Log.d("local", "getProvince: 缓存没有");
             }
-
             // 本地库查询
             PhoneNumberLookup phoneNumberLookup = new PhoneNumberLookup();
             String province = phoneNumberLookup.lookup(fullPhoneNumber)
@@ -156,7 +155,7 @@ public class PhoneNumberUtils {
                         try {
                             Gson gson = new Gson();
                             JsonObject fromJson = gson.fromJson(response.body().string(), JsonObject.class);
-                            if (fromJson.get("message").getAsString().equals("正常响应")) {
+                            if (fromJson.get("code").getAsInt() == 200) {
                                 JsonObject jsonObject = fromJson.get("data").getAsJsonObject();
                                 String p = jsonObject.get("province").getAsString();
                                 String city = jsonObject.get("city").getAsString();
