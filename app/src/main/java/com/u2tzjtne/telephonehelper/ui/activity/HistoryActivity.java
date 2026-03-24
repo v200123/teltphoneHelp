@@ -120,7 +120,7 @@ public class HistoryActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void onResume() {
         super.onResume();
-        StatusBarUtils.setDarkStatusBar(this);
+//        StatusBarUtils.setDarkStatusBar(this);
         //刷新通话记录
         getCallData();
     }

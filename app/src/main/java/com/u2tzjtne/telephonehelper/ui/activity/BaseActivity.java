@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.XXPermissions;
 import com.hjq.permissions.permission.PermissionLists;
+import com.u2tzjtne.telephonehelper.R;
 import com.u2tzjtne.telephonehelper.util.StatusBarUtils;
 import com.u2tzjtne.telephonehelper.util.ThemeManager;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
@@ -36,7 +37,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setStatusBar();
+//        setStatusBar();
     }
 
     protected void requestAppPermissionsIfNeeded() {
@@ -90,9 +91,9 @@ public class BaseActivity extends AppCompatActivity {
         // 根据当前主题模式设置状态栏文字颜色
         // 白天模式用黑色文字，黑夜模式用白色文字
 //        if (isDarkMode()) {
-//            UltimateBarX.statusBarOnly(this).fitWindow(false).light(false).apply();
+//            UltimateBarX.statusBarOnly(this).fitWindow(true).light(false).apply();
 //        } else {
-//            UltimateBarX.statusBarOnly(this).light(false).apply();
+//            UltimateBarX.statusBarOnly(this).fitWindow(true).light(true).apply();
 //        }
     }
 

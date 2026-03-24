@@ -121,7 +121,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 .setMaxStreams(5) // 最大同时播放数
                 .build();
         soundId = soundPool.load(this, R.raw.bohao, 1);
-        StatusBarUtils.setDarkStatusBar(this);
         hideNumber(true);
         new Thread(new Runnable() {
             @Override

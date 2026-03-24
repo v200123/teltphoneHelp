@@ -175,23 +175,23 @@ class AddCallRecordActivity : BaseActivity() {
                 callRecord.isConnected = false
             }
             callRecord.endTime = callRecord.startTime + (callTime * 1000)
-
             PhoneNumberUtils.getProvince(phoneNumber, object : getLocalCallback {
                 override fun result(bean: PhoneLocalBean) {
                     if (bean.province != bean.city)
                         callRecord.attribution = bean.province + bean.city
                     else callRecord.attribution = bean.province
                     callRecord.operator = bean.carrier
+                    callRecord.phoneNumber = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+                    AppDatabase.getInstance().callRecordModel()
+                        .insert(callRecord)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe()
+                    finish()
+
                 }
             })
-            callRecord.phoneNumber = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
 
-            AppDatabase.getInstance().callRecordModel()
-                .insert(callRecord)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
-            finish()
         }
 
     }
