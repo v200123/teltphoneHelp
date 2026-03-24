@@ -57,7 +57,7 @@
     <color name="textCallRecordNormal">#333333</color>
     <color name="textCallRecordNumber">#212121</color>
     <!-- 通话历史列表：号码颜色（已接通/呼出用黑色，来电未接用红色） -->
-    <color name="textCallHistoryConnected">#212121</color>
+    <color name="textCallHistoryConnected">#8B8B8B</color>
     <color name="textCallHistoryMissed">#D9021B</color>
 
     <!-- ========== 验证码按钮 ========== -->

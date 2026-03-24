@@ -31,7 +31,6 @@ public class CallHistoryAdapter extends BaseQuickAdapter<CallRecord, BaseViewHol
                     ContextCompat.getColor(getContext(), R.color.textCallHistoryConnected));
             //通话时长
             String duration = DateUtils.getCallDuration(callRecord.endTime - callRecord.connectedTime);
-
             if(callRecord.callType==0) {
                 viewHolder.setText(R.id.tv_status, "呼出" + duration);
                 viewHolder.getView(R.id.iv_flag).setScaleY(1);
@@ -44,8 +43,6 @@ public class CallHistoryAdapter extends BaseQuickAdapter<CallRecord, BaseViewHol
                 }
                 viewHolder.getView(R.id.iv_flag).setScaleY(-1);
             }
-
-
         } else {
 
             if(callRecord.callType==1) {
@@ -58,9 +55,6 @@ public class CallHistoryAdapter extends BaseQuickAdapter<CallRecord, BaseViewHol
                 viewHolder.setText(R.id.tv_status, "未接通");
             }
         }
-
-
-
         String time = DateUtils.convertTimestamp(callRecord.startTime,false);
         viewHolder.setText(R.id.tv_call_date, time);
     }

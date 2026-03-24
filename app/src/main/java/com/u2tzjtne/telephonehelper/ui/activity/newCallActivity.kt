@@ -32,6 +32,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.concurrent.thread
 
 class newCallActivity : BaseActivity() {
 
@@ -78,6 +79,7 @@ class newCallActivity : BaseActivity() {
     private var isJingYin = false
     private var isLuYin = false
     private var hasRingtone = false  // 是否有彩铃
+    private var ringtoneDuration: Long = 0L  // 彩铃视频时长（毫秒）
 
     // 录音工具类
     private val audioRecorderHelper = AudioRecorderHelper.getInstance()
@@ -189,6 +191,8 @@ class newCallActivity : BaseActivity() {
      * - UI：显示"对方已振铃"，可能切换为彩铃视频UI
      * - 音频：播放彩铃视频 或 拨号等待音（循环）
      * - 按钮：预连接模式保持不变（可触发未接/忙线）
+     * 
+     * 注意：如果播放彩铃，会根据彩铃时长调整自动接通时间，确保至少播放一次
      */
     private fun onStateRinging() {
         if (callRecord.isConnected) return
@@ -199,10 +203,62 @@ class newCallActivity : BaseActivity() {
             if (isVideoPlaying) {
                 updateUIForRingtoneVideo(true)
                 bind.tvNewCallStatus.text = "正在等待对方接听电话"
+                // 获取彩铃时长并调整自动接通时间，确保至少播放一次
+                adjustAutoConnectTimeForRingtone()
             } else {
                 updateUIForRingtoneVideo(false)
                 bind.tvNewCallStatus.text = "正在拨号"
                 MediaPlayerHelper.getInstance().playCallSound(this)
+            }
+        }
+    }
+
+    /**
+     * 根据彩铃时长调整自动接通时间，确保彩铃至少完整播放一次
+     * 
+     * 逻辑：
+     * - 如果彩铃时长大于 10 秒，使用彩铃时长作为自动接通时间
+     * - 如果彩铃时长小于等于 10 秒，保持原有的 10 秒自动接通
+     * - 最多等待 60 秒（避免彩铃过长导致等待太久）
+     */
+    private fun adjustAutoConnectTimeForRingtone() {
+        thread {
+            try {
+                // 从数据库获取当前号码分配的彩铃信息
+                val normalizedNumber = number.replace(Regex("[^0-9]"), "")
+                val db = com.u2tzjtne.telephonehelper.db.RingVideoDatabase.getInstance()
+                val assignedRingtoneId = db.phoneRingtoneAssignmentDao().getRingtoneIdByPhone(normalizedNumber)
+                
+                if (assignedRingtoneId != null) {
+                    val ringVideo = db.ringVideoDao().getByIdSync(assignedRingtoneId)
+                    ringVideo?.let {
+                        ringtoneDuration = it.duration
+                        Log.d(TAG, "彩铃时长: ${ringtoneDuration}ms")
+                        
+                        // 彩铃时长大于 10 秒且小于 60 秒时，调整自动接通时间
+                        val newDelay = when {
+                            ringtoneDuration > 60_000L -> 60_000L  // 最长等待 60 秒
+                            ringtoneDuration > AUTO_CONNECT_DELAY_MILLIS -> ringtoneDuration
+                            else -> AUTO_CONNECT_DELAY_MILLIS  // 保持原有 10 秒
+                        }
+                        
+                        if (newDelay > AUTO_CONNECT_DELAY_MILLIS) {
+                            // 取消原来的自动接通任务，重新设置
+                            autoConnectJob?.cancel()
+                            autoConnectJob = lifecycleScope.launch {
+                                delay(newDelay)
+                                if (!callRecord.isConnected && finishJob?.isActive != true) {
+                                    Log.d(TAG, "彩铃已至少播放一次，自动接通")
+                                    callStateLD.postValue(CallState.CONNECTED)
+                                }
+                            }
+                            Log.d(TAG, "自动接通时间已调整为: ${newDelay}ms，确保彩铃至少播放一次")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "获取彩铃时长失败: ${e.message}")
+                // 失败时使用默认的自动接通时间
             }
         }
     }

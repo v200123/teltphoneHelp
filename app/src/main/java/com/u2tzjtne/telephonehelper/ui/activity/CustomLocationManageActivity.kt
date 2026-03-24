@@ -13,6 +13,8 @@ import com.u2tzjtne.telephonehelper.db.CustomPhoneLocation
 import com.u2tzjtne.telephonehelper.ui.adapter.CustomLocationManageAdapter
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import androidx.lifecycle.lifecycleScope
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -65,17 +67,15 @@ class CustomLocationManageActivity : BaseActivity() {
     }
 
     private fun loadData() {
-        lifecycleScope.launch {
-            try {
-                val list = withContext(Dispatchers.IO) {
-                    AppDatabase.getInstance().customPhoneLocationModel().getAll()
-                }
+        AppDatabase.getInstance().customPhoneLocationModel().getAll()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ list ->
                 adapter.submitList(list)
                 updateEmptyView(list.isEmpty(), list.size)
-            } catch (e: Exception) {
-                Toast.makeText(this@CustomLocationManageActivity, "加载失败", Toast.LENGTH_SHORT).show()
-            }
-        }
+            }, {
+                Toast.makeText(this, "加载失败", Toast.LENGTH_SHORT).show()
+            })
     }
 
     private fun updateEmptyView(isEmpty: Boolean, count: Int = 0) {
