@@ -1,7 +1,6 @@
 package com.u2tzjtne.telephonehelper.ui.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.u2tzjtne.telephonehelper.databinding.ItemRingVideoBinding
@@ -9,7 +8,6 @@ import com.u2tzjtne.telephonehelper.db.RingVideo
 import com.u2tzjtne.telephonehelper.util.DateUtils
 
 class RingVideoAdapter(
-    private val onBindPhoneClick: (RingVideo) -> Unit,
     private val onPreviewClick: (RingVideo) -> Unit,
     private val onDeleteClick: (RingVideo) -> Unit,
 ) : RecyclerView.Adapter<RingVideoAdapter.RingVideoViewHolder>() {
@@ -51,11 +49,7 @@ class RingVideoAdapter(
             }
             binding.tvVideoMeta.text = metaParts.joinToString(" · ")
 
-            binding.tvCurrentTag.visibility = if (item.isSelected) View.VISIBLE else View.GONE
-            binding.btnBindPhone.text = "绑定号码"
-
             binding.btnPreview.setOnClickListener { onPreviewClick(item) }
-            binding.btnBindPhone.setOnClickListener { onBindPhoneClick(item) }
             binding.btnDelete.setOnClickListener { onDeleteClick(item) }
         }
     }

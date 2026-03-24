@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/windowBackgroundColor"
+    android:paddingTop="25dp">
+
+    <!-- 标题栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/ivBack"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:padding="17dp"
+            android:src="@drawable/baseline_arrow_back_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="返回" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingEnd="60dp"
+            android:text="设置"
+            android:textColor="?attr/textPrimaryColor"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- 设置项列表 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 彩铃视频管理 -->
+        <LinearLayout
+            android:id="@+id/btnManageRingVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_video_library_24"
+                android:contentDescription="彩铃视频" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:text="彩铃视频管理"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_chevron_right_24"
+                android:contentDescription="进入" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/dividerColor" />
+
+        <!-- 不显示彩铃的号码 -->
+        <LinearLayout
+            android:id="@+id/btnNoRingtonePhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_phone_disabled_24"
+                android:contentDescription="不显示彩铃" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:text="不显示彩铃的号码"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_chevron_right_24"
+                android:contentDescription="进入" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 说明文字 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:paddingHorizontal="16dp"
+        android:text="彩铃绑定说明：\n每个号码在第一次拨打时会从彩铃库中随机选择一个进行绑定，后续拨打将一直使用同一个彩铃。您可以将特定号码添加到'不显示彩铃的号码'列表中，这些号码拨打电话时将不会播放彩铃视频。"
+        android:textColor="?attr/textHintColor"
+        android:textSize="12sp"
+        android:lineSpacingMultiplier="1.3" />
+
+</LinearLayout>

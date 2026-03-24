@@ -26,7 +26,6 @@ class RingVideoManageActivity : BaseActivity() {
 
     private val adapter: RingVideoAdapter by lazy {
         RingVideoAdapter(
-            onBindPhoneClick = ::openBindPhoneActivity,
             onPreviewClick = ::previewVideo,
             onDeleteClick = ::deleteVideo,
         )
@@ -121,17 +120,6 @@ class RingVideoManageActivity : BaseActivity() {
         binding.tvVideoCount.text = "已上传 ${list.size} 个彩铃视频"
         binding.tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
         binding.rvVideoList.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
-    }
-
-    /**
-     * 打开彩铃号码绑定管理界面
-     */
-    private fun openBindPhoneActivity(item: RingVideo) {
-        val intent = Intent(this, RingtoneBindingManageActivity::class.java).apply {
-            putExtra("ringtone_id", item.id)
-            putExtra("ringtone_name", item.videoName)
-        }
-        startActivity(intent)
     }
 
     private fun deleteVideo(item: RingVideo) {

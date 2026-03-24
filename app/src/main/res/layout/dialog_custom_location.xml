@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <EditText
+        android:id="@+id/etPhoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="手机号码"
+        android:inputType="phone"
+        android:textColor="?attr/textPrimaryColor"
+        android:textColorHint="?attr/textHintColor"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/etProvince"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="省份"
+        android:inputType="text"
+        android:textColor="?attr/textPrimaryColor"
+        android:textColorHint="?attr/textHintColor"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/etCity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="城市"
+        android:inputType="text"
+        android:textColor="?attr/textPrimaryColor"
+        android:textColorHint="?attr/textHintColor"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/etCarrier"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="运营商（如：移动、联通、电信）"
+        android:inputType="text"
+        android:textColor="?attr/textPrimaryColor"
+        android:textColorHint="?attr/textHintColor"
+        android:textSize="16sp" />
+
+</LinearLayout>

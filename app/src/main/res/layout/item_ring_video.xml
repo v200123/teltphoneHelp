@@ -7,36 +7,16 @@
     android:orientation="vertical"
     android:padding="14dp">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tv_video_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tv_video_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="video_demo.mp4"
-            android:textColor="?attr/textPrimaryColor"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_current_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_tag_green"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:text="当前彩铃"
-            android:textColor="@color/tagGreenText"
-            android:textSize="12sp"
-            android:visibility="gone" />
-    </LinearLayout>
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="video_demo.mp4"
+        android:textColor="?attr/textPrimaryColor"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_video_meta"
@@ -70,14 +50,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="预览" />
-
-        <Button
-            android:id="@+id/btn_bind_phone"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="绑定号码" />
 
         <Button
             android:id="@+id/btn_delete"
