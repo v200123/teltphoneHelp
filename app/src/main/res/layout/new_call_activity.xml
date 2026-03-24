@@ -98,7 +98,7 @@
             android:textColor="@color/callTextPrimary"
             android:textSize="17sp"
             app:shape_radius="20dp"
-            app:shape_solidColor="@color/gray" />
+            app:shape_solidColor="#4CFFFFFF" />
 
         <TextView
             android:id="@+id/tv_new_call_playing_ring"

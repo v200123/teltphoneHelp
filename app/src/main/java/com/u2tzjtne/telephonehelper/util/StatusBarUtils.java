@@ -8,6 +8,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
@@ -15,6 +16,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.u2tzjtne.telephonehelper.R;
@@ -36,18 +38,11 @@ public class StatusBarUtils {
     private static final int TAG_KEY_HAVE_SET_OFFSET = -123;
 
 
-    public static void setLightStatusBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        }
-    }
+
 
     public static void setDarkStatusBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+        activity.getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
     }
 
     /**

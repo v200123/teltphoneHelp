@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 黑夜模式默认主题 -->
-    <style name="AppTheme" parent="AppTheme.Dark" />
+    <style name="AppTheme" parent="AppTheme.Dark" >
+
+    </style>
 </resources>

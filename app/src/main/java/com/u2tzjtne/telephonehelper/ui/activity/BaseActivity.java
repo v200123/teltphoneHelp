@@ -2,6 +2,7 @@ package com.u2tzjtne.telephonehelper.ui.activity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -14,7 +15,9 @@ import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.XXPermissions;
 import com.hjq.permissions.permission.PermissionLists;
 import com.u2tzjtne.telephonehelper.util.StatusBarUtils;
+import com.u2tzjtne.telephonehelper.util.ThemeManager;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
+import com.zackratos.ultimatebarx.ultimatebarx.java.UltimateBarX;
 
 import java.util.List;
 
@@ -26,8 +29,14 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStatusBar();
+//        setStatusBar();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setStatusBar();
     }
 
     protected void requestAppPermissionsIfNeeded() {
@@ -78,12 +87,29 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     private void setStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            StatusBarUtils.setTranslucentForImageViewInFragment(this, null);
-            StatusBarUtils.setLightStatusBar(this);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        // 根据当前主题模式设置状态栏文字颜色
+        // 白天模式用黑色文字，黑夜模式用白色文字
+//        if (isDarkMode()) {
+//            UltimateBarX.statusBarOnly(this).fitWindow(false).light(false).apply();
+//        } else {
+//            UltimateBarX.statusBarOnly(this).light(false).apply();
+//        }
+    }
+
+    /**
+     * 判断当前是否为黑夜模式
+     * 同时考虑用户设置和系统配置
+     */
+    private boolean isDarkMode() {
+        int currentMode = ThemeManager.getCurrentMode();
+        if (currentMode == ThemeManager.MODE_DARK) {
+            return true;
+        } else if (currentMode == ThemeManager.MODE_LIGHT) {
+            return false;
         } else {
-            StatusBarUtils.setTranslucentForImageViewInFragment(this, null);
+            // 跟随系统模式，检查系统当前配置
+            int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
         }
     }
 }
