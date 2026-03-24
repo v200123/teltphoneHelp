@@ -44,11 +44,17 @@
         <activity android:name=".ui.activity.newCallActivity" />
 
         <activity android:name=".ui.activity.AddCallRecordActivity" />
+        <activity android:name=".ui.activity.SettingsActivity"
+            android:label="设置" />
         <activity android:name=".ui.activity.RingVideoManageActivity" />
         <activity android:name=".ui.activity.RingtoneBindingManageActivity"
             android:label="彩铃号码绑定" />
         <activity android:name=".ui.activity.CustomLocationListActivity"
             android:label="自定义归属地列表" />
+        <activity android:name=".ui.activity.CustomLocationManageActivity"
+            android:label="自定义归属地" />
+        <activity android:name=".ui.activity.NoRingtonePhoneManageActivity"
+            android:label="不显示彩铃的号码" />
     </application>
 
 </manifest>

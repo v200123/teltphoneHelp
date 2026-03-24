@@ -11,6 +11,7 @@ import com.u2tzjtne.telephonehelper.databinding.ActivityAddCallRecordBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
 import com.u2tzjtne.telephonehelper.db.CustomPhoneLocation
+import com.u2tzjtne.telephonehelper.db.RingVideoDatabase
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback
 import com.u2tzjtne.telephonehelper.util.ClipboardUtils
@@ -49,6 +50,11 @@ class AddCallRecordActivity : BaseActivity() {
         // 返回按钮点击事件
         binding.ivBack.setOnClickListener {
             finish()
+        }
+
+        // 设置按钮点击事件
+        binding.ivSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
 
         // 粘贴按钮点击事件
@@ -110,10 +116,6 @@ class AddCallRecordActivity : BaseActivity() {
             )
 
             datePickerDialog.show()
-        }
-
-        binding.btnManageRingVideo.setOnClickListener {
-            startActivity(Intent(this, RingVideoManageActivity::class.java))
         }
 
         // 保存自定义归属地按钮

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.view.View
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
+import com.u2tzjtne.telephonehelper.db.PhoneRingtoneAssignment
 import com.u2tzjtne.telephonehelper.db.RingVideo
 import com.u2tzjtne.telephonehelper.db.RingVideoDatabase
 import com.u2tzjtne.telephonehelper.ui.widget.EmptyControlVideo
@@ -19,9 +20,9 @@ import kotlin.concurrent.thread
  * 功能说明:
  * - 在接通电话前播放彩铃视频
  * - 支持从 Room 数据库读取用户上传的彩铃视频
- * - 支持彩铃与手机号码绑定,一个彩铃可绑定多个号码
- * - 拨打电话时根据号码查找绑定的彩铃
- * - 没有绑定则不播放彩铃
+ * - 每个号码第一次拨打时从彩铃库随机分配一个彩铃
+ * - 后续拨打一直使用同一个彩铃
+ * - 支持设置不显示彩铃的号码
  * - 支持循环播放
  * - 接通后自动停止并隐藏
  * - 使用 GSYVideoPlayer 避免加载黑屏问题
@@ -53,7 +54,6 @@ class GSYVideoPlayerHelper private constructor() {
         android.util.Log.d("GSYVideoPlayerHelper", "初始化播放器")
         this.videoPlayer = player
         this.currentContext = player.context
-        // EmptyControlVideo 已经在布局和构造函数中移除了所有控制UI,无需额外设置
     }
 
     /**
@@ -143,42 +143,64 @@ class GSYVideoPlayerHelper private constructor() {
     }
 
     /**
-     * 从 Room 数据库获取指定电话号码绑定的彩铃
+     * 检查号码是否在不显示彩铃列表中
      */
-    fun getRingtoneByPhoneNumber(context: Context, phoneNumber: String, onResult: (RingVideo?) -> Unit) {
-        thread {
-            try {
-                val db = RingVideoDatabase.getInstance()
-                val normalizedNumber = normalizePhoneNumber(phoneNumber)
-                android.util.Log.d("GSYVideoPlayerHelper", "查询号码: $normalizedNumber (原始: $phoneNumber)")
-                
-                val ringtoneId = db.ringtonePhoneBindingDao().getRingtoneIdByPhone(normalizedNumber)
-                android.util.Log.d("GSYVideoPlayerHelper", "查询到的彩铃ID: $ringtoneId")
-                
-                if (ringtoneId != null) {
-                    val ringVideo = db.ringVideoDao().getByIdSync(ringtoneId)
-                    android.util.Log.d("GSYVideoPlayerHelper", "查询到的视频: ${ringVideo?.videoName}, URI: ${ringVideo?.videoUri}")
-                    videoPlayer?.post {
-                        onResult(ringVideo)
-                    }
-                } else {
-                    android.util.Log.d("GSYVideoPlayerHelper", "该号码未绑定彩铃")
-                    videoPlayer?.post {
-                        onResult(null)
-                    }
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("GSYVideoPlayerHelper", "查询彩铃失败: ${e.message}", e)
-                e.printStackTrace()
-                videoPlayer?.post {
-                    onResult(null)
-                }
-            }
+    private fun isNoRingtonePhone(phoneNumber: String): Boolean {
+        return try {
+            val db = RingVideoDatabase.getInstance()
+            db.noRingtonePhoneDao().isNoRingtonePhone(phoneNumber)
+        } catch (e: Exception) {
+            android.util.Log.e("GSYVideoPlayerHelper", "检查不显示彩铃列表失败: ${e.message}")
+            false
         }
     }
 
     /**
-     * 根据电话号码播放绑定的彩铃视频
+     * 获取或分配号码的彩铃
+     * - 如果号码已分配彩铃，返回已分配的彩铃
+     * - 如果号码未分配彩铃，从彩铃库随机分配一个
+     * - 如果号码在不显示彩铃列表中，返回null
+     */
+    private fun getOrAssignRingtone(phoneNumber: String): RingVideo? {
+        val normalizedNumber = normalizePhoneNumber(phoneNumber)
+        val db = RingVideoDatabase.getInstance()
+        
+        // 检查是否在不显示彩铃列表中
+        if (isNoRingtonePhone(normalizedNumber)) {
+            android.util.Log.d("GSYVideoPlayerHelper", "号码 $normalizedNumber 在不显示彩铃列表中")
+            return null
+        }
+        
+        // 检查是否已分配彩铃
+        val assignedRingtoneId = db.phoneRingtoneAssignmentDao().getRingtoneIdByPhone(normalizedNumber)
+        if (assignedRingtoneId != null) {
+            android.util.Log.d("GSYVideoPlayerHelper", "号码 $normalizedNumber 已分配彩铃ID: $assignedRingtoneId")
+            return db.ringVideoDao().getByIdSync(assignedRingtoneId)
+        }
+        
+        // 未分配彩铃，从彩铃库随机选择一个
+        val allRingtones = db.ringVideoDao().getAllSync()
+        if (allRingtones.isEmpty()) {
+            android.util.Log.d("GSYVideoPlayerHelper", "彩铃库为空")
+            return null
+        }
+        
+        // 随机选择一个彩铃
+        val randomRingtone = allRingtones.random()
+        android.util.Log.d("GSYVideoPlayerHelper", "为号码 $normalizedNumber 随机分配彩铃: ${randomRingtone.videoName} (ID: ${randomRingtone.id})")
+        
+        // 保存分配关系
+        val assignment = PhoneRingtoneAssignment(normalizedNumber, randomRingtone.id)
+        db.phoneRingtoneAssignmentDao().insert(assignment)
+        
+        return randomRingtone
+    }
+
+    /**
+     * 根据电话号码播放彩铃视频
+     * - 如果号码在不显示彩铃列表中，不播放
+     * - 如果号码已分配彩铃，播放已分配的彩铃
+     * - 如果号码未分配彩铃，随机分配一个并播放
      */
     fun playRingtoneByPhoneNumber(
         context: Context,
@@ -186,15 +208,28 @@ class GSYVideoPlayerHelper private constructor() {
         onVideoPlaying: ((Boolean) -> Unit)? = null
     ) {
         android.util.Log.d("GSYVideoPlayerHelper", "准备播放彩铃，号码: $phoneNumber")
-        getRingtoneByPhoneNumber(context, phoneNumber) { ringVideo ->
-            if (ringVideo != null && !ringVideo.videoUri.isNullOrEmpty()) {
-                android.util.Log.d("GSYVideoPlayerHelper", "开始播放彩铃: ${ringVideo.videoName}")
-                startPlaying(ringVideo.videoUri)
-                onVideoPlaying?.invoke(true)
-            } else {
-                android.util.Log.d("GSYVideoPlayerHelper", "没有找到彩铃或视频URI为空")
-                videoPlayer?.visibility = View.GONE
-                onVideoPlaying?.invoke(false)
+        
+        thread {
+            try {
+                val ringVideo = getOrAssignRingtone(phoneNumber)
+                
+                videoPlayer?.post {
+                    if (ringVideo != null && !ringVideo.videoUri.isNullOrEmpty()) {
+                        android.util.Log.d("GSYVideoPlayerHelper", "开始播放彩铃: ${ringVideo.videoName}")
+                        startPlaying(ringVideo.videoUri)
+                        onVideoPlaying?.invoke(true)
+                    } else {
+                        android.util.Log.d("GSYVideoPlayerHelper", "不播放彩铃（号码在不显示列表中或无可用彩铃）")
+                        videoPlayer?.visibility = View.GONE
+                        onVideoPlaying?.invoke(false)
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("GSYVideoPlayerHelper", "播放彩铃失败: ${e.message}", e)
+                videoPlayer?.post {
+                    videoPlayer?.visibility = View.GONE
+                    onVideoPlaying?.invoke(false)
+                }
             }
         }
     }

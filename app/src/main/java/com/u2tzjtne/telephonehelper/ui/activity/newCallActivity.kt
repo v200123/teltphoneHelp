@@ -18,7 +18,7 @@ import com.u2tzjtne.telephonehelper.databinding.NewCallActivityBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
 import com.u2tzjtne.telephonehelper.db.Recording
-import com.u2tzjtne.telephonehelper.ui.activity.AddCallRecordActivity.Companion.formatWithSpaces
+import com.u2tzjtne.telephonehelper.util.PhoneNumberFormatUtils
 import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
@@ -733,7 +733,7 @@ class newCallActivity : BaseActivity() {
     }
 
     private fun initUI() {
-        bind.tvNewCallNumber.text = callRecord.phoneNumber.formatWithSpaces()
+        bind.tvNewCallNumber.text = PhoneNumberFormatUtils.formatWithSpaces(callRecord.phoneNumber)
         bind.tvAction5.text = "录音"
         // 初始状态：挂断按钮可用，其他底部按钮可用
         bind.llDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }

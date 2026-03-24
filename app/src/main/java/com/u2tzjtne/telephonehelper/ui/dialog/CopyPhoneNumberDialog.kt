@@ -7,7 +7,7 @@ import android.widget.TextView
 import com.lxj.xpopup.core.BubbleAttachPopupView
 import com.lxj.xpopup.util.XPopupUtils
 import com.u2tzjtne.telephonehelper.R
-import com.u2tzjtne.telephonehelper.ui.activity.AddCallRecordActivity.Companion.formatWithSpaces
+import com.u2tzjtne.telephonehelper.util.PhoneNumberFormatUtils
 
 
 class CopyPhoneNumberDialog(context: Context,val phone:String,val block:()->Unit) : BubbleAttachPopupView(context) {
@@ -27,7 +27,7 @@ class CopyPhoneNumberDialog(context: Context,val phone:String,val block:()->Unit
         //                                .setBubbleRadius(100)
         setArrowRadius(XPopupUtils.dp2px(context, 2f))
         val textView = findViewById<TextView>(R.id.tv_copy_phone_number)
-        textView.text = phone.formatWithSpaces()
+        textView.text = PhoneNumberFormatUtils.formatWithSpaces(phone)
         textView.setOnClickListener {
             dismiss()
             block()

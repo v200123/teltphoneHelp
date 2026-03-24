@@ -10,8 +10,13 @@ import com.u2tzjtne.telephonehelper.base.App;
  * 彩铃视频数据库
  */
 @Database(
-    entities = {RingVideo.class, RingtonePhoneBinding.class}, 
-    version = 2, 
+    entities = {
+        RingVideo.class, 
+        RingtonePhoneBinding.class,
+        NoRingtonePhone.class,
+        PhoneRingtoneAssignment.class
+    }, 
+    version = 3, 
     exportSchema = false
 )
 public abstract class RingVideoDatabase extends RoomDatabase {
@@ -38,6 +43,10 @@ public abstract class RingVideoDatabase extends RoomDatabase {
     public abstract RingVideoDao ringVideoDao();
     
     public abstract RingtonePhoneBindingDao ringtonePhoneBindingDao();
+    
+    public abstract NoRingtonePhoneDao noRingtonePhoneDao();
+    
+    public abstract PhoneRingtoneAssignmentDao phoneRingtoneAssignmentDao();
 
     public static RingVideoDatabase getInstance() {
         if (INSTANCE == null) {
@@ -47,7 +56,7 @@ public abstract class RingVideoDatabase extends RoomDatabase {
                             App.getContext(),
                             RingVideoDatabase.class,
                             DB_NAME)
-                            .fallbackToDestructiveMigration() // 版本变更时重建数据库
+                            .fallbackToDestructiveMigration()
                             .addCallback(NORMALIZE_PHONE_NUMBER_CALLBACK)
                             .build();
 

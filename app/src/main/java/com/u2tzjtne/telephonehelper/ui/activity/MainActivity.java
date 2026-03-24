@@ -29,6 +29,7 @@ import com.u2tzjtne.telephonehelper.ui.adapter.FilterResultAdapter;
 import com.u2tzjtne.telephonehelper.ui.dialog.CopyPhoneNumberDialog;
 import com.u2tzjtne.telephonehelper.ui.dialog.ThemeSwitchDialog;
 import com.u2tzjtne.telephonehelper.util.ClipboardUtils;
+import com.u2tzjtne.telephonehelper.util.PhoneNumberFormatUtils;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.StatusBarUtils;
 
@@ -144,7 +145,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                             public Unit invoke() {
                                 llNumber.setVisibility(View.VISIBLE);
                                 tvDialNumber.setVisibility(View.VISIBLE);
-                                tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(text) );
+                                tvDialNumber.setText(PhoneNumberFormatUtils.formatWithSpaces(text) );
                                 if (text.length() >= 8) {
                                     showActionPage(true);
                                     if (text.length() == 8) {
@@ -205,7 +206,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     String pureNumber = currentText.replace(" ", "") + textView.getText().toString();
                     // 从输入第一位就开始筛选
                     showActionPage(!pureNumber.isEmpty());
-                    tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(pureNumber));
+                    tvDialNumber.setText(PhoneNumberFormatUtils.formatWithSpaces(pureNumber));
 
                     // 获取纯数字号码进行筛选
                     filterByPrefix(pureNumber);
@@ -418,7 +419,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             if (afterText.isEmpty()) {
                 hideNumber(true);
             } else {
-                tvDialNumber.setText(AddCallRecordActivity.Companion.formatWithSpaces(afterText));
+                tvDialNumber.setText(PhoneNumberFormatUtils.formatWithSpaces(afterText));
                 // 更新筛选结果
                 filterByPrefix(afterText);
                 showActionPage(true);

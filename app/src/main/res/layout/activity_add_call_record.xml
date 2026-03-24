@@ -27,192 +27,208 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:paddingEnd="60dp"
             android:text="添加通话记录"
             android:textColor="?attr/textPrimaryColor"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <!-- 设置按钮 -->
+        <ImageView
+            android:id="@+id/ivSettings"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:padding="17dp"
+            android:src="@drawable/baseline_settings_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="设置" />
     </LinearLayout>
 
-    <TextView
-        android:layout_marginTop="12dp"
-        android:layout_width="wrap_content"
-        android:text="对方号码"
-        android:textColor="?attr/textPrimaryColor"
-        android:textSize="15dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="wrap_content"/>
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/et_phone_number"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:hint="对方手机号"
-            android:textColor="?attr/textPrimaryColor"
-            android:textColorHint="?attr/textHintColor"
-            android:textSize="15dp" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <Button
-            android:id="@+id/btn_paste"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="粘贴"
-            android:minWidth="60dp" />
+            <TextView
+                android:layout_marginTop="12dp"
+                android:layout_width="wrap_content"
+                android:text="对方号码"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-    </LinearLayout>
-    <TextView
-        android:layout_marginTop="12dp"
-        android:layout_width="wrap_content"
-        android:text="通话类型"
-        android:textColor="?attr/textPrimaryColor"
-        android:textSize="15dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="wrap_content"/>
-    <RadioGroup
-        android:id="@+id/rg_phone_type"
+                <EditText
+                    android:id="@+id/et_phone_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="对方手机号"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textColorHint="?attr/textHintColor"
+                    android:textSize="15dp" />
 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/btn_paste"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="粘贴"
+                    android:minWidth="60dp" />
 
-        <RadioButton
-            android:id="@+id/call_type_out"
-            android:text="呼出电话"
-            android:textColor="?attr/textPrimaryColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <RadioButton
-            android:id="@+id/call_type_in"
+            </LinearLayout>
+            <TextView
+                android:layout_marginTop="12dp"
+                android:layout_width="wrap_content"
+                android:text="通话类型"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"/>
+            <RadioGroup
+                android:id="@+id/rg_phone_type"
 
-            android:text="呼入电话"
-            android:textColor="?attr/textPrimaryColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </RadioGroup>
-    <TextView
-        android:layout_marginTop="12dp"
-        android:layout_width="wrap_content"
-        android:text="通话日期"
-        android:textColor="?attr/textPrimaryColor"
-        android:textSize="15dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="wrap_content"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/button"
+                <RadioButton
+                    android:id="@+id/call_type_out"
+                    android:text="呼出电话"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/call_type_in"
 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="日期选择" />
-    <TextView
-        android:layout_marginTop="12dp"
-        android:layout_width="wrap_content"
-        android:text="通话时长（单位秒）"
-        android:textColor="?attr/textPrimaryColor"
-        android:textSize="15dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="wrap_content"/>
-    <EditText
-        android:id="@+id/et_phone_call_time"
-        android:inputType="number"
-        android:gravity="center"
-        android:hint=""
-        android:textColor="?attr/textPrimaryColor"
-        android:textColorHint="?attr/textHintColor"
-        android:layout_marginTop="8dp"
-        android:textSize="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+                    android:text="呼入电话"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </RadioGroup>
+            <TextView
+                android:layout_marginTop="12dp"
+                android:layout_width="wrap_content"
+                android:text="通话日期"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/btn_manage_ring_video"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="上传/管理彩铃视频" />
+            <Button
+                android:id="@+id/button"
 
-    <!-- 自定义归属地区域 -->
-    <TextView
-        android:layout_marginTop="12dp"
-        android:layout_width="wrap_content"
-        android:text="自定义归属地（可选）"
-        android:textColor="?attr/textPrimaryColor"
-        android:textSize="15dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="wrap_content"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="日期选择" />
+            <TextView
+                android:layout_marginTop="12dp"
+                android:layout_width="wrap_content"
+                android:text="通话时长（单位秒）"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"/>
+            <EditText
+                android:id="@+id/et_phone_call_time"
+                android:inputType="number"
+                android:gravity="center"
+                android:hint=""
+                android:textColor="?attr/textPrimaryColor"
+                android:textColorHint="?attr/textHintColor"
+                android:layout_marginTop="8dp"
+                android:textSize="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+            <!-- 自定义归属地区域 -->
+            <TextView
+                android:layout_marginTop="12dp"
+                android:layout_width="wrap_content"
+                android:text="自定义归属地（可选）"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/et_province"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:hint="省份"
-            android:textColor="?attr/textPrimaryColor"
-            android:textColorHint="?attr/textHintColor"
-            android:textSize="15dp"
-            android:inputType="text"
-            android:layout_marginEnd="4dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-        <EditText
-            android:id="@+id/et_city"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:hint="城市"
-            android:textColor="?attr/textPrimaryColor"
-            android:textColorHint="?attr/textHintColor"
-            android:textSize="15dp"
-            android:inputType="text"
-            android:layout_marginStart="4dp"/>
+                <EditText
+                    android:id="@+id/et_province"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="省份"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textColorHint="?attr/textHintColor"
+                    android:textSize="15dp"
+                    android:inputType="text"
+                    android:layout_marginEnd="4dp"/>
 
-    </LinearLayout>
+                <EditText
+                    android:id="@+id/et_city"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="城市"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textColorHint="?attr/textHintColor"
+                    android:textSize="15dp"
+                    android:inputType="text"
+                    android:layout_marginStart="4dp"/>
 
-    <EditText
-        android:id="@+id/et_carrier"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:hint="运营商（如：移动、联通、电信）"
-        android:textColor="?attr/textPrimaryColor"
-        android:textColorHint="?attr/textHintColor"
-        android:textSize="15dp"
-        android:inputType="text"/>
+            </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_save_custom_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="保存自定义归属地" />
+            <EditText
+                android:id="@+id/et_carrier"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:hint="运营商（如：移动、联通、电信）"
+                android:textColor="?attr/textPrimaryColor"
+                android:textColorHint="?attr/textHintColor"
+                android:textSize="15dp"
+                android:inputType="text"/>
 
-    <Button
-        android:id="@+id/btn_view_custom_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="查看已保存的归属地"
-        android:textAllCaps="false" />
+            <Button
+                android:id="@+id/btn_save_custom_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="保存自定义归属地" />
 
-    <Button
-        android:id="@+id/submit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="生成通话记录" />
+            <Button
+                android:id="@+id/btn_view_custom_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="查看已保存的归属地"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="生成通话记录" />
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
