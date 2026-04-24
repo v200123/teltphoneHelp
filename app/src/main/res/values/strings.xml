@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">电话</string>
+    <string name="perm_read_call_records_desc">允许应用读取通话记录数据</string>
+    <string name="perm_write_call_records_desc">允许应用写入通话记录数据</string>
 </resources>
