@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -22,6 +23,9 @@ import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
@@ -37,9 +41,12 @@ class MainActivity : AppCompatActivity() {
     private var allRecords: List<CallRecord> = emptyList()
     private var topBarExpandedColor: Int = Color.TRANSPARENT
     private var topBarCollapsedColor: Int = Color.TRANSPARENT
+    private var pageOpenTimeMillis: Long = 0L
+    private val tipDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pageOpenTimeMillis = System.currentTimeMillis()
         enableEdgeToEdgeStatusBar()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -52,13 +59,14 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         syncOutgoingPackageInfo()
+        syncCustomSelfRegion()
         applyCustomNumberInfo()
         loadCallRecords()
     }
 
     private fun initViews() {
         topBarExpandedColor = ContextCompat.getColor(this, R.color.panel_blue_start)
-        topBarCollapsedColor = ContextCompat.getColor(this, R.color.card_white)
+        topBarCollapsedColor = ContextCompat.getColor(this, R.color.panel_blue_start)
 
         adapter = CallRecordAdapter()
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -82,6 +90,11 @@ class MainActivity : AppCompatActivity() {
             loadCallRecords()
         }
         syncOutgoingPackageInfo()
+        syncCustomSelfRegion()
+        updateWarmTip()
+        binding.btnCallAnalysis.setOnClickListener {
+            Toast.makeText(this, getString(R.string.call_analysis_tip), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun bindAppBarColorTransition() {
@@ -97,15 +110,38 @@ class MainActivity : AppCompatActivity() {
         adapter.setOutgoingPackageInfo(AppPreferences.getOutgoingPackageInfo(this))
     }
 
+    private fun syncCustomSelfRegion() {
+        adapter.setCustomSelfRegion(AppPreferences.getCustomSelfRegion(this))
+    }
+
     private fun applyCustomNumberInfo() {
         val customNumber = AppPreferences.getCustomPhoneNumber(this).trim()
         val starLevel = AppPreferences.getCustomStarLevel(this).coerceIn(1, 5)
-        val stars = "★".repeat(starLevel)
-        binding.tvSummarySubtitle.text = "星级：$stars"
+//        binding.tvSummarySubtitle.text = "${starLevel}星用户"
+        val starIcon = AppCompatResources.getDrawable(this, getStarLevelIconRes(starLevel))
+        binding.tvSummarySubtitle.setCompoundDrawablesRelativeWithIntrinsicBounds(starIcon, null, null, null)
         if (customNumber.isEmpty() && binding.tvSummaryPhone.text.isNullOrBlank()) {
             binding.tvSummaryPhone.text = "--"
         } else if (customNumber.isNotEmpty()) {
-            binding.tvSummaryPhone.text = customNumber
+            binding.tvSummaryPhone.text = maskPhoneNumber(customNumber)
+        }
+        updateWarmTip()
+    }
+
+    private fun updateWarmTip() {
+        val customNumber = AppPreferences.getCustomPhoneNumber(this).trim()
+        val maskedNumber = if (customNumber.isBlank()) "--" else maskPhoneNumber(customNumber)
+        val openTimeText = tipDateFormat.format(Date(pageOpenTimeMillis))
+        adapter.setWarmTip(getString(R.string.warm_tip_template, maskedNumber, openTimeText))
+    }
+
+    private fun getStarLevelIconRes(starLevel: Int): Int {
+        return when (starLevel.coerceIn(1, 5)) {
+            1 -> R.drawable.userinfo_icon_one_level_new
+            2 -> R.drawable.userinfo_icon_two_level_new
+            3 -> R.drawable.userinfo_icon_three_level_new
+            4 -> R.drawable.userinfo_icon_four_level_new
+            else -> R.drawable.userinfo_icon_five_level_new
         }
     }
     private fun enableEdgeToEdgeStatusBar() {
@@ -154,8 +190,7 @@ class MainActivity : AppCompatActivity() {
         if (!hasProviderPermission()) {
             allRecords = emptyList()
             applyFilter()
-            Toast.makeText(this, "鏈幏寰楅€氳瘽璁板綍璇诲彇鏉冮檺锛岃妫€鏌ョ數璇濆姪鎵嬫巿鏉冩垨绛惧悕閰嶇疆", Toast.LENGTH_LONG).show()
-            return
+           return
         }
 
         binding.swipeRefresh.isRefreshing = true
@@ -196,7 +231,7 @@ class MainActivity : AppCompatActivity() {
         val latestRecord = records.firstOrNull()
         val customNumber = AppPreferences.getCustomPhoneNumber(this).trim()
         binding.tvSummaryPhone.text = if (customNumber.isNotEmpty()) {
-            customNumber
+            maskPhoneNumber(customNumber)
         } else {
             latestRecord?.phoneNumber?.let { maskPhoneNumber(it) } ?: "--"
         }
@@ -285,14 +320,21 @@ class MainActivity : AppCompatActivity() {
             }
         } catch (e: SecurityException) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(this@MainActivity, "鏉冮檺涓嶈冻: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, "${e.message}", Toast.LENGTH_LONG).show()
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(this@MainActivity, "鏌ヨ澶辫触: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, "${e.message}", Toast.LENGTH_LONG).show()
             }
         }
-        return list
+        // 某些设备上的内容提供者可能不严格遵循 sortOrder，这里在客户端兜底按时间正序（最新在下）。
+        return list.sortedBy { record ->
+            when {
+                record.startTime > 0 -> record.startTime
+                record.connectedTime > 0 -> record.connectedTime
+                else -> record.endTime
+            }
+        }
     }
 }
 

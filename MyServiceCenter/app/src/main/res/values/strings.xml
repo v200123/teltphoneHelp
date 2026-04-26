@@ -1,13 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MyServiceCenter</string>
+    <string name="app_name">中国移动</string>
+
     <string name="detail_title">详单查询</string>
     <string name="detail_back">‹</string>
     <string name="detail_more">•••</string>
     <string name="detail_query_account">查账单 ></string>
+
     <string name="tab_package">套餐及固定费用详单</string>
     <string name="tab_call_detail">通话详单</string>
     <string name="tab_sms_detail">短/彩信详单</string>
+
     <string name="filter_call_out">按号码</string>
     <string name="filter_search_hint">请输入手机号查询</string>
     <string name="filter_search">查询</string>
@@ -20,32 +23,45 @@
     <string name="filter_location_dropdown">通信地点 ˅</string>
     <string name="filter_type_dropdown">通信类型 ˅</string>
     <string name="filter_contact_name">以本机通讯录名称显示</string>
-    <string name="empty_call_records">暂无通话记录\n下拉刷新后再试</string>
+
+    <string name="empty_call_records">暂无通话记录
+下拉刷新后再试</string>
+
     <string name="record_type_label">通信类型:</string>
     <string name="record_bill_seconds_label">计费分钟数:</string>
     <string name="record_fee_label">通话费:</string>
     <string name="record_connected">已接通</string>
     <string name="record_missed">未接通</string>
     <string name="record_voice_hd">高清语音</string>
+    <string name="record_voice_hd_incoming">高清语音被叫</string>
+    <string name="record_voice_hd_outgoing">高清语音主叫</string>
     <string name="record_package_default">5G智享套餐 - 语音产品</string>
     <string name="record_type_incoming_domestic">国内被叫</string>
     <string name="record_type_outgoing_local">本地主叫本地</string>
     <string name="record_unknown_location">未知归属地</string>
     <string name="record_fee_free">¥0.00</string>
+
     <string name="summary_subtitle_default">全球通金卡</string>
     <string name="summary_hint_default">近期开通详单查询，以下为最近通话记录</string>
     <string name="record_count_format">共%1$d条</string>
-    <string name="month_04">4月\n2026</string>
-    <string name="month_03">3月\n2026</string>
-    <string name="month_02">2月\n2026</string>
-    <string name="month_01">1月\n2026</string>
-    <string name="month_12">12月\n2025</string>
-    <string name="month_11">11月\n2025</string>
-    <string name="month_10">10月\n2025</string>
+
+    <string name="month_04">4月&#10;2026</string>
+    <string name="month_03">3月&#10;2026</string>
+    <string name="month_02">2月&#10;2026</string>
+    <string name="month_01">1月&#10;2026</string>
+    <string name="month_12">12月&#10;2025</string>
+    <string name="month_11">11月&#10;2025</string>
+    <string name="month_10">10月&#10;2025</string>
+
     <string name="settings_title">设置</string>
     <string name="settings_save">保存</string>
     <string name="settings_saved">设置已保存</string>
     <string name="settings_outgoing_package_title">主叫使用套餐信息</string>
     <string name="settings_outgoing_package_hint">只在主叫详单中展示，被叫详单不显示此信息。</string>
     <string name="settings_outgoing_package_placeholder">例如：移动全家享套餐</string>
+    <string name="settings_custom_region_placeholder">请输入本机号码地区（如：徐州）</string>
+
+    <string name="call_analysis">通话分析</string>
+    <string name="call_analysis_tip">通话分析功能开发中</string>
+    <string name="warm_tip_template">温馨提示：\n1、以上信息是移动用户%1$s截至页面打开时间%2$s的查询结果。\n2、除特别说明，以上“国内”指中国大陆，不含港澳台地区。\n3、更多信息可详询10086。若您的诉求在10086未得理，可以致电10080客户服务监督热线反映。</string>
 </resources>

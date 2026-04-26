@@ -146,6 +146,21 @@
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_hint"
             android:textSize="13sp" />
+
+        <EditText
+            android:id="@+id/etCustomRegion"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_search_input"
+            android:gravity="center_vertical"
+            android:hint="@string/settings_custom_region_placeholder"
+            android:maxLines="1"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint"
+            android:textSize="13sp" />
     </LinearLayout>
 
 </LinearLayout>

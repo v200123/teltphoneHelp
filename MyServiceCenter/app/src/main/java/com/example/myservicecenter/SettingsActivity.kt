@@ -31,12 +31,14 @@ class SettingsActivity : AppCompatActivity() {
         binding.etOutgoingPackage.setText(AppPreferences.getOutgoingPackageInfo(this))
         binding.etCustomNumber.setText(AppPreferences.getCustomPhoneNumber(this))
         binding.etCustomStar.setText(AppPreferences.getCustomStarLevel(this).toString())
+        binding.etCustomRegion.setText(AppPreferences.getCustomSelfRegion(this))
         binding.btnBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener {
             AppPreferences.setOutgoingPackageInfo(this, binding.etOutgoingPackage.text?.toString().orEmpty())
             AppPreferences.setCustomPhoneNumber(this, binding.etCustomNumber.text?.toString().orEmpty())
             val starLevel = binding.etCustomStar.text?.toString()?.toIntOrNull()?.coerceIn(1, 5) ?: 5
             AppPreferences.setCustomStarLevel(this, starLevel)
+            AppPreferences.setCustomSelfRegion(this, binding.etCustomRegion.text?.toString().orEmpty())
             Toast.makeText(this, getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
             finish()
         }

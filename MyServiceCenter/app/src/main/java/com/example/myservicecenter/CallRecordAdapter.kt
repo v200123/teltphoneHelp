@@ -12,11 +12,18 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.max
 
-class CallRecordAdapter : RecyclerView.Adapter<CallRecordAdapter.ViewHolder>() {
+class CallRecordAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    companion object {
+        private const val TYPE_RECORD = 1
+        private const val TYPE_FOOTER = 2
+    }
 
     private val items = mutableListOf<CallRecord>()
     private val dateFormat = SimpleDateFormat("MM-dd HH:mm:ss", Locale.getDefault())
     private var outgoingPackageInfo: String = ""
+    private var customSelfRegion: String = ""
+    private var warmTipText: String = ""
 
     fun setData(data: List<CallRecord>) {
         items.clear()
@@ -29,19 +36,43 @@ class CallRecordAdapter : RecyclerView.Adapter<CallRecordAdapter.ViewHolder>() {
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_call_record, parent, false)
-        return ViewHolder(view)
+    fun setCustomSelfRegion(region: String) {
+        customSelfRegion = region.trim()
+        notifyDataSetChanged()
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position], dateFormat, outgoingPackageInfo)
+    fun setWarmTip(text: String) {
+        warmTipText = text
+        notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return if (viewType == TYPE_FOOTER) {
+            FooterViewHolder(inflater.inflate(R.layout.item_call_record_footer, parent, false))
+        } else {
+            RecordViewHolder(inflater.inflate(R.layout.item_call_record, parent, false))
+        }
+    }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is RecordViewHolder) {
+            holder.bind(items[position], dateFormat, outgoingPackageInfo, customSelfRegion)
+        } else if (holder is FooterViewHolder) {
+            holder.bind(warmTipText)
+        }
+    }
+
+    override fun getItemCount(): Int {
+        val footerCount = if (warmTipText.isBlank()) 0 else 1
+        return items.size + footerCount
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position < items.size) TYPE_RECORD else TYPE_FOOTER
+    }
+
+    class RecordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvTitle: TextView = itemView.findViewById(R.id.tv_title)
         private val ivDirection: ImageView = itemView.findViewById(R.id.iv_direction)
         private val tvPhone: TextView = itemView.findViewById(R.id.tv_phone)
@@ -54,14 +85,23 @@ class CallRecordAdapter : RecyclerView.Adapter<CallRecordAdapter.ViewHolder>() {
         private val tvFee: TextView = itemView.findViewById(R.id.tv_fee)
         private val tvStatus: TextView = itemView.findViewById(R.id.tv_status)
 
-        fun bind(record: CallRecord, dateFormat: SimpleDateFormat, outgoingPackageInfo: String) {
+        fun bind(
+            record: CallRecord,
+            dateFormat: SimpleDateFormat,
+            outgoingPackageInfo: String,
+            customSelfRegion: String
+        ) {
             val context = itemView.context
             val billSeconds = calculateBillSeconds(record)
             val billedMinutes = calculateBilledMinutes(billSeconds)
             val isIncoming = record.callType == 1
             val packageText = buildPackageText(isIncoming, outgoingPackageInfo)
 
-            tvTitle.text = context.getString(R.string.record_voice_hd)
+            tvTitle.text = if (isIncoming) {
+                context.getString(R.string.record_voice_hd_incoming)
+            } else {
+                context.getString(R.string.record_voice_hd_outgoing)
+            }
             ivDirection.setImageResource(
                 if (isIncoming) R.drawable.icon_detail_module_called
                 else R.drawable.icon_detail_module_call
@@ -73,7 +113,9 @@ class CallRecordAdapter : RecyclerView.Adapter<CallRecordAdapter.ViewHolder>() {
                 "--"
             }
             tvDuration.text = formatDuration(billSeconds)
-            tvAttribution.text = record.attribution ?: context.getString(R.string.record_unknown_location)
+            tvAttribution.text = customSelfRegion.ifBlank {
+                record.attribution ?: context.getString(R.string.record_unknown_location)
+            }
             tvPackage.isVisible = packageText.isNotBlank()
             tvPackage.text = packageText
             tvType.text = if (isIncoming) {
@@ -108,15 +150,11 @@ class CallRecordAdapter : RecyclerView.Adapter<CallRecordAdapter.ViewHolder>() {
 
         private fun formatDuration(totalSeconds: Int): String {
             if (totalSeconds <= 0) {
-                return "0s"
+                return "00分00秒"
             }
             val minutes = totalSeconds / 60
             val seconds = totalSeconds % 60
-            return if (minutes > 0) {
-                String.format(Locale.getDefault(), "%02dm %02ds", minutes, seconds)
-            } else {
-                String.format(Locale.getDefault(), "%02ds", seconds)
-            }
+            return String.format(Locale.getDefault(), "%02d分%02d秒", minutes, seconds)
         }
 
         private fun buildPackageText(isIncoming: Boolean, outgoingPackageInfo: String): String {
@@ -124,6 +162,14 @@ class CallRecordAdapter : RecyclerView.Adapter<CallRecordAdapter.ViewHolder>() {
                 return ""
             }
             return outgoingPackageInfo.trim()
+        }
+    }
+
+    class FooterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvWarmTip: TextView = itemView.findViewById(R.id.tvWarmTip)
+
+        fun bind(text: String) {
+            tvWarmTip.text = text
         }
     }
 }
