@@ -6,7 +6,8 @@
         </shape>
     </item>
     <item
-        android:gravity="bottom"
+        android:gravity="bottom|center"
+        android:width="25dp"
         android:height="3dp">
         <shape android:shape="rectangle">
             <solid android:color="@color/tab_indicator" />

@@ -24,8 +24,7 @@
     <string name="filter_type_dropdown">通信类型 ˅</string>
     <string name="filter_contact_name">以本机通讯录名称显示</string>
 
-    <string name="empty_call_records">暂无通话记录
-下拉刷新后再试</string>
+    <string name="empty_call_records">暂无通话记录</string>
 
     <string name="record_type_label">通信类型:</string>
     <string name="record_bill_seconds_label">计费分钟数:</string>
