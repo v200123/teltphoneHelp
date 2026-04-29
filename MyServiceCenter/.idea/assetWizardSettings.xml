@@ -183,7 +183,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\SD\Pictures\ic_launcher_cmcc.png" />
+                                                <entry key="imagePath" value="D:\AndroidProject\chinamobile\resources\res\drawable-xxhdpi\app_upgrade_notification_icon.webp" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -217,7 +217,7 @@
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
                                       <entry key="iconShape" value="NONE" />
-                                      <entry key="imageAsset" value="C:\Users\SD\Pictures\ic_launcher_cmcc.png" />
+                                      <entry key="imageAsset" value="D:\AndroidProject\chinamobile\resources\res\drawable-xxhdpi\app_upgrade_notification_icon.webp" />
                                       <entry key="outputName" value="ic_launcher_cmcc" />
                                     </map>
                                   </option>

@@ -1,8 +1,10 @@
 package com.u2tzjtne.telephonehelper.util;
 
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.net.Uri;
 
 import com.u2tzjtne.telephonehelper.R;
@@ -28,9 +30,22 @@ public class MediaPlayerHelper {
         return Uri.parse("android.resource://" + context.getPackageName() + "/" + resId);
     }
 
+    private void configurePlayerAudio() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AudioAttributes attributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+            mediaPlayer.setAudioAttributes(attributes);
+        } else {
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+        }
+    }
+
     private boolean playRawInternal(Context context, Uri uri, boolean looping, Runnable onCompletion) {
         try {
             mediaPlayer.reset();
+            configurePlayerAudio();
             mediaPlayer.setOnCompletionListener(null);
             mediaPlayer.setDataSource(context, uri);
             mediaPlayer.setLooping(looping);
@@ -101,12 +116,23 @@ public class MediaPlayerHelper {
 
     public void switchAudioOutput(Context context, boolean isSpeaker) {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        if (isSpeaker) {
-            audioManager.setSpeakerphoneOn(true);
-            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-        } else {
-            audioManager.setSpeakerphoneOn(false);
-            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        if (audioManager == null) {
+            return;
         }
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        audioManager.setSpeakerphoneOn(isSpeaker);
+    }
+
+    public void prepareCallAudio(Context context, boolean isSpeaker) {
+        switchAudioOutput(context, isSpeaker);
+    }
+
+    public void releaseCallAudio(Context context) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager == null) {
+            return;
+        }
+        audioManager.setSpeakerphoneOn(false);
+        audioManager.setMode(AudioManager.MODE_NORMAL);
     }
 }

@@ -63,5 +63,6 @@
 
     <string name="call_analysis">通话分析</string>
     <string name="call_analysis_tip">通话分析功能开发中</string>
+    <string name="load_complete">数据加载完毕</string>
     <string name="warm_tip_template">温馨提示：\n1、以上信息是移动用户%1$s截至页面打开时间%2$s的查询结果。\n2、除特别说明，以上“国内”指中国大陆，不含港澳台地区。\n3、更多信息可详询10086。若您的诉求在10086未得理，可以致电10080客户服务监督热线反映。</string>
 </resources>

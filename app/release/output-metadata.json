@@ -13,7 +13,7 @@
       "attributes": [],
       "versionCode": 50,
       "versionName": "1.5.0",
-      "outputFile": "TelephoneHelper_release_2026-03-24_1.5.0_u50.apk"
+      "outputFile": "TelephoneHelper_release_2026-04-28_1.5.0_u50.apk"
     }
   ],
   "elementType": "File",
@@ -22,14 +22,14 @@
       "minApi": 28,
       "maxApi": 30,
       "baselineProfiles": [
-        "baselineProfiles/1/TelephoneHelper_release_2026-03-24_1.5.0_u50.dm"
+        "baselineProfiles/1/TelephoneHelper_release_2026-04-28_1.5.0_u50.dm"
       ]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
       "baselineProfiles": [
-        "baselineProfiles/0/TelephoneHelper_release_2026-03-24_1.5.0_u50.dm"
+        "baselineProfiles/0/TelephoneHelper_release_2026-04-28_1.5.0_u50.dm"
       ]
     }
   ],

@@ -2,12 +2,18 @@ package com.u2tzjtne.telephonehelper.ui.activity
 
 import android.R.color.transparent
 import android.annotation.SuppressLint
+import android.content.Context
 import android.app.WallpaperManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
@@ -19,6 +25,7 @@ import com.u2tzjtne.telephonehelper.databinding.NewCallActivityBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
 
+import com.u2tzjtne.telephonehelper.util.CallVibrationSettings
 import com.u2tzjtne.telephonehelper.util.PhoneNumberFormatUtils
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
@@ -115,7 +122,8 @@ class newCallActivity : BaseActivity() {
         initGSYVideo()
         observeCallState()
         setBackGround()
-        MediaPlayerHelper.getInstance().switchAudioOutput(this, isSpeakerOn)
+        volumeControlStream = AudioManager.STREAM_VOICE_CALL
+        MediaPlayerHelper.getInstance().prepareCallAudio(this, isSpeakerOn)
 
         // iv_dial_hang_up 无论任何状态均响应挂断，永久绑定且不可被覆盖
         bind.ivDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
@@ -134,6 +142,7 @@ class newCallActivity : BaseActivity() {
         stopRecordingTimer()
         GSYVideoPlayerHelper.getInstance().release()
         MediaPlayerHelper.getInstance().stopAudio()
+        MediaPlayerHelper.getInstance().releaseCallAudio(this)
         bind.cmCallTime.stop()
     }
 
@@ -274,6 +283,7 @@ class newCallActivity : BaseActivity() {
         if (callRecord.isConnected) return
         callRecord.isConnected = true
         callRecord.connectedTime = System.currentTimeMillis()
+        vibrateOnce()
 
         // 取消预连接调度（若是自动接通则autoConnectJob已触发，若是手动则需取消其余）
         cancelPreConnectJobs()
@@ -402,6 +412,7 @@ class newCallActivity : BaseActivity() {
         stopRingtonePlayback()
 
         // 音频：播放挂断音
+        vibrateOnce()
         MediaPlayerHelper.getInstance().playGuaduanSound(this)
 
         // UI
@@ -435,6 +446,37 @@ class newCallActivity : BaseActivity() {
     }
 
     // ===================== 忙线辅助 =====================
+
+    private fun vibrateOnce() {
+        try {
+            val vibrationDurationMs = CallVibrationSettings.getDurationMs()
+            if (vibrationDurationMs <= 0) return
+
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                vibratorManager?.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+            } ?: return
+
+            if (!vibrator.hasVibrator()) return
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(
+                        vibrationDurationMs.toLong(),
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(vibrationDurationMs.toLong())
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "震动执行失败: ${e.message}")
+        }
+    }
 
     private fun playBusyThenFinish() {
         val busyStarted = MediaPlayerHelper.getInstance().playBusySound(this, BUSY_AUDIO_RES_NAME) {

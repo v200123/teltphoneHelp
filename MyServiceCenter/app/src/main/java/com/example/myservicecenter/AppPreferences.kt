@@ -8,6 +8,7 @@ object AppPreferences {
     private const val KEY_CUSTOM_PHONE_NUMBER = "custom_phone_number"
     private const val KEY_CUSTOM_STAR_LEVEL = "custom_star_level"
     private const val KEY_CUSTOM_SELF_REGION = "custom_self_region"
+    private const val KEY_CACHED_CALL_RECORDS = "cached_call_records"
 
     fun getOutgoingPackageInfo(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
