@@ -102,11 +102,17 @@ class MainActivity : AppCompatActivity() {
         binding.btnMore.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        binding.ivClearSearch.setOnClickListener {
+            binding.etSearchPhone.text?.clear()
+        }
         binding.etSearchPhone.doAfterTextChanged {
+            binding.ivClearSearch.visibility = if (it.isNullOrBlank()) View.GONE else View.VISIBLE
             if (it.isNullOrBlank()) {
                 applyFilter()
             }
         }
+        binding.ivClearSearch.visibility =
+            if (binding.etSearchPhone.text.isNullOrBlank()) View.GONE else View.VISIBLE
         binding.swipeRefresh.setOnRefreshListener {
             loadCallRecords()
         }

@@ -250,30 +250,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="34dp">
 
-                        <TextView
-                            android:id="@+id/btnSearch"
-                            android:layout_width="65dp"
-                            android:layout_height="28dp"
-                            android:background="@drawable/bg_search_button"
-                            android:gravity="center"
-                            android:text="@string/filter_search"
-                            android:textColor="@android:color/white"
-                            android:textSize="12sp"
-                            android:textStyle="bold"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/searchInputContainer"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="34dp"
-                            android:layout_marginEnd="8dp"
                             android:background="@drawable/bg_search_input"
                             android:paddingStart="12dp"
                             android:paddingEnd="10dp"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/btnSearch"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent">
 
@@ -318,8 +303,39 @@
                                 android:textColorHint="@color/text_hint"
                                 android:textSize="12sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/ivClearSearch"
                                 app:layout_constraintStart_toEndOf="@id/vSearchDivider"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <ImageView
+                                android:id="@+id/ivClearSearch"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginEnd="8dp"
+                                android:clickable="true"
+                                android:contentDescription="@null"
+                                android:focusable="true"
+                                android:padding="2dp"
+                                android:src="@drawable/ic_search_clear"
+                                android:visibility="gone"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/btnSearch"
+                                app:layout_constraintStart_toEndOf="@id/etSearchPhone"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/btnSearch"
+                                android:layout_width="65dp"
+                                android:layout_height="28dp"
+                                android:background="@drawable/bg_search_button"
+                                android:gravity="center"
+                                android:text="@string/filter_search"
+                                android:textColor="@android:color/white"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -332,7 +348,7 @@
 
                         <TextView
                             android:id="@+id/tvFilterFee"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:drawableEnd="@drawable/detail_module_gray_triangle"
                             android:drawablePadding="4dp"
@@ -341,54 +357,61 @@
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/tvFilterMainCalled"
-                            app:layout_constraintHorizontal_chainStyle="spread"
+                            app:layout_constraintEnd_toStartOf="@+id/tvFilterMainCalled"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintHorizontal_chainStyle="spread_inside"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/tvFilterMainCalled"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="22dp"
                             android:drawableEnd="@drawable/detail_module_gray_triangle"
                             android:drawablePadding="4dp"
-                            android:gravity="center"
+                            android:gravity="center_vertical"
                             android:text="@string/filter_main_called"
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/tvFilterLocation"
-                            app:layout_constraintStart_toEndOf="@id/tvFilterFee"
+                            app:layout_constraintEnd_toStartOf="@+id/tvFilterLocation"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toEndOf="@+id/tvFilterFee"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/tvFilterLocation"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="22dp"
                             android:drawableEnd="@drawable/detail_module_gray_triangle"
                             android:drawablePadding="4dp"
-                            android:gravity="center"
+                            android:gravity="center_vertical"
                             android:text="@string/filter_location"
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/tvFilterType"
-                            app:layout_constraintStart_toEndOf="@id/tvFilterMainCalled"
+                            app:layout_constraintEnd_toStartOf="@+id/tvFilterType"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toEndOf="@+id/tvFilterMainCalled"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/tvFilterType"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="22dp"
                             android:drawableEnd="@drawable/detail_module_gray_triangle"
                             android:drawablePadding="4dp"
-                            android:gravity="center"
+                            android:gravity="center_vertical"
                             android:text="@string/filter_type"
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/tvFilterLocation"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toEndOf="@+id/tvFilterLocation"
                             app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
