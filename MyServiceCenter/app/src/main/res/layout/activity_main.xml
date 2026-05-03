@@ -49,7 +49,7 @@
             android:gravity="center"
             android:text="@string/detail_title"
             android:textColor="@color/text_primary"
-            android:textSize="16sp"
+            android:textSize="17sp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -59,24 +59,23 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <ImageView
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:background="@drawable/bg_top_icon_outline"
                 android:gravity="center"
-                android:text="?"
+                android:tint="#000000"
+                android:src="@drawable/icon_common_question"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <ImageView
+                android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:layout_marginStart="10dp"
                 android:gravity="center"
-                android:text="客服"
-                android:textColor="@color/text_primary"
-                android:textSize="12sp" />
+                android:src="@drawable/title_onlineservice_default_black"
+                />
 
             <TextView
                 android:layout_width="28dp"
@@ -197,332 +196,75 @@
                         android:paddingBottom="6dp" />
                 </HorizontalScrollView>
 
-                <LinearLayout
+                <FrameLayout
                     android:id="@+id/tabContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginEnd="16dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:background="@android:color/white"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/tabLayoutDetail"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/tab_package"
-                        android:textColor="@color/text_muted"
-                        android:textSize="14sp" />
+                        android:background="@android:color/white"
+                        android:paddingEnd="22dp"
+                        app:tabBackground="@android:color/transparent"
+                        app:tabGravity="start"
+                        app:tabIndicator="@drawable/bg_tab_selected"
+                        app:tabIndicatorAnimationMode="elastic"
+                        app:tabIndicatorColor="@android:color/transparent"
+                        app:tabIndicatorFullWidth="false"
+                        app:tabIndicatorGravity="bottom"
+                        app:tabInlineLabel="true"
+                        app:tabMode="scrollable"
+                        app:tabPaddingEnd="18dp"
+                        app:tabPaddingStart="0dp"
+                        app:tabRippleColor="@android:color/transparent"
+                        app:tabSelectedTextColor="@color/text_primary"
+                        app:tabTextAppearance="@style/TextAppearance.MyServiceCenter.Tab"
+                        app:tabTextColor="@color/text_secondary"
+                        app:tabUnboundedRipple="false">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="18dp"
-                        android:background="@drawable/bg_tab_selected"
-                        android:paddingBottom="8dp"
-                        android:text="@string/tab_call_detail"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        <com.google.android.material.tabs.TabItem android:text="@string/tab_package" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="18dp"
-                        android:text="@string/tab_sms_detail"
-                        android:textColor="@color/text_muted"
-                        android:textSize="14sp" />
-                </LinearLayout>
+                        <com.google.android.material.tabs.TabItem android:text="@string/tab_call_detail" />
 
-                <LinearLayout
-                    android:id="@+id/filterContainer"
+                        <com.google.android.material.tabs.TabItem android:text="@string/tab_sms_detail" />
+
+                        <com.google.android.material.tabs.TabItem android:text="@string/tab_data_detail" />
+
+                        <com.google.android.material.tabs.TabItem android:text="@string/tab_vas_deduction_record" />
+                    </com.google.android.material.tabs.TabLayout>
+
+                    <View
+                        android:layout_width="36dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="end"
+                        android:background="@drawable/bg_tab_right_fade"
+                        android:importantForAccessibility="no" />
+                </FrameLayout>
+
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="1dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="6dp"
                     android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:orientation="vertical"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="34dp">
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/searchInputContainer"
-                            android:layout_width="match_parent"
-                            android:layout_height="34dp"
-                            android:background="@drawable/bg_search_input"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="10dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent">
-
-                            <TextView
-                                android:id="@+id/tvFilterMode"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:drawableEnd="@drawable/detail_module_gray_triangle"
-                                android:drawablePadding="4dp"
-                                android:gravity="center_vertical"
-                                android:text="@string/filter_call_out"
-                                android:textColor="@color/text_primary"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <View
-                                android:id="@+id/vSearchDivider"
-                                android:layout_width="1dp"
-                                android:layout_height="16dp"
-                                android:layout_marginStart="12dp"
-                                android:layout_marginEnd="10dp"
-                                android:background="@color/stroke_soft"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toEndOf="@id/tvFilterMode"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <EditText
-                                android:id="@+id/etSearchPhone"
-                                android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:background="@android:color/transparent"
-                                android:hint="@string/filter_search_hint"
-                                android:imeOptions="actionSearch"
-                                android:inputType="phone"
-                                android:maxLines="1"
-                                android:paddingStart="0dp"
-                                android:paddingEnd="0dp"
-                                android:textColor="@color/text_primary"
-                                android:textColorHint="@color/text_hint"
-                                android:textSize="12sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toStartOf="@id/ivClearSearch"
-                                app:layout_constraintStart_toEndOf="@id/vSearchDivider"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <ImageView
-                                android:id="@+id/ivClearSearch"
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:layout_marginStart="8dp"
-                                android:layout_marginEnd="8dp"
-                                android:clickable="true"
-                                android:contentDescription="@null"
-                                android:focusable="true"
-                                android:padding="2dp"
-                                android:src="@drawable/ic_search_clear"
-                                android:visibility="gone"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toStartOf="@id/btnSearch"
-                                app:layout_constraintStart_toEndOf="@id/etSearchPhone"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/btnSearch"
-                                android:layout_width="65dp"
-                                android:layout_height="28dp"
-                                android:background="@drawable/bg_search_button"
-                                android:gravity="center"
-                                android:text="@string/filter_search"
-                                android:textColor="@android:color/white"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:minHeight="22dp">
-
-                        <TextView
-                            android:id="@+id/tvFilterFee"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:drawableEnd="@drawable/detail_module_gray_triangle"
-                            android:drawablePadding="4dp"
-                            android:gravity="start|center_vertical"
-                            android:text="@string/filter_fee"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/tvFilterMainCalled"
-                            app:layout_constraintHorizontal_bias="0.5"
-                            app:layout_constraintHorizontal_chainStyle="spread_inside"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/tvFilterMainCalled"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="22dp"
-                            android:drawableEnd="@drawable/detail_module_gray_triangle"
-                            android:drawablePadding="4dp"
-                            android:gravity="center_vertical"
-                            android:text="@string/filter_main_called"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/tvFilterLocation"
-                            app:layout_constraintHorizontal_bias="0.5"
-                            app:layout_constraintStart_toEndOf="@+id/tvFilterFee"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/tvFilterLocation"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="22dp"
-                            android:drawableEnd="@drawable/detail_module_gray_triangle"
-                            android:drawablePadding="4dp"
-                            android:gravity="center_vertical"
-                            android:text="@string/filter_location"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/tvFilterType"
-                            app:layout_constraintHorizontal_bias="0.5"
-                            app:layout_constraintStart_toEndOf="@+id/tvFilterMainCalled"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/tvFilterType"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="22dp"
-                            android:drawableEnd="@drawable/detail_module_gray_triangle"
-                            android:drawablePadding="4dp"
-                            android:gravity="center_vertical"
-                            android:text="@string/filter_type"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="0.5"
-                            app:layout_constraintStart_toEndOf="@+id/tvFilterLocation"
-                            app:layout_constraintTop_toTopOf="parent" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/filter_contact_name"
-                            android:textColor="@color/text_hint"
-                            android:textSize="12sp" />
-
-                        <View
-                            android:layout_width="30dp"
-                            android:layout_height="18dp"
-                            android:background="@drawable/bg_switch_off" />
-                    </LinearLayout>
-                </LinearLayout>
+                    android:background="@drawable/bg_tab_bottom_divider" />
 
             </LinearLayout>
         </FrameLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefresh"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerDetail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/page_background"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/card_white"
-                android:clipToPadding="false"
-                android:nestedScrollingEnabled="true"
-                android:overScrollMode="never"
-                android:paddingStart="0dp"
-                android:paddingTop="0dp"
-                android:paddingEnd="0dp"
-                android:paddingBottom="96dp" />
-
-            <TextView
-                android:id="@+id/tvEmpty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/empty_call_records"
-                android:textColor="@color/text_hint"
-                android:textSize="15sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/tvLoadComplete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginBottom="24dp"
-                android:gravity="center"
-                android:text="@string/load_complete"
-                android:textColor="@color/text_hint"
-                android:textSize="13sp"
-                android:visibility="gone" />
-        </FrameLayout>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <LinearLayout
-        android:id="@+id/btnCallAnalysis"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="128dp"
-        android:background="@drawable/bg_call_analysis_button"
-        android:clickable="true"
-        android:elevation="8dp"
-        android:focusable="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="8dp">
-
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_call_analysis_bars" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:text="@string/call_analysis"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-             />
-    </LinearLayout>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

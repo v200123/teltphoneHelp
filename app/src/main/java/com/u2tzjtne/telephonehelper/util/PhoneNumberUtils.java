@@ -58,6 +58,14 @@ public class PhoneNumberUtils {
         return phoneNumber.matches("^1[3-9]\\d{9}$");
     }
 
+    public static boolean isMobilePrefixAt8Digits(String phoneNumber) {
+        if (TextUtils.isEmpty(phoneNumber)) {
+            return false;
+        }
+        String pure = normalizePhoneNumber(phoneNumber);
+        return pure.matches("^1[3-9]\\d{6}$");
+    }
+
     public static void getProvince(String phoneNumber, getLocalCallback callback) {
         if (TextUtils.isEmpty(phoneNumber)) {
             return;
@@ -108,7 +116,7 @@ public class PhoneNumberUtils {
             // 如果不是正常的中国手机号，不进行本地库和网络查询
             // 但自定义归属地已经在前面的步骤中查询过了
             if (!isValidChinesePhoneNumber(fullPhoneNumber)) {
-                Log.d("local", "getProvince: 非正常手机号码，无法通过本地库和网络查询");
+                Log.d("local", "getProvince: 非正常手机号码，无法通过本地库和网络查询："+fullPhoneNumber);
 //                notifyCallbackOnMainThread(callback, new PhoneLocalBean("", "", ""));
                 return;
             }
@@ -141,7 +149,8 @@ public class PhoneNumberUtils {
                 // 网络查询
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder()
-                        .url("https://api.songzixian.com/api/phone-location?dataSource=phone_number_location&phoneNumber=" + fullPhoneNumber)
+                        .url("https://uapis.cn/api/v1/misc/phoneinfo?phone=" + fullPhoneNumber)
+                        .addHeader("authorization", "uapi-ykjvbk1zkJj7L7KQ83m1PqZuzZgft6XY7Ge6H7eS")
                         .get()
                         .build();
                 client.newCall(request).enqueue(new Callback() {
@@ -154,14 +163,25 @@ public class PhoneNumberUtils {
                     public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                         try {
                             Gson gson = new Gson();
-                            JsonObject fromJson = gson.fromJson(response.body().string(), JsonObject.class);
-                            if (fromJson.get("code").getAsInt() == 200) {
-                                JsonObject jsonObject = fromJson.get("data").getAsJsonObject();
-                                String p = jsonObject.get("province").getAsString();
-                                String city = jsonObject.get("city").getAsString();
-                                String carrier = jsonObject.get("carrier").getAsString().replace("中国", "");
+                            JsonObject jsonObject = gson.fromJson(response.body().string(), JsonObject.class);
+                            if (jsonObject != null) {
+                                String p = getSafeJsonString(jsonObject, "province");
+                                String city = getSafeJsonString(jsonObject, "city");
+                                String carrier = getSafeJsonString(jsonObject, "sp");
+                                if (TextUtils.isEmpty(carrier)) {
+                                    carrier = getSafeJsonString(jsonObject, "carrier");
+                                }
+                                if (TextUtils.isEmpty(carrier)) {
+                                    carrier = getSafeJsonString(jsonObject, "isp");
+                                }
+                                carrier = carrier.replace("中国", "");
+                                if (TextUtils.isEmpty(p) && TextUtils.isEmpty(city) && TextUtils.isEmpty(carrier)) {
+                                    notifyCallbackOnMainThread(callback, new PhoneLocalBean("未知", "未知", "未知"));
+                                    return;
+                                }
                                 PhoneLocalBean phoneLocalBean = new PhoneLocalBean(p, city, carrier);
                                 cache.put(finalPhoneNumber, phoneLocalBean);
+                                saveLocationToLocalDb(fullPhoneNumber, p, city, carrier);
                                 notifyCallbackOnMainThread(callback, phoneLocalBean);
                             } else {
                                 notifyCallbackOnMainThread(callback, new PhoneLocalBean("未知", "未知", "未知"));
@@ -187,6 +207,32 @@ public class PhoneNumberUtils {
         io.reactivex.android.schedulers.AndroidSchedulers.mainThread().scheduleDirect(() -> {
             callback.result(bean);
         });
+    }
+
+    private static String getSafeJsonString(JsonObject jsonObject, String key) {
+        if (jsonObject == null || TextUtils.isEmpty(key) || !jsonObject.has(key) || jsonObject.get(key).isJsonNull()) {
+            return "";
+        }
+        try {
+            return jsonObject.get(key).getAsString();
+        } catch (Exception ignore) {
+            return "";
+        }
+    }
+
+    private static void saveLocationToLocalDb(String fullPhoneNumber, String province, String city, String carrier) {
+        if (TextUtils.isEmpty(fullPhoneNumber)) {
+            return;
+        }
+        if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city) && TextUtils.isEmpty(carrier)) {
+            return;
+        }
+        CustomPhoneLocation location = new CustomPhoneLocation(fullPhoneNumber, province, city, carrier);
+        AppDatabase.getInstance().customPhoneLocationModel()
+                .insert(location)
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .subscribe(() -> Log.d("local", "saveLocationToLocalDb success: " + fullPhoneNumber),
+                        error -> Log.e("local", "saveLocationToLocalDb failed: " + error.getMessage()));
     }
     
     /**

@@ -10,6 +10,8 @@
     <string name="tab_package">套餐及固定费用详单</string>
     <string name="tab_call_detail">通话详单</string>
     <string name="tab_sms_detail">短/彩信详单</string>
+    <string name="tab_data_detail">上网详单</string>
+    <string name="tab_vas_deduction_record">增值业务扣费记录</string>
 
     <string name="filter_call_out">按号码</string>
     <string name="filter_search_hint">请输入手机号查询</string>
@@ -63,5 +65,7 @@
     <string name="call_analysis">通话分析</string>
     <string name="call_analysis_tip">通话分析功能开发中</string>
     <string name="load_complete">数据加载完毕</string>
+    <string name="module_placeholder_not_supported">当前模块内容开发中</string>
+    <string name="module_placeholder_with_name">%1$s模块内容开发中</string>
     <string name="warm_tip_template">温馨提示：\n1、以上信息是移动用户%1$s截至页面打开时间%2$s的查询结果。\n2、除特别说明，以上“国内”指中国大陆，不含港澳台地区。\n3、更多信息可详询10086。若您的诉求在10086未得理，可以致电10080客户服务监督热线反映。</string>
 </resources>

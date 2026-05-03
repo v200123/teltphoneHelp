@@ -98,6 +98,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     FilterResultAdapter filterAdapter;
     List<CallRecord> filterData;
     String currentPrefix = ""; // 当前筛选前缀
+    boolean locationQueryLocked = false;
     MediaPlayer mediaPlayer;
     SoundPool soundPool ;
     int soundId;
@@ -147,11 +148,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                                 tvDialNumber.setText(PhoneNumberFormatUtils.formatWithSpaces(text) );
                                 if (text.length() >= 8) {
                                     showActionPage(true);
-                                    if (text.length() == 8) {
-                                        setLocation(text + " 0000");
-                                    }else {
-                                        setLocation(text);
-                                    }
+                                    handleLocationQueryForInput(text);
                                 }
                                 ClipboardUtils.clearFirstClipboard(MainActivity.this);
                                 return null;
@@ -209,11 +206,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
                     // 获取纯数字号码进行筛选
                     filterByPrefix(pureNumber);
-                    if (pureNumber.length() == 7) {
-                        setLocation(pureNumber + "0000");
-                    } else if (pureNumber.length() > 5) {
-                        setLocation(pureNumber);
-                    }
+                    handleLocationQueryForInput(pureNumber);
 
                 }
             }
@@ -259,6 +252,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 else  attribution = bean.getProvince();
                 operator = bean.getCarrier();
                 tvLocation.setText(attribution + " " + operator);
+                locationQueryLocked = true;
             }
         });
 
@@ -394,6 +388,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void hideNumber(boolean isHide) {
         tvLocation.setText("");
         tvDialNumber.setText("");
+        locationQueryLocked = false;
         if (isHide) {
             llNumber.setVisibility(View.GONE);
         } else {
@@ -422,16 +417,35 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 // 更新筛选结果
                 filterByPrefix(afterText);
                 showActionPage(true);
-                if (afterText.length() == 7) {
-                    setLocation(afterText + "0000");
-                } else if (afterText.length() > 5) {
-                    setLocation(afterText);
-                } else {
-                    tvLocation.setText("");
-                }
+                handleLocationQueryForInput(afterText);
             }
         } else {
             hideNumber(true);
+        }
+    }
+
+    private void handleLocationQueryForInput(String inputNumber) {
+        String pureNumber = PhoneNumberUtils.normalizePhoneNumber(inputNumber);
+        if (TextUtils.isEmpty(pureNumber)) {
+            tvLocation.setText("");
+            locationQueryLocked = false;
+            return;
+        }
+        if (pureNumber.length() < 8) {
+            tvLocation.setText("");
+            locationQueryLocked = false;
+            return;
+        }
+        if (locationQueryLocked) {
+            return;
+        }
+        if (pureNumber.length() == 8 && PhoneNumberUtils.isMobilePrefixAt8Digits(pureNumber)) {
+            setLocation(pureNumber + "000");
+            return;
+        }
+        if (pureNumber.length() == 11 && pureNumber.matches("^1[3-9]\\d{9}$")) {
+            setLocation(pureNumber);
+            return;
         }
     }
 
