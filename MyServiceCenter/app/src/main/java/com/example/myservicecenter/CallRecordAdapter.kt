@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+﻿package com.example.myservicecenter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -19,6 +19,8 @@ class CallRecordAdapter : BaseQuickAdapter<CallRecord, BaseViewHolder>(R.layout.
     private val dateFormat = SimpleDateFormat("MM-dd HH:mm:ss", Locale.getDefault())
     private var outgoingPackageInfo: String = ""
     private var customSelfRegion: String = ""
+    private var customOutgoingCallType: String = ""
+    private var customIncomingCallType: String = ""
     private var warmTipText: String = ""
     private var footerView: View? = null
     private var attachedContext: Context? = null
@@ -34,6 +36,12 @@ class CallRecordAdapter : BaseQuickAdapter<CallRecord, BaseViewHolder>(R.layout.
 
     fun setCustomSelfRegion(region: String) {
         customSelfRegion = region.trim()
+        notifyDataSetChanged()
+    }
+
+    fun setCustomCallTypes(outgoingType: String, incomingType: String) {
+        customOutgoingCallType = outgoingType.trim()
+        customIncomingCallType = incomingType.trim()
         notifyDataSetChanged()
     }
 
@@ -72,8 +80,7 @@ class CallRecordAdapter : BaseQuickAdapter<CallRecord, BaseViewHolder>(R.layout.
         )
         holder.setText(
             R.id.tv_type,
-            if (isIncoming) context.getString(R.string.record_type_incoming_domestic)
-            else context.getString(R.string.record_type_outgoing_local)
+            buildCallTypeText(isIncoming, context)
         )
         holder.setText(R.id.tv_bill_seconds, billedMinutes.toString())
         holder.setText(R.id.tv_fee, context.getString(R.string.record_fee_free))
@@ -130,17 +137,27 @@ class CallRecordAdapter : BaseQuickAdapter<CallRecord, BaseViewHolder>(R.layout.
 
     private fun formatDuration(totalSeconds: Int): String {
         if (totalSeconds <= 0) {
-            return "00分00秒"
+            return "0秒"
+        }
+        if (totalSeconds < 60) {
+            return "${totalSeconds}秒"
         }
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
         return String.format(Locale.getDefault(), "%02d分%02d秒", minutes, seconds)
     }
-
     private fun buildPackageText(isIncoming: Boolean, outgoingPackageInfo: String): String {
         if (isIncoming) {
             return ""
         }
         return outgoingPackageInfo.trim()
     }
+
+    private fun buildCallTypeText(isIncoming: Boolean, context: Context): String {
+        if (isIncoming) {
+            return customIncomingCallType.ifBlank { context.getString(R.string.record_type_incoming_domestic) }
+        }
+        return customOutgoingCallType.ifBlank { context.getString(R.string.record_type_outgoing_local) }
+    }
 }
+

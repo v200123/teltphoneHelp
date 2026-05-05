@@ -383,7 +383,12 @@ class newCallActivity : BaseActivity() {
      */
     private fun dispatchHangUp(userInitiated: Boolean) {
         val statusText = if (callRecord.isConnected) "通话结束" else "正在挂断..."
-        endCallAndFinish(statusText = statusText, needSave = userInitiated, delayMillis = FINISH_DELAY_MILLIS)
+        endCallAndFinish(
+            statusText = statusText,
+            needSave = userInitiated,
+            delayMillis = FINISH_DELAY_MILLIS,
+            needVibrate = false
+        )
     }
 
     /**
@@ -393,7 +398,12 @@ class newCallActivity : BaseActivity() {
      */
     private fun dispatchRemoteHangUp() {
         val statusText = if (callRecord.isConnected) "通话结束" else "正在挂断..."
-        endCallAndFinish(statusText = statusText, needSave = true, delayMillis = FINISH_DELAY_MILLIS)
+        endCallAndFinish(
+            statusText = statusText,
+            needSave = true,
+            delayMillis = FINISH_DELAY_MILLIS,
+            needVibrate = true
+        )
     }
 
     /**
@@ -403,7 +413,12 @@ class newCallActivity : BaseActivity() {
      * @param needSave       是否保存通话记录
      * @param delayMillis    finish前延迟时间（ms）
      */
-    private fun endCallAndFinish(statusText: String, needSave: Boolean, delayMillis: Long) {
+    private fun endCallAndFinish(
+        statusText: String,
+        needSave: Boolean,
+        delayMillis: Long,
+        needVibrate: Boolean = false
+    ) {
         // 防重入保护：已在进行中则直接return
         if (finishJob?.isActive == true) return
 
@@ -412,7 +427,9 @@ class newCallActivity : BaseActivity() {
         stopRingtonePlayback()
 
         // 音频：播放挂断音
-        vibrateOnce()
+        if (needVibrate) {
+            vibrateOnce()
+        }
         MediaPlayerHelper.getInstance().playGuaduanSound(this)
 
         // UI

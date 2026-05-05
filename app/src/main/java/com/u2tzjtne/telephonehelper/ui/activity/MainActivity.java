@@ -99,6 +99,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     List<CallRecord> filterData;
     String currentPrefix = ""; // 当前筛选前缀
     boolean locationQueryLocked = false;
+    boolean queriedAt7Digits = false;
+    boolean queriedAt8Digits = false;
     MediaPlayer mediaPlayer;
     SoundPool soundPool ;
     int soundId;
@@ -240,7 +242,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
-    private void setLocation(String number) {
+    private void setLocation(String number, boolean lockAfterSuccess) {
 //        ToastUtils.s(number);
         PhoneNumberUtils.getProvince(number, new getLocalCallback() {
             @Override
@@ -252,7 +254,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 else  attribution = bean.getProvince();
                 operator = bean.getCarrier();
                 tvLocation.setText(attribution + " " + operator);
-                locationQueryLocked = true;
+                if (lockAfterSuccess) {
+                    locationQueryLocked = true;
+                }
             }
         });
 
@@ -389,6 +393,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         tvLocation.setText("");
         tvDialNumber.setText("");
         locationQueryLocked = false;
+        queriedAt7Digits = false;
+        queriedAt8Digits = false;
         if (isHide) {
             llNumber.setVisibility(View.GONE);
         } else {
@@ -429,22 +435,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         if (TextUtils.isEmpty(pureNumber)) {
             tvLocation.setText("");
             locationQueryLocked = false;
+            queriedAt7Digits = false;
+            queriedAt8Digits = false;
             return;
         }
-        if (pureNumber.length() < 8) {
+        if (pureNumber.length() < 7) {
             tvLocation.setText("");
             locationQueryLocked = false;
+            queriedAt7Digits = false;
+            queriedAt8Digits = false;
+            return;
+        }
+        if (pureNumber.length() == 7) {
+            if (!queriedAt7Digits && pureNumber.matches("^1[3-9]\\d{5}$")) {
+                queriedAt7Digits = true;
+                setLocation(pureNumber + "0000", false);
+            }
             return;
         }
         if (locationQueryLocked) {
             return;
         }
         if (pureNumber.length() == 8 && PhoneNumberUtils.isMobilePrefixAt8Digits(pureNumber)) {
-            setLocation(pureNumber + "000");
+            if (!queriedAt8Digits) {
+                queriedAt8Digits = true;
+                setLocation(pureNumber + "0000", true);
+            }
             return;
         }
         if (pureNumber.length() == 11 && pureNumber.matches("^1[3-9]\\d{9}$")) {
-            setLocation(pureNumber);
+            setLocation(pureNumber, true);
             return;
         }
     }

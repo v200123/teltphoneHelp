@@ -64,6 +64,15 @@ class MainActivity : AppCompatActivity() {
         bindAppBarColorTransition()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!::binding.isInitialized) return
+        applyCustomNumberInfo()
+        if (allRecords.isNotEmpty()) {
+            updateSummary(allRecords)
+        }
+    }
+
     private fun initViews() {
         topBarExpandedColor = ContextCompat.getColor(this, R.color.panel_blue_start)
         topBarCollapsedColor = ContextCompat.getColor(this, R.color.panel_blue_start)
@@ -188,7 +197,22 @@ class MainActivity : AppCompatActivity() {
         val starIcon = AppCompatResources.getDrawable(this, getStarLevelIconRes(starLevel))
         binding.tvSummarySubtitle.setCompoundDrawablesRelativeWithIntrinsicBounds(starIcon, null, null, null)
         binding.tvSummaryPhone.text = if (customNumber.isNotEmpty()) maskPhoneNumber(customNumber) else "--"
+        binding.tvSummaryName.text = getSummaryDisplayName()
         binding.tvSummaryHint.text = getString(R.string.summary_hint_default)
+    }
+
+    private fun getSummaryDisplayName(): String {
+        val rawName = AppPreferences.getCustomDisplayName(this).trim()
+            .ifBlank { getString(R.string.summary_name_default) }
+        return formatSummaryDisplayName(rawName)
+    }
+
+    private fun formatSummaryDisplayName(rawName: String): String {
+        val normalized = rawName.trim()
+        if (normalized.isBlank()) {
+            return getString(R.string.summary_name_default)
+        }
+        return normalized.take(1) + "*"
     }
 
     private fun getStarLevelIconRes(starLevel: Int): Int {
@@ -343,6 +367,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             latestRecord?.phoneNumber?.let { maskPhoneNumber(it) } ?: "--"
         }
+        binding.tvSummaryName.text = getSummaryDisplayName()
         binding.tvSummaryHint.text = if (records.isEmpty()) {
             getString(R.string.empty_call_records).replace("\n", " ")
         } else {

@@ -30,12 +30,18 @@ class SettingsActivity : AppCompatActivity() {
     private fun initViews() {
         binding.etOutgoingPackage.setText(AppPreferences.getOutgoingPackageInfo(this))
         binding.etCustomNumber.setText(AppPreferences.getCustomPhoneNumber(this))
+        binding.etCustomName.setText(AppPreferences.getCustomDisplayName(this))
+        binding.etCallTypeOutgoing.setText(AppPreferences.getCustomOutgoingCallType(this))
+        binding.etCallTypeIncoming.setText(AppPreferences.getCustomIncomingCallType(this))
         binding.etCustomStar.setText(AppPreferences.getCustomStarLevel(this).toString())
         binding.etCustomRegion.setText(AppPreferences.getCustomSelfRegion(this))
         binding.btnBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener {
             AppPreferences.setOutgoingPackageInfo(this, binding.etOutgoingPackage.text?.toString().orEmpty())
             AppPreferences.setCustomPhoneNumber(this, binding.etCustomNumber.text?.toString().orEmpty())
+            AppPreferences.setCustomDisplayName(this, binding.etCustomName.text?.toString().orEmpty())
+            AppPreferences.setCustomOutgoingCallType(this, binding.etCallTypeOutgoing.text?.toString().orEmpty())
+            AppPreferences.setCustomIncomingCallType(this, binding.etCallTypeIncoming.text?.toString().orEmpty())
             val starLevel = binding.etCustomStar.text?.toString()?.toIntOrNull()?.coerceIn(1, 5) ?: 5
             AppPreferences.setCustomStarLevel(this, starLevel)
             AppPreferences.setCustomSelfRegion(this, binding.etCustomRegion.text?.toString().orEmpty())

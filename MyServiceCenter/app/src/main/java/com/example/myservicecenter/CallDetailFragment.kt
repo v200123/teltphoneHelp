@@ -25,6 +25,7 @@ class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
+        applyCustomSettingsToAdapter()
         binding.swipeRefresh.setOnRefreshListener { (activity as? MainActivity)?.loadCallRecords() }
         bindLoadCompleteHint()
         binding.btnCallAnalysis.setOnClickListener { (activity as? MainActivity)?.showCallAnalysisTip() }
@@ -54,6 +55,12 @@ class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
     fun setSelectedMonth(month: YearMonth?) {
         selectedMonth = month
         applyFilter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (_binding == null) return
+        applyCustomSettingsToAdapter()
     }
 
     private fun applyFilter() {
@@ -97,6 +104,16 @@ class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
                 updateLoadCompleteHint()
             }
         })
+    }
+
+    private fun applyCustomSettingsToAdapter() {
+        val context = context ?: return
+        adapter.setCustomSelfRegion(AppPreferences.getCustomSelfRegion(context))
+        adapter.setOutgoingPackageInfo(AppPreferences.getOutgoingPackageInfo(context))
+        adapter.setCustomCallTypes(
+            AppPreferences.getCustomOutgoingCallType(context),
+            AppPreferences.getCustomIncomingCallType(context)
+        )
     }
 
     private fun updateLoadCompleteHint() {
