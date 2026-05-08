@@ -4,6 +4,7 @@ import android.R.color.transparent
 import android.annotation.SuppressLint
 import android.content.Context
 import android.app.WallpaperManager
+import android.graphics.BitmapFactory
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -40,8 +41,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
+import kotlin.random.Random
 
 class newCallActivity : BaseActivity() {
+    private enum class RingtoneBadgeRule {
+        AI_ONLY,
+        AI_AND_PRESS_RIGHT,
+        AI_AND_PRESS_LEFT_AND_MIGU,
+        AI_AND_PRESS_CENTER,
+        MIGU_AND_PRESS_LEFT,
+        MIGU_ONLY,
+        AI_AND_PRESS_LEFT
+    }
 
     // ===================== 通话状态枚举 =====================
     /**
@@ -119,6 +130,7 @@ class newCallActivity : BaseActivity() {
         getNumberData()
         initCallRecord()
         initUI()
+        initRingtoneBadges()
         initGSYVideo()
         observeCallState()
         setBackGround()
@@ -671,10 +683,12 @@ class newCallActivity : BaseActivity() {
             bind.tvAICallStatus.visibility = View.GONE
             bind.tvNewCallPlayingRing.visibility = View.VISIBLE
             bind.ivNewCallHead.visibility = View.GONE
+            applyRandomRingtoneBadgeRule()
         } else {
             bind.ivNewCallHead.visibility = View.VISIBLE
             bind.tvAICallStatus.visibility = View.VISIBLE
             bind.tvNewCallPlayingRing.visibility = View.GONE
+            hideRingtoneBadges()
         }
     }
 
@@ -683,6 +697,91 @@ class newCallActivity : BaseActivity() {
     /**
      * 切换静音
      */
+    private fun applyRandomRingtoneBadgeRule() {
+        hideRingtoneBadges()
+        when (RingtoneBadgeRule.entries[Random.nextInt(RingtoneBadgeRule.entries.size)]) {
+            RingtoneBadgeRule.AI_ONLY -> {
+                bind.ivRingAiBadge.visibility = View.VISIBLE
+            }
+            RingtoneBadgeRule.AI_AND_PRESS_RIGHT -> {
+                bind.ivRingAiBadge.visibility = View.VISIBLE
+                bind.ivRingPressOneRight.visibility = View.VISIBLE
+            }
+            RingtoneBadgeRule.AI_AND_PRESS_LEFT_AND_MIGU -> {
+                bind.ivRingAiBadge.visibility = View.VISIBLE
+                bind.ivRingPressOneLeft.visibility = View.VISIBLE
+                bind.tvRingMiguBadge.visibility = View.VISIBLE
+            }
+            RingtoneBadgeRule.AI_AND_PRESS_CENTER -> {
+                bind.ivRingAiBadge.visibility = View.VISIBLE
+                bind.ivRingPressOneCenter.visibility = View.VISIBLE
+            }
+            RingtoneBadgeRule.MIGU_AND_PRESS_LEFT -> {
+                bind.ivRingPressOneLeft.visibility = View.VISIBLE
+                bind.tvRingMiguBadge.visibility = View.VISIBLE
+            }
+            RingtoneBadgeRule.MIGU_ONLY -> {
+                bind.tvRingMiguBadge.visibility = View.VISIBLE
+            }
+            RingtoneBadgeRule.AI_AND_PRESS_LEFT -> {
+                bind.ivRingAiBadge.visibility = View.VISIBLE
+                bind.ivRingPressOneLeft.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun hideRingtoneBadges() {
+        bind.ivRingAiBadge.visibility = View.GONE
+        bind.ivRingPressOneLeft.visibility = View.GONE
+        bind.ivRingPressOneCenter.visibility = View.GONE
+        bind.ivRingPressOneRight.visibility = View.GONE
+        bind.tvRingMiguBadge.visibility = View.GONE
+    }
+
+    private fun initRingtoneBadges() {
+        setScaledBadge(bind.ivRingAiBadge, R.drawable.ic_call_3, targetWidthDp = 88)
+        setScaledBadge(bind.ivRingPressOneLeft, R.drawable.ic_call_5, targetWidthDp = 80, targetHeightDp = 60)
+        setScaledBadge(bind.ivRingPressOneCenter, R.drawable.ic_call_5, targetWidthDp = 80, targetHeightDp = 60)
+        setScaledBadge(bind.ivRingPressOneRight, R.drawable.ic_call_5, targetWidthDp = 80, targetHeightDp = 60)
+        setScaledBadge(bind.tvRingMiguBadge, R.drawable.ic_call_4, targetWidthDp = 120)
+    }
+
+    private fun setScaledBadge(view: android.widget.ImageView, resId: Int, targetWidthDp: Int, targetHeightDp: Int? = null) {
+        val metrics = resources.displayMetrics
+        val targetWidthPx = (targetWidthDp * metrics.density).toInt().coerceAtLeast(1)
+        val targetHeightPx = targetHeightDp?.let { (it * metrics.density).toInt().coerceAtLeast(1) }
+
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        BitmapFactory.decodeResource(resources, resId, options)
+
+        options.inSampleSize = calculateInSampleSize(
+            rawWidth = options.outWidth,
+            rawHeight = options.outHeight,
+            targetWidth = targetWidthPx,
+            targetHeight = targetHeightPx ?: targetWidthPx
+        )
+        options.inJustDecodeBounds = false
+        options.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565
+
+        BitmapFactory.decodeResource(resources, resId, options)?.let { bitmap ->
+            view.setImageBitmap(bitmap)
+        }
+    }
+
+    private fun calculateInSampleSize(rawWidth: Int, rawHeight: Int, targetWidth: Int, targetHeight: Int): Int {
+        var inSampleSize = 1
+        if (rawHeight > targetHeight || rawWidth > targetWidth) {
+            var halfHeight = rawHeight / 2
+            var halfWidth = rawWidth / 2
+            while ((halfHeight / inSampleSize) >= targetHeight && (halfWidth / inSampleSize) >= targetWidth) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize.coerceAtLeast(1)
+    }
+
     private fun toggleMute() {
         isJingYin = !isJingYin
         val color = if (isJingYin) "#13A8E1".toColorInt() else Color.WHITE
