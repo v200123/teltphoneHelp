@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/windowBackgroundColor">
+    android:background="?attr/windowBackgroundColor"
+    android:orientation="vertical">
 
-    <!-- 标题栏 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,45 +17,44 @@
             android:id="@+id/ivBack"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:padding="17dp"
-            android:src="@drawable/baseline_arrow_back_24"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="返回" />
+            android:contentDescription="@string/settings_back"
+            android:padding="17dp"
+            android:src="@drawable/baseline_arrow_back_24" />
 
         <TextView
+            android:id="@+id/tvTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:paddingEnd="60dp"
-            android:text="不显示彩铃的号码"
+            android:text="@string/phone_manage_title"
             android:textColor="?attr/textPrimaryColor"
             android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- 添加按钮 -->
     <Button
         android:id="@+id/btnAddPhone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="添加号码" />
+        android:text="@string/phone_manage_add" />
 
-    <!-- 统计信息 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:gravity="center_vertical">
+        android:paddingHorizontal="16dp">
 
         <TextView
             android:id="@+id/tvPhoneCount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="已添加 0 个号码"
+            android:text="@string/phone_manage_added_zero"
             android:textColor="?attr/textPrimaryColor"
             android:textSize="14sp" />
 
@@ -64,26 +62,24 @@
             android:id="@+id/tvClearAll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="清空全部"
-            android:textColor="@android:color/holo_red_dark"
-            android:textSize="14sp"
+            android:background="?attr/selectableItemBackground"
             android:padding="8dp"
-            android:background="?attr/selectableItemBackground" />
+            android:text="@string/phone_manage_clear_all"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- 空提示 -->
     <TextView
         android:id="@+id/tvEmpty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:gravity="center"
-        android:text="暂无记录\n点击上方按钮添加"
+        android:text="@string/phone_manage_empty"
         android:textColor="?attr/textHintColor"
         android:textSize="14sp"
         android:visibility="visible" />
 
-    <!-- 列表 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPhoneList"
         android:layout_width="match_parent"

@@ -30,8 +30,11 @@ import com.u2tzjtne.telephonehelper.db.Recording;
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean;
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback;
 import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper;
+import com.u2tzjtne.telephonehelper.util.CallDialAudioSettings;
+import com.u2tzjtne.telephonehelper.util.CallPromptSettings;
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper;
+import com.u2tzjtne.telephonehelper.util.MusicPlaybackHelper;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
 import com.u2tzjtne.telephonehelper.ui.widget.EmptyControlVideo;
@@ -90,6 +93,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     LinearLayout llDial1;
     private String number;
     private final CallRecord callRecord = new CallRecord();
+    private CallPromptSettings.PromptType matchedPromptType = null;
 
     private CallRecord oldCallRecord = null;
 
@@ -109,6 +113,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     private final int PLAY_NO_RESPONSE_SOUND = 5;
     private final int CALL_END = 6;
     private final int GUADUAN = 7;
+    private static final long SPECIAL_PROMPT_TRIGGER_DELAY = 1_000L;
 
     public static void start(Context context, String phoneNumber) {
         Intent intent;
@@ -130,6 +135,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         initView();
         // 初始化视频播放器
         initVideoPlayer();
+        preloadPromptType();
         //10秒后自动接通
         handler.sendEmptyMessageDelayed(CONNECTED, 10 * 1000);
         //2秒后 显示对方振铃
@@ -303,19 +309,38 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     break;
                 case PLAY_RING:
                     tvCallStatus.setText("对方已振铃");
-                    // 开始播放彩铃视频（根据号码查找绑定的彩铃）
-                    // 如果有视频在播放，则不播放拨号等待音
-                    GSYVideoPlayerHelper.getInstance().playRingtoneVideo(CallActivity.this, getPackageName(), number, isVideoPlaying -> {
-                        if (!isVideoPlaying) {
-                            // 没有视频时播放拨号等待音
+                    if (matchedPromptType != null) {
+                        handler.removeMessages(CONNECTED);
+                        handler.removeMessages(PLAY_NO_RESPONSE_SOUND);
+                        handler.sendEmptyMessageDelayed(PLAY_NO_RESPONSE_SOUND, SPECIAL_PROMPT_TRIGGER_DELAY);
+                        break;
+                    }
+                    switch (CallDialAudioSettings.getMode()) {
+                        case NORMAL:
                             MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
-                        }
-                        return null;
-                    });
+                            break;
+                        case MUSIC_LIBRARY:
+                            MusicPlaybackHelper.playSelectedMusic(CallActivity.this, (didStart, musicFile) -> {
+                                if (!didStart) {
+                                    MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
+                                }
+                            });
+                            break;
+                        case RINGTONE_LIBRARY:
+                            // 开始播放彩铃视频（根据号码查找绑定的彩铃）
+                            // 如果有视频在播放，则不播放拨号等待音
+                            GSYVideoPlayerHelper.getInstance().playRingtoneVideo(CallActivity.this, getPackageName(), number, isVideoPlaying -> {
+                                if (!isVideoPlaying) {
+                                    // 没有视频时播放拨号等待音
+                                    MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
+                                }
+                                return null;
+                            });
+                            break;
+                    }
                     break;
                 case PLAY_NO_RESPONSE_SOUND:
-                    MediaPlayerHelper.getInstance().playNoResponseSound(CallActivity.this);
-                    handler.sendEmptyMessageDelayed(CALL_END, 23200);
+                    playNoAnswerPrompt();
                     break;
                 case WAIT_FINISH:
                     handler.sendEmptyMessageDelayed(FINISH, 1000);
@@ -619,6 +644,66 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         if (cmCallTime != null) {
             cmCallTime.stop();
         }
+    }
+
+    private void playNoAnswerPrompt() {
+        if (matchedPromptType != null) {
+            playMatchedPrompt(matchedPromptType);
+            return;
+        }
+        CallPromptSettings.resolvePromptTypeAsync(number, promptType -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+            final String statusText = promptType != null ? promptType.getStatusText() : "暂时无人接听";
+            tvCallStatus.setText(statusText);
+            boolean started;
+            if (promptType != null) {
+                started = MediaPlayerHelper.getInstance().playPromptSound(
+                        CallActivity.this,
+                        promptType.getRawName(),
+                        () -> handler.sendEmptyMessage(CALL_END)
+                );
+            } else {
+                started = MediaPlayerHelper.getInstance().playNoResponseSoundOnce(
+                        CallActivity.this,
+                        () -> handler.sendEmptyMessage(CALL_END)
+                );
+            }
+            if (!started) {
+                handler.sendEmptyMessage(CALL_END);
+            }
+        });
+    }
+
+    private void playMatchedPrompt(CallPromptSettings.PromptType promptType) {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+        final String statusText = promptType.getStatusText();
+        boolean started = MediaPlayerHelper.getInstance().playPromptSound(
+                CallActivity.this,
+                promptType.getRawName(),
+                () -> handler.sendEmptyMessage(CALL_END)
+        );
+        if (!started) {
+            handler.sendEmptyMessage(CALL_END);
+        }
+    }
+
+    private void preloadPromptType() {
+        CallPromptSettings.resolvePromptTypeAsync(number, promptType -> {
+            matchedPromptType = promptType;
+            if (promptType == null || isFinishing() || isDestroyed()) {
+                return;
+            }
+            handler.removeMessages(CONNECTED);
+            if (!callRecord.isConnected) {
+                GSYVideoPlayerHelper.getInstance().stopPlaying();
+                MediaPlayerHelper.getInstance().stopAudio();
+                tvCallStatus.setText("正在等待对方接听电话");
+            }
+        });
     }
 
     @Override

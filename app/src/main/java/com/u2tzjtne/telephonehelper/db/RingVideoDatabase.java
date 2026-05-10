@@ -11,12 +11,14 @@ import com.u2tzjtne.telephonehelper.base.App;
  */
 @Database(
     entities = {
+        MusicFile.class,
         RingVideo.class, 
         RingtonePhoneBinding.class,
         NoRingtonePhone.class,
-        PhoneRingtoneAssignment.class
+        PhoneRingtoneAssignment.class,
+        CallPromptPhone.class
     }, 
-    version = 3, 
+    version = 5,
     exportSchema = false
 )
 public abstract class RingVideoDatabase extends RoomDatabase {
@@ -40,6 +42,8 @@ public abstract class RingVideoDatabase extends RoomDatabase {
     };
 
 
+    public abstract MusicFileDao musicFileDao();
+
     public abstract RingVideoDao ringVideoDao();
     
     public abstract RingtonePhoneBindingDao ringtonePhoneBindingDao();
@@ -47,6 +51,8 @@ public abstract class RingVideoDatabase extends RoomDatabase {
     public abstract NoRingtonePhoneDao noRingtonePhoneDao();
     
     public abstract PhoneRingtoneAssignmentDao phoneRingtoneAssignmentDao();
+
+    public abstract CallPromptPhoneDao callPromptPhoneDao();
 
     public static RingVideoDatabase getInstance() {
         if (INSTANCE == null) {

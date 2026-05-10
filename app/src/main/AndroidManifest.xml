@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 声明自定义权限：允许其他应用读取通话记录 -->
+
     <permission
         android:name="com.u2tzjtne.telephonehelper.permission.READ_CALL_RECORDS"
-        android:label="读取通话记录"
         android:description="@string/perm_read_call_records_desc"
+        android:label="Read call records"
         android:protectionLevel="normal" />
-    <!-- 声明自定义权限：允许其他应用写入通话记录 -->
+
     <permission
         android:name="com.u2tzjtne.telephonehelper.permission.WRITE_CALL_RECORDS"
-        android:label="写入通话记录"
         android:description="@string/perm_write_call_records_desc"
+        android:label="Write call records"
         android:protectionLevel="normal" />
 
-    <!-- 主应用自身也需要声明使用这些权限，才能访问自己的 Provider -->
     <uses-permission android:name="com.u2tzjtne.telephonehelper.permission.READ_CALL_RECORDS" />
     <uses-permission android:name="com.u2tzjtne.telephonehelper.permission.WRITE_CALL_RECORDS" />
-
-    <uses-permission android:name="android.permission.READ_CLIPBOARD"/>
+    <uses-permission android:name="android.permission.READ_CLIPBOARD" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -42,10 +40,11 @@
             android:exported="true"
             android:readPermission="com.u2tzjtne.telephonehelper.permission.READ_CALL_RECORDS"
             android:writePermission="com.u2tzjtne.telephonehelper.permission.WRITE_CALL_RECORDS" />
-        <!-- 告知 XXPermissions 当前项目已经适配了分区存储特性 -->
+
         <meta-data
             android:name="ScopedStorage"
             android:value="true" />
+
         <activity
             android:name=".ui.activity.MainActivity"
             android:screenOrientation="portrait">
@@ -54,6 +53,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="design_width_in_dp"
             android:value="412" />
@@ -68,19 +68,15 @@
             android:name=".ui.activity.CallRecordingDetailActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".ui.activity.newCallActivity" />
-
         <activity android:name=".ui.activity.AddCallRecordActivity" />
-        <activity android:name=".ui.activity.SettingsActivity"
-            android:label="设置" />
+        <activity android:name=".ui.activity.SettingsActivity" />
+        <activity android:name=".ui.activity.MusicManageActivity" />
         <activity android:name=".ui.activity.RingVideoManageActivity" />
-        <activity android:name=".ui.activity.RingtoneBindingManageActivity"
-            android:label="彩铃号码绑定" />
-        <activity android:name=".ui.activity.CustomLocationListActivity"
-            android:label="自定义归属地列表" />
-        <activity android:name=".ui.activity.CustomLocationManageActivity"
-            android:label="自定义归属地" />
-        <activity android:name=".ui.activity.NoRingtonePhoneManageActivity"
-            android:label="不显示彩铃的号码" />
+        <activity android:name=".ui.activity.RingtoneBindingManageActivity" />
+        <activity android:name=".ui.activity.CustomLocationListActivity" />
+        <activity android:name=".ui.activity.CustomLocationManageActivity" />
+        <activity android:name=".ui.activity.NoRingtonePhoneManageActivity" />
+        <activity android:name=".ui.activity.CallPromptPhoneManageActivity" />
     </application>
 
 </manifest>

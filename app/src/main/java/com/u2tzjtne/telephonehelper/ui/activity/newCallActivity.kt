@@ -4,7 +4,6 @@ import android.R.color.transparent
 import android.annotation.SuppressLint
 import android.content.Context
 import android.app.WallpaperManager
-import android.graphics.BitmapFactory
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -27,9 +26,12 @@ import com.u2tzjtne.telephonehelper.db.AppDatabase
 import com.u2tzjtne.telephonehelper.db.CallRecord
 
 import com.u2tzjtne.telephonehelper.util.CallVibrationSettings
+import com.u2tzjtne.telephonehelper.util.CallDialAudioSettings
+import com.u2tzjtne.telephonehelper.util.CallPromptSettings
 import com.u2tzjtne.telephonehelper.util.PhoneNumberFormatUtils
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
+import com.u2tzjtne.telephonehelper.util.MusicPlaybackHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import com.u2tzjtne.telephonehelper.util.ToastUtils
 import com.zackratos.ultimatebarx.ultimatebarx.statusBarOnly
@@ -41,7 +43,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
-import kotlin.random.Random
 
 class newCallActivity : BaseActivity() {
     private enum class RingtoneBadgeRule {
@@ -51,7 +52,7 @@ class newCallActivity : BaseActivity() {
         AI_AND_PRESS_CENTER,
         MIGU_AND_PRESS_LEFT,
         MIGU_ONLY,
-        AI_AND_PRESS_LEFT
+        AI_AND_PRESS_LEFT_MID
     }
 
     // ===================== 通话状态枚举 =====================
@@ -96,6 +97,7 @@ class newCallActivity : BaseActivity() {
 
     private var isJingYin = false
     private var isLuYin = false
+    private var matchedPromptType: CallPromptSettings.PromptType? = null
     private var hasRingtone = false  // 是否有彩铃
     private var ringtoneDuration: Long = 0L  // 彩铃视频时长（毫秒）
 
@@ -109,11 +111,14 @@ class newCallActivity : BaseActivity() {
     private var noAnswerAudioJob: Job? = null // 无人接听音播放计时
     private var finishJob: Job? = null        // 延迟finish
 
+    private var currentRingtoneBadgeRuleIndex = 0
+
     companion object {
         // 时间常量（毫秒）
         private const val RING_DELAY_MILLIS = 2_000L           // 拨号→振铃 延迟
         private const val AUTO_CONNECT_DELAY_MILLIS = 10_000L  // 振铃→自动接通 延迟
         private const val NO_ANSWER_TRIGGER_MILLIS = 15_000L   // 触发无人接听的等待时间
+        private const val SPECIAL_PROMPT_TRIGGER_MILLIS = 1_000L
         private const val NO_ANSWER_AUDIO_MILLIS = 23_200L     // 无人接听音时长
         private const val FINISH_DELAY_MILLIS = 1_000L         // 挂断后延迟finish
         private const val BUSY_AUDIO_RES_NAME = "audio_busy"
@@ -136,6 +141,7 @@ class newCallActivity : BaseActivity() {
         setBackGround()
         volumeControlStream = AudioManager.STREAM_VOICE_CALL
         MediaPlayerHelper.getInstance().prepareCallAudio(this, isSpeakerOn)
+        preloadPromptType()
 
         // iv_dial_hang_up 无论任何状态均响应挂断，永久绑定且不可被覆盖
         bind.ivDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
@@ -205,6 +211,9 @@ class newCallActivity : BaseActivity() {
             delay(AUTO_CONNECT_DELAY_MILLIS)
             callStateLD.postValue(CallState.CONNECTED)
         }
+        if (matchedPromptType != null) {
+            autoConnectJob?.cancel()
+        }
     }
 
     /**
@@ -217,19 +226,48 @@ class newCallActivity : BaseActivity() {
      */
     private fun onStateRinging() {
         if (callRecord.isConnected) return
-        // 尝试播放彩铃视频，否则播放拨号等待音
-        GSYVideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
-            Log.d(TAG, "彩铃回调: isVideoPlaying=$isVideoPlaying")
-            hasRingtone = isVideoPlaying
-            if (isVideoPlaying) {
-                updateUIForRingtoneVideo(true)
-                bind.tvNewCallStatus.text = "正在等待对方接听电话"
-                // 获取彩铃时长并调整自动接通时间，确保至少播放一次
-                adjustAutoConnectTimeForRingtone()
-            } else {
+        if (matchedPromptType != null) {
+            hasRingtone = false
+            stopRingtonePlayback()
+            bind.tvNewCallStatus.text = "正在等待对方接听电话"
+            startPromptNoAnswerWait()
+            return
+        }
+        when (CallDialAudioSettings.getMode()) {
+            CallDialAudioSettings.DialAudioMode.NORMAL -> {
+                hasRingtone = false
                 updateUIForRingtoneVideo(false)
                 bind.tvNewCallStatus.text = "正在拨号"
                 MediaPlayerHelper.getInstance().playCallSound(this)
+            }
+
+            CallDialAudioSettings.DialAudioMode.MUSIC_LIBRARY -> {
+                hasRingtone = false
+                updateUIForRingtoneVideo(false)
+                bind.tvNewCallStatus.text = "正在拨号"
+                MusicPlaybackHelper.playSelectedMusic(this) { didStart, _ ->
+                    if (!didStart) {
+                        MediaPlayerHelper.getInstance().playCallSound(this)
+                    }
+                }
+            }
+
+            CallDialAudioSettings.DialAudioMode.RINGTONE_LIBRARY -> {
+                // 尝试播放彩铃视频，否则播放拨号等待音
+                GSYVideoPlayerHelper.getInstance().playRingtoneVideo(this, packageName, number) { isVideoPlaying ->
+                    Log.d(TAG, "彩铃回调: isVideoPlaying=$isVideoPlaying")
+                    hasRingtone = isVideoPlaying
+                    if (isVideoPlaying) {
+                        updateUIForRingtoneVideo(true)
+                        bind.tvNewCallStatus.text = "正在等待对方接听电话"
+                        // 获取彩铃时长并调整自动接通时间，确保至少播放一次
+                        adjustAutoConnectTimeForRingtone()
+                    } else {
+                        updateUIForRingtoneVideo(false)
+                        bind.tvNewCallStatus.text = "正在拨号"
+                        MediaPlayerHelper.getInstance().playCallSound(this)
+                    }
+                }
             }
         }
     }
@@ -358,6 +396,13 @@ class newCallActivity : BaseActivity() {
      */
     private fun onStateNoAnswer() {
         if (callRecord.isConnected) return
+        cancelPreConnectJobs()
+        stopRingtonePlayback()
+        setActionAreaEnabled(false)
+        bind.tvNewCallStatus.text = "正在拨号"
+        showCallStatus(connected = false)
+        playNoAnswerPromptAndFinish()
+        return
 
         cancelPreConnectJobs()
         stopRingtonePlayback()
@@ -519,6 +564,37 @@ class newCallActivity : BaseActivity() {
         }
     }
 
+    private fun playNoAnswerPromptAndFinish() {
+        val cachedPromptType = matchedPromptType
+        if (cachedPromptType != null) {
+            playMatchedPromptAndFinish(cachedPromptType)
+            return
+        }
+        CallPromptSettings.resolvePromptTypeAsync(number) { promptType ->
+            if (isFinishing || isDestroyed || callRecord.isConnected) {
+                return@resolvePromptTypeAsync
+            }
+            val statusText = promptType?.statusText ?: "暂时无人接听"
+            bind.tvNewCallStatus.text = statusText
+            val started = if (promptType != null) {
+                MediaPlayerHelper.getInstance().playPromptSound(this, promptType.rawName) {
+                    runOnUiThread {
+                        endCallAndFinish(statusText = statusText, needSave = true, delayMillis = 0L)
+                    }
+                }
+            } else {
+                MediaPlayerHelper.getInstance().playNoResponseSoundOnce(this) {
+                    runOnUiThread {
+                        endCallAndFinish(statusText = statusText, needSave = true, delayMillis = 0L)
+                    }
+                }
+            }
+            if (!started) {
+                endCallAndFinish(statusText = statusText, needSave = true, delayMillis = 0L)
+            }
+        }
+    }
+
     // ===================== 按钮配置 =====================
 
     /**
@@ -527,6 +603,49 @@ class newCallActivity : BaseActivity() {
      * - 暂停按钮 → 触发忙线拒接流程
      * - 其他按钮 → 不可用
      */
+    private fun playMatchedPromptAndFinish(promptType: CallPromptSettings.PromptType) {
+        if (isFinishing || isDestroyed || callRecord.isConnected) {
+            return
+        }
+        val statusText = promptType.statusText
+        val started = MediaPlayerHelper.getInstance().playPromptSound(this, promptType.rawName) {
+            runOnUiThread {
+                endCallAndFinish(statusText = statusText, needSave = true, delayMillis = 0L)
+            }
+        }
+        if (!started) {
+            endCallAndFinish(statusText = statusText, needSave = true, delayMillis = 0L)
+        }
+    }
+
+    private fun preloadPromptType() {
+        CallPromptSettings.resolvePromptTypeAsync(number) { promptType ->
+            matchedPromptType = promptType
+            if (promptType == null || callRecord.isConnected || isFinishing || isDestroyed) {
+                return@resolvePromptTypeAsync
+            }
+            autoConnectJob?.cancel()
+            if (callStateLD.value == CallState.RINGING || callStateLD.value == CallState.DIALING) {
+                stopRingtonePlayback()
+                bind.tvNewCallStatus.text = "正在等待对方接听电话"
+                startPromptNoAnswerWait()
+            }
+        }
+    }
+
+    private fun startPromptNoAnswerWait() {
+        autoConnectJob?.cancel()
+        if (noAnswerWaitJob?.isActive == true) {
+            return
+        }
+        noAnswerWaitJob = lifecycleScope.launch {
+            delay(SPECIAL_PROMPT_TRIGGER_MILLIS)
+            if (!callRecord.isConnected && finishJob?.isActive != true) {
+                callStateLD.postValue(CallState.NO_ANSWER)
+            }
+        }
+    }
+
     private fun setupPreConnectActions() {
         bind.llAction0.setOnClickListener(null)
         bind.llAction1.setOnClickListener(null)
@@ -699,87 +818,52 @@ class newCallActivity : BaseActivity() {
      */
     private fun applyRandomRingtoneBadgeRule() {
         hideRingtoneBadges()
-        when (RingtoneBadgeRule.entries[Random.nextInt(RingtoneBadgeRule.entries.size)]) {
+        val rules = RingtoneBadgeRule.entries
+        val rule = rules[currentRingtoneBadgeRuleIndex]
+        currentRingtoneBadgeRuleIndex = (currentRingtoneBadgeRuleIndex + 1) % rules.size
+        when (rule) {
             RingtoneBadgeRule.AI_ONLY -> {
-                bind.ivRingAiBadge.visibility = View.VISIBLE
+                findViewById<View>(R.id.layout_ring_badge_rule_1).visibility = View.VISIBLE
             }
             RingtoneBadgeRule.AI_AND_PRESS_RIGHT -> {
-                bind.ivRingAiBadge.visibility = View.VISIBLE
-                bind.ivRingPressOneRight.visibility = View.VISIBLE
+                findViewById<View>(R.id.layout_ring_badge_rule_2).visibility = View.VISIBLE
             }
             RingtoneBadgeRule.AI_AND_PRESS_LEFT_AND_MIGU -> {
-                bind.ivRingAiBadge.visibility = View.VISIBLE
-                bind.ivRingPressOneLeft.visibility = View.VISIBLE
-                bind.tvRingMiguBadge.visibility = View.VISIBLE
+                findViewById<View>(R.id.layout_ring_badge_rule_3).visibility = View.VISIBLE
             }
             RingtoneBadgeRule.AI_AND_PRESS_CENTER -> {
-                bind.ivRingAiBadge.visibility = View.VISIBLE
-                bind.ivRingPressOneCenter.visibility = View.VISIBLE
+                findViewById<View>(R.id.layout_ring_badge_rule_4).visibility = View.VISIBLE
             }
             RingtoneBadgeRule.MIGU_AND_PRESS_LEFT -> {
-                bind.ivRingPressOneLeft.visibility = View.VISIBLE
-                bind.tvRingMiguBadge.visibility = View.VISIBLE
+                findViewById<View>(R.id.layout_ring_badge_rule_5).visibility = View.VISIBLE
             }
             RingtoneBadgeRule.MIGU_ONLY -> {
-                bind.tvRingMiguBadge.visibility = View.VISIBLE
+                findViewById<View>(R.id.layout_ring_badge_rule_6).visibility = View.VISIBLE
             }
-            RingtoneBadgeRule.AI_AND_PRESS_LEFT -> {
-                bind.ivRingAiBadge.visibility = View.VISIBLE
-                bind.ivRingPressOneLeft.visibility = View.VISIBLE
+            RingtoneBadgeRule.AI_AND_PRESS_LEFT_MID -> {
+                findViewById<View>(R.id.layout_ring_badge_rule_7).visibility = View.VISIBLE
             }
         }
     }
 
     private fun hideRingtoneBadges() {
-        bind.ivRingAiBadge.visibility = View.GONE
-        bind.ivRingPressOneLeft.visibility = View.GONE
-        bind.ivRingPressOneCenter.visibility = View.GONE
-        bind.ivRingPressOneRight.visibility = View.GONE
-        bind.tvRingMiguBadge.visibility = View.GONE
+        getBadgeRuleLayouts().forEach { it.visibility = View.GONE }
     }
 
     private fun initRingtoneBadges() {
-        setScaledBadge(bind.ivRingAiBadge, R.drawable.ic_call_3, targetWidthDp = 88)
-        setScaledBadge(bind.ivRingPressOneLeft, R.drawable.ic_call_5, targetWidthDp = 80, targetHeightDp = 60)
-        setScaledBadge(bind.ivRingPressOneCenter, R.drawable.ic_call_5, targetWidthDp = 80, targetHeightDp = 60)
-        setScaledBadge(bind.ivRingPressOneRight, R.drawable.ic_call_5, targetWidthDp = 80, targetHeightDp = 60)
-        setScaledBadge(bind.tvRingMiguBadge, R.drawable.ic_call_4, targetWidthDp = 120)
+        hideRingtoneBadges()
     }
 
-    private fun setScaledBadge(view: android.widget.ImageView, resId: Int, targetWidthDp: Int, targetHeightDp: Int? = null) {
-        val metrics = resources.displayMetrics
-        val targetWidthPx = (targetWidthDp * metrics.density).toInt().coerceAtLeast(1)
-        val targetHeightPx = targetHeightDp?.let { (it * metrics.density).toInt().coerceAtLeast(1) }
-
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        BitmapFactory.decodeResource(resources, resId, options)
-
-        options.inSampleSize = calculateInSampleSize(
-            rawWidth = options.outWidth,
-            rawHeight = options.outHeight,
-            targetWidth = targetWidthPx,
-            targetHeight = targetHeightPx ?: targetWidthPx
+    private fun getBadgeRuleLayouts(): List<View> {
+        return listOf(
+            findViewById(R.id.layout_ring_badge_rule_1),
+            findViewById(R.id.layout_ring_badge_rule_2),
+            findViewById(R.id.layout_ring_badge_rule_3),
+            findViewById(R.id.layout_ring_badge_rule_4),
+            findViewById(R.id.layout_ring_badge_rule_5),
+            findViewById(R.id.layout_ring_badge_rule_6),
+            findViewById(R.id.layout_ring_badge_rule_7)
         )
-        options.inJustDecodeBounds = false
-        options.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565
-
-        BitmapFactory.decodeResource(resources, resId, options)?.let { bitmap ->
-            view.setImageBitmap(bitmap)
-        }
-    }
-
-    private fun calculateInSampleSize(rawWidth: Int, rawHeight: Int, targetWidth: Int, targetHeight: Int): Int {
-        var inSampleSize = 1
-        if (rawHeight > targetHeight || rawWidth > targetWidth) {
-            var halfHeight = rawHeight / 2
-            var halfWidth = rawWidth / 2
-            while ((halfHeight / inSampleSize) >= targetHeight && (halfWidth / inSampleSize) >= targetWidth) {
-                inSampleSize *= 2
-            }
-        }
-        return inSampleSize.coerceAtLeast(1)
     }
 
     private fun toggleMute() {

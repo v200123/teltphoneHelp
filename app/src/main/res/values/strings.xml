@@ -1,5 +1,22 @@
 <resources>
-    <string name="app_name">电话</string>
-    <string name="perm_read_call_records_desc">允许应用读取通话记录数据</string>
-    <string name="perm_write_call_records_desc">允许应用写入通话记录数据</string>
+    <string name="app_name">&#x7535;&#x8bdd;</string>
+    <string name="perm_read_call_records_desc">&#x5141;&#x8bb8;&#x5e94;&#x7528;&#x8bfb;&#x53d6;&#x901a;&#x8bdd;&#x8bb0;&#x5f55;&#x6570;&#x636e;</string>
+    <string name="perm_write_call_records_desc">&#x5141;&#x8bb8;&#x5e94;&#x7528;&#x5199;&#x5165;&#x901a;&#x8bdd;&#x8bb0;&#x5f55;&#x6570;&#x636e;</string>
+    <string name="settings_back">&#x8fd4;&#x56de;</string>
+    <string name="settings_title">&#x8bbe;&#x7f6e;</string>
+    <string name="settings_enter">&#x8fdb;&#x5165;</string>
+    <string name="settings_ring_video">&#x5f69;&#x94c3;&#x89c6;&#x9891;&#x7ba1;&#x7406;</string>
+    <string name="settings_music">&#x97f3;&#x4e50;&#x5e93;&#x7ba1;&#x7406;</string>
+    <string name="settings_dial_audio_mode">&#x62e8;&#x6253;&#x64ad;&#x653e;&#x6a21;&#x5f0f;</string>
+    <string name="settings_dial_audio_mode_normal">&#x666e;&#x901a;&#x62e8;&#x6253;&#x97f3;</string>
+    <string name="settings_no_ringtone_phone">&#x4e0d;&#x663e;&#x793a;&#x5f69;&#x94c3;&#x7684;&#x53f7;&#x7801;</string>
+    <string name="settings_power_off_prompt_phone">&#x5173;&#x673a;&#x63d0;&#x793a;&#x97f3;&#x53f7;&#x7801;</string>
+    <string name="settings_empty_number_prompt_phone">&#x7a7a;&#x53f7;&#x63d0;&#x793a;&#x97f3;&#x53f7;&#x7801;</string>
+    <string name="settings_call_vibration_duration">&#x901a;&#x8bdd;&#x9707;&#x52a8;&#x65f6;&#x957f;</string>
+    <string name="settings_desc">&#x62e8;&#x6253;&#x64ad;&#x653e;&#x8bf4;&#x660e;&#xff1a;&#x73b0;&#x5728;&#x652f;&#x6301;&#x666e;&#x901a;&#x62e8;&#x6253;&#x97f3;&#x3001;&#x97f3;&#x4e50;&#x5e93;&#x3001;&#x5f69;&#x94c3;&#x5e93;&#x4e09;&#x79cd;&#x6a21;&#x5f0f;&#x3002;&#x9009;&#x62e9;&#x97f3;&#x4e50;&#x5e93;&#x540e;&#xff0c;&#x62e8;&#x6253;&#x7535;&#x8bdd;&#x65f6;&#x4f1a;&#x5faa;&#x73af;&#x64ad;&#x653e;&#x5f53;&#x524d;&#x9009;&#x4e2d;&#x7684;&#x97f3;&#x4e50;&#xff1b;&#x9009;&#x62e9;&#x5f69;&#x94c3;&#x5e93;&#x540e;&#xff0c;&#x4f1a;&#x7ee7;&#x7eed;&#x6309;&#x53f7;&#x7801;&#x547d;&#x4e2d;&#x5df2;&#x7ed1;&#x5b9a;&#x7684;&#x5f69;&#x94c3;&#x89c6;&#x9891;&#xff0c;&#x6ca1;&#x6709;&#x547d;&#x4e2d;&#x65f6;&#x518d;&#x56de;&#x9000;&#x5230;&#x666e;&#x901a;&#x62e8;&#x6253;&#x97f3;&#x3002;&#x60a8;&#x4e5f;&#x53ef;&#x4ee5;&#x5c06;&#x7279;&#x5b9a;&#x53f7;&#x7801;&#x52a0;&#x5165;&#x201c;&#x4e0d;&#x663e;&#x793a;&#x5f69;&#x94c3;&#x7684;&#x53f7;&#x7801;&#x201d;&#x201c;&#x5173;&#x673a;&#x63d0;&#x793a;&#x97f3;&#x53f7;&#x7801;&#x201d;&#x6216;&#x201c;&#x7a7a;&#x53f7;&#x63d0;&#x793a;&#x97f3;&#x53f7;&#x7801;&#x201d;&#x5217;&#x8868;&#x3002;&#x547d;&#x4e2d;&#x5173;&#x673a;/&#x7a7a;&#x53f7;&#x53f7;&#x7801;&#x540e;&#xff0c;&#x4f1a;&#x5728;&#x672a;&#x63a5;&#x901a;&#x5206;&#x652f;&#x64ad;&#x653e;&#x5bf9;&#x5e94;&#x63d0;&#x793a;&#x97f3;&#x5e76;&#x6309;&#x672a;&#x63a5;&#x901a;&#x903b;&#x8f91;&#x7ed3;&#x675f;&#x901a;&#x8bdd;&#x3002;</string>
+    <string name="phone_manage_title">&#x53f7;&#x7801;&#x7ba1;&#x7406;</string>
+    <string name="phone_manage_add">&#x6dfb;&#x52a0;&#x53f7;&#x7801;</string>
+    <string name="phone_manage_clear_all">&#x6e05;&#x7a7a;&#x5168;&#x90e8;</string>
+    <string name="phone_manage_empty">&#x6682;&#x65e0;&#x8bb0;&#x5f55;&#10;&#x70b9;&#x51fb;&#x4e0a;&#x65b9;&#x6309;&#x94ae;&#x6dfb;&#x52a0;</string>
+    <string name="phone_manage_added_zero">&#x5df2;&#x6dfb;&#x52a0; 0 &#x4e2a;&#x53f7;&#x7801;</string>
 </resources>

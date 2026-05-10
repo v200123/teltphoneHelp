@@ -6,6 +6,8 @@ import android.text.InputType
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.u2tzjtne.telephonehelper.databinding.ActivitySettingsBinding
+import com.u2tzjtne.telephonehelper.util.CallDialAudioSettings
+import com.u2tzjtne.telephonehelper.util.CallPromptSettings
 import com.u2tzjtne.telephonehelper.util.CallVibrationSettings
 import com.u2tzjtne.telephonehelper.util.ToastUtils
 
@@ -29,6 +31,7 @@ class SettingsActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         refreshVibrationDuration()
+        refreshDialAudioMode()
     }
 
     private fun initView() {
@@ -40,8 +43,24 @@ class SettingsActivity : BaseActivity() {
             startActivity(Intent(this, RingVideoManageActivity::class.java))
         }
 
+        binding.btnManageMusic.setOnClickListener {
+            startActivity(Intent(this, MusicManageActivity::class.java))
+        }
+
+        binding.btnDialAudioMode.setOnClickListener {
+            showDialAudioModeDialog()
+        }
+
         binding.btnNoRingtonePhone.setOnClickListener {
             startActivity(Intent(this, NoRingtonePhoneManageActivity::class.java))
+        }
+
+        binding.btnPowerOffPromptPhone.setOnClickListener {
+            CallPromptPhoneManageActivity.start(this, CallPromptSettings.PromptType.POWER_OFF)
+        }
+
+        binding.btnEmptyNumberPromptPhone.setOnClickListener {
+            CallPromptPhoneManageActivity.start(this, CallPromptSettings.PromptType.EMPTY_NUMBER)
         }
 
         binding.btnCallVibrationDuration.setOnClickListener {
@@ -49,11 +68,33 @@ class SettingsActivity : BaseActivity() {
         }
 
         refreshVibrationDuration()
+        refreshDialAudioMode()
     }
 
     private fun refreshVibrationDuration() {
         binding.tvCallVibrationDuration.text =
             CallVibrationSettings.formatDurationText(CallVibrationSettings.getDurationMs())
+    }
+
+    private fun refreshDialAudioMode() {
+        binding.tvDialAudioMode.text = CallDialAudioSettings.getModeLabel()
+    }
+
+    private fun showDialAudioModeDialog() {
+        val modes = CallDialAudioSettings.DialAudioMode.entries.toTypedArray()
+        val labels = modes.map { it.label }.toTypedArray()
+        val checkedIndex = modes.indexOf(CallDialAudioSettings.getMode()).coerceAtLeast(0)
+
+        AlertDialog.Builder(this)
+            .setTitle("选择拨打播放模式")
+            .setSingleChoiceItems(labels, checkedIndex) { dialog, which ->
+                CallDialAudioSettings.saveMode(modes[which])
+                refreshDialAudioMode()
+                ToastUtils.s("拨打播放模式已更新")
+                dialog.dismiss()
+            }
+            .setNegativeButton("取消", null)
+            .show()
     }
 
     private fun showVibrationDurationDialog() {

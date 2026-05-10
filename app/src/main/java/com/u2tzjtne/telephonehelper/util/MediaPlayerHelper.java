@@ -68,6 +68,10 @@ public class MediaPlayerHelper {
         return playRawInternal(context, buildRawUri(context, resId), looping, onCompletion);
     }
 
+    public boolean playUri(Context context, Uri uri, boolean looping, Runnable onCompletion) {
+        return playRawInternal(context, uri, looping, onCompletion);
+    }
+
     public boolean playRawByName(Context context, String rawName, boolean looping, Runnable onCompletion) {
         int resId = context.getResources().getIdentifier(rawName, "raw", context.getPackageName());
         if (resId == 0) {
@@ -78,6 +82,17 @@ public class MediaPlayerHelper {
 
     public void playNoResponseSound(Context context) {
         playRawResource(context, R.raw.audio_no_response, true, null);
+    }
+
+    public boolean playNoResponseSoundOnce(Context context, Runnable onCompletion) {
+        return playRawResource(context, R.raw.audio_no_response, false, onCompletion);
+    }
+
+    public boolean playPromptSound(Context context, String rawName, Runnable onCompletion) {
+        if (playRawByName(context, rawName, false, onCompletion)) {
+            return true;
+        }
+        return playNoResponseSoundOnce(context, onCompletion);
     }
 
     public void playGuaduanSound(Context context) {
