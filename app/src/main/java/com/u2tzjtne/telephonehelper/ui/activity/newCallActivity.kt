@@ -55,6 +55,10 @@ class newCallActivity : BaseActivity() {
         AI_AND_PRESS_LEFT_MID
     }
 
+    private val ringtoneBadgeRulePrefs by lazy {
+        getSharedPreferences(PREFS_RINGTONE_BADGE_RULE, Context.MODE_PRIVATE)
+    }
+
     // ===================== 通话状态枚举 =====================
     /**
      * 通话状态机：
@@ -114,6 +118,8 @@ class newCallActivity : BaseActivity() {
     private var currentRingtoneBadgeRuleIndex = 0
 
     companion object {
+        private const val PREFS_RINGTONE_BADGE_RULE = "ringtone_badge_rule_prefs"
+        private const val KEY_RINGTONE_BADGE_RULE_INDEX = "key_ringtone_badge_rule_index"
         // 时间常量（毫秒）
         private const val RING_DELAY_MILLIS = 2_000L           // 拨号→振铃 延迟
         private const val AUTO_CONNECT_DELAY_MILLIS = 10_000L  // 振铃→自动接通 延迟
@@ -819,8 +825,13 @@ class newCallActivity : BaseActivity() {
     private fun applyRandomRingtoneBadgeRule() {
         hideRingtoneBadges()
         val rules = RingtoneBadgeRule.entries
+        currentRingtoneBadgeRuleIndex =
+            ringtoneBadgeRulePrefs.getInt(KEY_RINGTONE_BADGE_RULE_INDEX, 0).coerceIn(0, rules.lastIndex)
         val rule = rules[currentRingtoneBadgeRuleIndex]
         currentRingtoneBadgeRuleIndex = (currentRingtoneBadgeRuleIndex + 1) % rules.size
+        ringtoneBadgeRulePrefs.edit()
+            .putInt(KEY_RINGTONE_BADGE_RULE_INDEX, currentRingtoneBadgeRuleIndex)
+            .apply()
         when (rule) {
             RingtoneBadgeRule.AI_ONLY -> {
                 findViewById<View>(R.id.layout_ring_badge_rule_1).visibility = View.VISIBLE
