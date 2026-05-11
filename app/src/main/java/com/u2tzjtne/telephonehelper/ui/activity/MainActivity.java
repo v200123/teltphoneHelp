@@ -98,9 +98,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     FilterResultAdapter filterAdapter;
     List<CallRecord> filterData;
     String currentPrefix = ""; // 当前筛选前缀
-    boolean locationQueryLocked = false;
-    boolean queriedAt7Digits = false;
-    boolean queriedAt8Digits = false;
+    String lastQueriedLocationNumber = "";
     MediaPlayer mediaPlayer;
     SoundPool soundPool ;
     int soundId;
@@ -148,7 +146,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                                 llNumber.setVisibility(View.VISIBLE);
                                 tvDialNumber.setVisibility(View.VISIBLE);
                                 tvDialNumber.setText(PhoneNumberFormatUtils.formatWithSpaces(text) );
-                                if (text.length() >= 8) {
+                                if (PhoneNumberUtils.normalizePhoneNumber(text).length() >= 7) {
                                     showActionPage(true);
                                     handleLocationQueryForInput(text);
                                 }
@@ -242,7 +240,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
-    private void setLocation(String number, boolean lockAfterSuccess) {
+    private void setLocation(String number) {
 //        ToastUtils.s(number);
         PhoneNumberUtils.getProvince(number, new getLocalCallback() {
             @Override
@@ -254,9 +252,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 else  attribution = bean.getProvince();
                 operator = bean.getCarrier();
                 tvLocation.setText(attribution + " " + operator);
-                if (lockAfterSuccess) {
-                    locationQueryLocked = true;
-                }
             }
         });
 
@@ -392,9 +387,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void hideNumber(boolean isHide) {
         tvLocation.setText("");
         tvDialNumber.setText("");
-        locationQueryLocked = false;
-        queriedAt7Digits = false;
-        queriedAt8Digits = false;
+        lastQueriedLocationNumber = "";
         if (isHide) {
             llNumber.setVisibility(View.GONE);
         } else {
@@ -434,39 +427,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String pureNumber = PhoneNumberUtils.normalizePhoneNumber(inputNumber);
         if (TextUtils.isEmpty(pureNumber)) {
             tvLocation.setText("");
-            locationQueryLocked = false;
-            queriedAt7Digits = false;
-            queriedAt8Digits = false;
+            lastQueriedLocationNumber = "";
             return;
         }
         if (pureNumber.length() < 7) {
             tvLocation.setText("");
-            locationQueryLocked = false;
-            queriedAt7Digits = false;
-            queriedAt8Digits = false;
+            lastQueriedLocationNumber = "";
             return;
         }
         if (pureNumber.length() == 7) {
-            if (!queriedAt7Digits && pureNumber.matches("^1[3-9]\\d{5}$")) {
-                queriedAt7Digits = true;
-                setLocation(pureNumber + "0000", false);
+            if (pureNumber.matches("^1[3-9]\\d{5}$")) {
+                queryLocationIfNeeded(pureNumber + "0000");
             }
-            return;
-        }
-        if (locationQueryLocked) {
             return;
         }
         if (pureNumber.length() == 8 && PhoneNumberUtils.isMobilePrefixAt8Digits(pureNumber)) {
-            if (!queriedAt8Digits) {
-                queriedAt8Digits = true;
-                setLocation(pureNumber + "0000", true);
-            }
+            queryLocationIfNeeded(pureNumber + "000");
             return;
         }
         if (pureNumber.length() == 11 && pureNumber.matches("^1[3-9]\\d{9}$")) {
-            setLocation(pureNumber, true);
+            queryLocationIfNeeded(pureNumber);
             return;
         }
+    }
+
+    private void queryLocationIfNeeded(String queryNumber) {
+        if (TextUtils.equals(lastQueriedLocationNumber, queryNumber)) {
+            return;
+        }
+        lastQueriedLocationNumber = queryNumber;
+        setLocation(queryNumber);
     }
 
 
