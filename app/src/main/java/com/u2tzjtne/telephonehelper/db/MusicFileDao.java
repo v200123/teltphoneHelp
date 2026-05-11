@@ -22,6 +22,9 @@ public interface MusicFileDao {
     @Query("SELECT * FROM MusicFile WHERE isSelected = 1 LIMIT 1")
     MusicFile getSelectedSync();
 
+    @Query("SELECT * FROM MusicFile WHERE id = :id LIMIT 1")
+    MusicFile getByIdSync(int id);
+
     @Query("SELECT COUNT(*) FROM MusicFile")
     int getCount();
 

@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 import com.u2tzjtne.telephonehelper.base.App;
 
+import java.util.Map;
+
 /**
  * SharedPreferences工具类
  *
@@ -42,5 +44,14 @@ public class SPUtils {
 
     public static String getString(String key, String defValue) {
         return sp.getString(key, defValue);
+    }
+
+    public static void remove(String key) {
+        edit.remove(key);
+        edit.apply();
+    }
+
+    public static Map<String, ?> getAll() {
+        return sp.getAll();
     }
 }

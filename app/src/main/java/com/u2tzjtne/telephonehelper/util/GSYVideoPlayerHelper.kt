@@ -122,7 +122,7 @@ class GSYVideoPlayerHelper private constructor() {
         currentContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /**
-     * Returns the next ringtone in sequence and stores the ringtone used for this phone.
+     * Reuses an existing phone assignment first; otherwise assigns the next ringtone in sequence.
      */
     @Synchronized
     private fun getOrAssignRingtone(phoneNumber: String): RingVideo? {
@@ -138,6 +138,18 @@ class GSYVideoPlayerHelper private constructor() {
         if (allRingtones.isEmpty()) {
             android.util.Log.d("GSYVideoPlayerHelper", "ringtone library is empty")
             return null
+        }
+
+        val existingAssignment = db.phoneRingtoneAssignmentDao().getByPhoneNumber(normalizedNumber)
+        if (existingAssignment != null) {
+            val assignedRingtone = db.ringVideoDao().getByIdSync(existingAssignment.ringtoneId)
+            if (assignedRingtone != null && !assignedRingtone.videoUri.isNullOrBlank()) {
+                android.util.Log.d(
+                    "GSYVideoPlayerHelper",
+                    "reuse assigned ringtone for $normalizedNumber: ${assignedRingtone.videoName} (id=${assignedRingtone.id})"
+                )
+                return assignedRingtone
+            }
         }
 
         val prefs = getPlaybackPreferences()
@@ -157,7 +169,6 @@ class GSYVideoPlayerHelper private constructor() {
 
         prefs?.edit()?.putInt(KEY_LAST_PLAYED_RINGTONE_ID, nextRingtone.id)?.apply()
 
-        val existingAssignment = db.phoneRingtoneAssignmentDao().getByPhoneNumber(normalizedNumber)
         val assignment = PhoneRingtoneAssignment(normalizedNumber, nextRingtone.id).apply {
             if (existingAssignment != null) {
                 id = existingAssignment.id

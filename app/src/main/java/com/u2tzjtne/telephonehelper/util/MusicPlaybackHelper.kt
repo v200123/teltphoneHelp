@@ -21,9 +21,11 @@ object MusicPlaybackHelper {
     private fun getPlaybackPreferences(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    private fun getMusicDao() = RingVideoDatabase.getInstance().musicFileDao()
+
     @Synchronized
     private fun getNextMusic(context: Context): MusicFile? {
-        val allMusics = RingVideoDatabase.getInstance().musicFileDao().getAllSync()
+        val allMusics = getMusicDao().getAllSync()
         if (allMusics.isEmpty()) {
             return null
         }
@@ -42,6 +44,27 @@ object MusicPlaybackHelper {
         return nextMusic
     }
 
+    @Synchronized
+    private fun getOrAssignMusic(context: Context, phoneNumber: String): MusicFile? {
+        val normalizedNumber = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+        if (normalizedNumber.isBlank()) {
+            return getNextMusic(context)
+        }
+
+        val dao = getMusicDao()
+        val assignedMusicId = PhoneDialAudioBindingHelper.getAssignedMusicId(normalizedNumber)
+        if (assignedMusicId > 0) {
+            val assignedMusic = dao.getByIdSync(assignedMusicId)
+            if (assignedMusic != null && !assignedMusic.audioUri.isNullOrBlank()) {
+                return assignedMusic
+            }
+        }
+
+        val nextMusic = getNextMusic(context) ?: return null
+        PhoneDialAudioBindingHelper.saveAssignedMusicId(normalizedNumber, nextMusic.id)
+        return nextMusic
+    }
+
     @JvmStatic
     fun playSelectedMusic(context: Context, onResult: MusicPlaybackCallback? = null) {
         thread {
@@ -54,6 +77,24 @@ object MusicPlaybackHelper {
                 val didStart = MediaPlayerHelper.getInstance()
                     .playUri(context, Uri.parse(nextMusic.audioUri), true, null)
                 postResult(context, didStart, if (didStart) nextMusic else null, onResult)
+            } catch (_: Exception) {
+                postResult(context, false, null, onResult)
+            }
+        }
+    }
+
+    @JvmStatic
+    fun playMusicForPhone(context: Context, phoneNumber: String, onResult: MusicPlaybackCallback? = null) {
+        thread {
+            try {
+                val music = getOrAssignMusic(context, phoneNumber)
+                if (music?.audioUri.isNullOrBlank()) {
+                    postResult(context, false, null, onResult)
+                    return@thread
+                }
+                val didStart = MediaPlayerHelper.getInstance()
+                    .playUri(context, Uri.parse(music.audioUri), true, null)
+                postResult(context, didStart, if (didStart) music else null, onResult)
             } catch (_: Exception) {
                 postResult(context, false, null, onResult)
             }

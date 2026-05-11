@@ -35,6 +35,7 @@ import com.u2tzjtne.telephonehelper.util.CallPromptSettings;
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper;
 import com.u2tzjtne.telephonehelper.util.MusicPlaybackHelper;
+import com.u2tzjtne.telephonehelper.util.PhoneDialAudioBindingHelper;
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils;
 import com.u2tzjtne.telephonehelper.util.ToastUtils;
 import com.u2tzjtne.telephonehelper.ui.widget.EmptyControlVideo;
@@ -315,12 +316,12 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                         handler.sendEmptyMessageDelayed(PLAY_NO_RESPONSE_SOUND, SPECIAL_PROMPT_TRIGGER_DELAY);
                         break;
                     }
-                    switch (CallDialAudioSettings.getMode()) {
+                    switch (PhoneDialAudioBindingHelper.resolveMode(number)) {
                         case NORMAL:
                             MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
                             break;
                         case MUSIC_LIBRARY:
-                            MusicPlaybackHelper.playSelectedMusic(CallActivity.this, (didStart, musicFile) -> {
+                            MusicPlaybackHelper.playMusicForPhone(CallActivity.this, number, (didStart, musicFile) -> {
                                 if (!didStart) {
                                     MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
                                 }

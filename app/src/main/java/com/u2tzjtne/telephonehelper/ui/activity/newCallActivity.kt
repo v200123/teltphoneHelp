@@ -32,6 +32,7 @@ import com.u2tzjtne.telephonehelper.util.PhoneNumberFormatUtils
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MusicPlaybackHelper
+import com.u2tzjtne.telephonehelper.util.PhoneDialAudioBindingHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
 import com.u2tzjtne.telephonehelper.util.ToastUtils
 import com.zackratos.ultimatebarx.ultimatebarx.statusBarOnly
@@ -239,7 +240,7 @@ class newCallActivity : BaseActivity() {
             startPromptNoAnswerWait()
             return
         }
-        when (CallDialAudioSettings.getMode()) {
+        when (PhoneDialAudioBindingHelper.resolveMode(number)) {
             CallDialAudioSettings.DialAudioMode.NORMAL -> {
                 hasRingtone = false
                 updateUIForRingtoneVideo(false)
@@ -251,7 +252,7 @@ class newCallActivity : BaseActivity() {
                 hasRingtone = false
                 updateUIForRingtoneVideo(false)
                 bind.tvNewCallStatus.text = "正在拨号"
-                MusicPlaybackHelper.playSelectedMusic(this) { didStart, _ ->
+                MusicPlaybackHelper.playMusicForPhone(this, number) { didStart, _ ->
                     if (!didStart) {
                         MediaPlayerHelper.getInstance().playCallSound(this)
                     }
