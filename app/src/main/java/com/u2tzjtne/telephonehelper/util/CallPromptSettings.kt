@@ -32,6 +32,14 @@ object CallPromptSettings {
             addDialogMessage = "\u8be5\u53f7\u7801\u62e8\u6253\u65f6\u5c06\u64ad\u653e\u7a7a\u53f7\u63d0\u793a\u97f3",
             statusText = "\u60a8\u62e8\u6253\u7684\u662f\u7a7a\u53f7",
             rawName = "audio_empty_number"
+        ),
+        BUSY(
+            value = 3,
+            settingsTitle = "\u7528\u6237\u6b63\u5fd9\u63d0\u793a\u97f3\u53f7\u7801",
+            addDialogTitle = "\u6dfb\u52a0\u7528\u6237\u6b63\u5fd9\u63d0\u793a\u97f3\u53f7\u7801",
+            addDialogMessage = "\u8be5\u53f7\u7801\u62e8\u6253\u65f6\u5c06\u64ad\u653e\u7528\u6237\u6b63\u5fd9\u63d0\u793a\u97f3",
+            statusText = "\u7528\u6237\u6b63\u5fd9",
+            rawName = "audio_user_busy"
         );
 
         companion object {

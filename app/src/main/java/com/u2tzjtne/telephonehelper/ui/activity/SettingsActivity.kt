@@ -74,6 +74,10 @@ class SettingsActivity : BaseActivity() {
             CallPromptPhoneManageActivity.start(this, CallPromptSettings.PromptType.EMPTY_NUMBER)
         }
 
+        binding.btnBusyPromptPhone.setOnClickListener {
+            CallPromptPhoneManageActivity.start(this, CallPromptSettings.PromptType.BUSY)
+        }
+
         binding.btnCallVibrationDuration.setOnClickListener {
             showVibrationDurationDialog()
         }

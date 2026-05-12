@@ -18,7 +18,7 @@ ext {
             keyPassword      : "U2tzJTNE"
 
             /*
-            zheli shit xinde
+            这是新的
             * */
 //            storeFile        : file("app/keystore/U2tzJTNENew.jks"),
 //            storePassword    : "123456",
