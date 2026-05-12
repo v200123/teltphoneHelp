@@ -40,12 +40,7 @@ public class HttpClient {
     private HttpClient() {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-        httpClientBuilder.addInterceptor(chain -> {
-            Request original = chain.request();
-            Request.Builder requestBuilder = original.newBuilder();
-            Request request = requestBuilder.build();
-            return chain.proceed(request);
-        });
+
         Retrofit retrofit = new Retrofit.Builder()
                 .client(httpClientBuilder.build())
                 .addConverterFactory(GsonConverterFactory.create())

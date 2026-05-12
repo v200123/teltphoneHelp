@@ -75,7 +75,7 @@ public class PhoneNumberUtils {
         
         // 1. 先检查自定义归属地缓存（完整号码精确匹配）
         if (customCache.containsKey(fullPhoneNumber)) {
-            Log.d("local", "getProvince: 从自定义缓存读取了");
+            Log.d("local", "getProvince: 从自定义缓存读取了:"+fullPhoneNumber);
             callback.result(customCache.get(fullPhoneNumber));
             return;
         }
@@ -150,7 +150,7 @@ public class PhoneNumberUtils {
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder()
                         .url("https://uapis.cn/api/v1/misc/phoneinfo?phone=" + fullPhoneNumber)
-                        .addHeader("authorization", "uapi-ykjvbk1zkJj7L7KQ83m1PqZuzZgft6XY7Ge6H7eS")
+                        .addHeader("Authorization", "Bearer uapi-ykjvbk1zkJj7L7KQ83m1PqZuzZgft6XY7Ge6H7eS")
                         .get()
                         .build();
                 client.newCall(request).enqueue(new Callback() {
