@@ -435,14 +435,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             lastQueriedLocationNumber = "";
             return;
         }
-        if (pureNumber.length() == 7) {
-            if (pureNumber.matches("^1[3-9]\\d{5}$")) {
-                queryLocationIfNeeded(pureNumber + "0000");
+        if (pureNumber.length() >= 7 && pureNumber.length() <= 10) {
+            String mobilePrefix = pureNumber.substring(0, 7);
+            if (mobilePrefix.matches("^1[3-9]\\d{5}$")) {
+                queryLocationIfNeeded(mobilePrefix + "0000");
             }
-            return;
-        }
-        if (pureNumber.length() == 8 && PhoneNumberUtils.isMobilePrefixAt8Digits(pureNumber)) {
-            queryLocationIfNeeded(pureNumber + "000");
             return;
         }
         if (pureNumber.length() == 11 && pureNumber.matches("^1[3-9]\\d{9}$")) {
