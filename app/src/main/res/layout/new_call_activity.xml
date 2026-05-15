@@ -16,85 +16,17 @@
         android:id="@+id/cl_ring_badge_area"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="60dp"
         android:layout_marginBottom="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <include
-            android:id="@+id/layout_ring_badge_rule_1"
-            layout="@layout/layout_ring_badge_rule_1"
+        <FrameLayout
+            android:id="@+id/ring_badge_canvas"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <include
-            android:id="@+id/layout_ring_badge_rule_2"
-            layout="@layout/layout_ring_badge_rule_2"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <include
-            android:id="@+id/layout_ring_badge_rule_3"
-            layout="@layout/layout_ring_badge_rule_3"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <include
-            android:id="@+id/layout_ring_badge_rule_4"
-            layout="@layout/layout_ring_badge_rule_4"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <include
-            android:id="@+id/layout_ring_badge_rule_5"
-            layout="@layout/layout_ring_badge_rule_5"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <include
-            android:id="@+id/layout_ring_badge_rule_6"
-            layout="@layout/layout_ring_badge_rule_6"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <include
-            android:id="@+id/layout_ring_badge_rule_7"
-            layout="@layout/layout_ring_badge_rule_7"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -110,9 +42,9 @@
 
     <ImageView
         android:id="@+id/iv_new_call_head"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="80dp"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_marginTop="90dp"
         android:tint="@color/white"
         android:src="@drawable/default_small_avatar"
         app:layout_constraintEnd_toEndOf="parent"
@@ -141,7 +73,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:textColor="@color/white"
-            android:textSize="25sp" />
+            android:textSize="22sp" />
 
         <TextView
             android:id="@+id/tv_new_call_number_local"
@@ -151,7 +83,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:textColor="@color/white_70"
-            android:textSize="16sp" />
+            android:textSize="15sp" />
 
         <Chronometer
             android:id="@+id/cm_call_time"
@@ -204,14 +136,17 @@
             android:visibility="gone" />
 
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/ll_call_bottom_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginTop="80dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ll_call_info">
 
 
         <LinearLayout
@@ -598,7 +533,6 @@
             android:id="@+id/ll_action_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
             android:alignmentMode="alignMargins"
             android:columnCount="3"
             android:paddingStart="12dp"
@@ -624,9 +558,9 @@
                     android:id="@+id/iv_action_0"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:scaleType="center"
                     android:src="@drawable/ic_in_call_touch_change_to_video"
-                    android:tint="@color/callTextSecondary"
-                    android:scaleType="center" />
+                    android:tint="@color/callTextSecondary" />
 
                 <TextView
                     android:id="@+id/tv_action_0"
@@ -655,9 +589,9 @@
                     android:id="@+id/iv_action_1"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:scaleType="center"
                     android:src="@drawable/ic_in_call_touch_add_call"
-                    android:tint="@color/callTextSecondary"
-                    android:scaleType="center" />
+                    android:tint="@color/callTextSecondary" />
 
                 <TextView
                     android:id="@+id/tv_action_1"
@@ -685,9 +619,9 @@
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:scaleType="center"
                     android:src="@drawable/ic_in_call_touch_notes"
-                    android:tint="@color/callTextPrimary"
-                    android:scaleType="center" />
+                    android:tint="@color/callTextPrimary" />
 
                 <TextView
                     android:id="@+id/tv_action_2"
@@ -716,9 +650,9 @@
                     android:id="@+id/iv_action_3"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:scaleType="center"
                     android:src="@drawable/ic_in_call_touch_mute"
-                    android:tint="@color/callTextSecondary"
-                    android:scaleType="center" />
+                    android:tint="@color/callTextSecondary" />
 
                 <TextView
                     android:id="@+id/tv_action_3"
@@ -747,9 +681,9 @@
                     android:id="@+id/iv_action_4"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:scaleType="center"
                     android:src="@drawable/ic_in_call_touch_round_hold"
-                    android:tint="@color/callTextSecondary"
-                    android:scaleType="center" />
+                    android:tint="@color/callTextSecondary" />
 
                 <TextView
                     android:id="@+id/tv_action_4"
@@ -777,9 +711,9 @@
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:scaleType="center"
                     android:src="@drawable/ic_in_call_touch_start_record"
-                    android:tint="@color/callTextPrimary"
-                    android:scaleType="center" />
+                    android:tint="@color/callTextPrimary" />
 
                 <Chronometer
                     android:id="@+id/tv_action_5"
@@ -792,21 +726,35 @@
             </LinearLayout>
 
         </GridLayout>
-
-        <LinearLayout
+<!--        <GridLayout-->
+<!--            android:id="@+id/ll_action_root"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:alignmentMode="alignMargins"-->
+<!--            android:columnCount="3"-->
+<!--            android:paddingStart="12dp"-->
+<!--            android:paddingEnd="12dp"-->
+<!--            android:rowCount="2"-->
+<!--            android:useDefaultMargins="false"-->
+<!--            android:visibility="visible">-->
+        <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginBottom="38dp"
+            android:columnCount="3"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             android:paddingTop="12dp"
-            android:layout_marginBottom="58dp"
             android:paddingBottom="12dp">
 
             <LinearLayout
                 android:id="@+id/ll_dial_switch"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_vertical"
                 android:gravity="center"
+                android:paddingStart="4dp"
                 android:orientation="vertical"
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp">
@@ -824,7 +772,8 @@
                 android:id="@+id/ll_dial_hang_up"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal"
                 android:background="?attr/selectableItemBackground"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -842,7 +791,8 @@
                 android:id="@+id/ll_dial_speaker"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_vertical"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingTop="12dp"
@@ -859,7 +809,7 @@
                     android:textSize="17sp" />
             </LinearLayout>
 
-        </LinearLayout>
+        </GridLayout>
 
 
     </LinearLayout>

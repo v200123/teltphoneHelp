@@ -32,8 +32,11 @@ import com.u2tzjtne.telephonehelper.util.PhoneNumberFormatUtils
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MusicPlaybackHelper
+import com.u2tzjtne.telephonehelper.util.PresetRuleInitializer
 import com.u2tzjtne.telephonehelper.util.PhoneDialAudioBindingHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
+import com.u2tzjtne.telephonehelper.util.RingtoneBadgeRenderHelper
+import com.u2tzjtne.telephonehelper.util.RingtoneBadgeRuleStore
 import com.u2tzjtne.telephonehelper.util.ToastUtils
 import com.zackratos.ultimatebarx.ultimatebarx.statusBarOnly
 import io.reactivex.MaybeObserver
@@ -46,19 +49,6 @@ import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
 
 class newCallActivity : BaseActivity() {
-    private enum class RingtoneBadgeRule {
-        AI_ONLY,
-        AI_AND_PRESS_RIGHT,
-        AI_AND_PRESS_LEFT_AND_MIGU,
-        AI_AND_PRESS_CENTER,
-        MIGU_AND_PRESS_LEFT,
-        MIGU_ONLY,
-        AI_AND_PRESS_LEFT_MID
-    }
-
-    private val ringtoneBadgeRulePrefs by lazy {
-        getSharedPreferences(PREFS_RINGTONE_BADGE_RULE, Context.MODE_PRIVATE)
-    }
 
     // ===================== 通话状态枚举 =====================
     /**
@@ -142,7 +132,8 @@ class newCallActivity : BaseActivity() {
         getNumberData()
         initCallRecord()
         initUI()
-        initRingtoneBadges()
+        PresetRuleInitializer.ensureInitIfEmpty(this)
+        clearRingtoneBadges()
         initGSYVideo()
         observeCallState()
         setBackGround()
@@ -581,7 +572,7 @@ class newCallActivity : BaseActivity() {
             if (isFinishing || isDestroyed || callRecord.isConnected) {
                 return@resolvePromptTypeAsync
             }
-            val statusText = promptType?.statusText ?: "暂时无人接听"
+            val statusText = promptType?.statusText ?: "正在拨号"
             bind.tvNewCallStatus.text = statusText
             val started = if (promptType != null) {
                 MediaPlayerHelper.getInstance().playPromptSound(this, promptType.rawName) {
@@ -809,12 +800,12 @@ class newCallActivity : BaseActivity() {
             bind.tvAICallStatus.visibility = View.GONE
             bind.tvNewCallPlayingRing.visibility = View.VISIBLE
             bind.ivNewCallHead.visibility = View.GONE
-            applyRandomRingtoneBadgeRule()
+            renderNextRingtoneBadgeRule()
         } else {
             bind.ivNewCallHead.visibility = View.VISIBLE
             bind.tvAICallStatus.visibility = View.VISIBLE
             bind.tvNewCallPlayingRing.visibility = View.GONE
-            hideRingtoneBadges()
+            clearRingtoneBadges()
         }
     }
 
@@ -823,59 +814,17 @@ class newCallActivity : BaseActivity() {
     /**
      * 切换静音
      */
-    private fun applyRandomRingtoneBadgeRule() {
-        hideRingtoneBadges()
-        val rules = RingtoneBadgeRule.entries
-        currentRingtoneBadgeRuleIndex =
-            ringtoneBadgeRulePrefs.getInt(KEY_RINGTONE_BADGE_RULE_INDEX, 0).coerceIn(0, rules.lastIndex)
-        val rule = rules[currentRingtoneBadgeRuleIndex]
-        currentRingtoneBadgeRuleIndex = (currentRingtoneBadgeRuleIndex + 1) % rules.size
-        ringtoneBadgeRulePrefs.edit()
-            .putInt(KEY_RINGTONE_BADGE_RULE_INDEX, currentRingtoneBadgeRuleIndex)
-            .apply()
-        when (rule) {
-            RingtoneBadgeRule.AI_ONLY -> {
-                findViewById<View>(R.id.layout_ring_badge_rule_1).visibility = View.VISIBLE
-            }
-            RingtoneBadgeRule.AI_AND_PRESS_RIGHT -> {
-                findViewById<View>(R.id.layout_ring_badge_rule_2).visibility = View.VISIBLE
-            }
-            RingtoneBadgeRule.AI_AND_PRESS_LEFT_AND_MIGU -> {
-                findViewById<View>(R.id.layout_ring_badge_rule_3).visibility = View.VISIBLE
-            }
-            RingtoneBadgeRule.AI_AND_PRESS_CENTER -> {
-                findViewById<View>(R.id.layout_ring_badge_rule_4).visibility = View.VISIBLE
-            }
-            RingtoneBadgeRule.MIGU_AND_PRESS_LEFT -> {
-                findViewById<View>(R.id.layout_ring_badge_rule_5).visibility = View.VISIBLE
-            }
-            RingtoneBadgeRule.MIGU_ONLY -> {
-                findViewById<View>(R.id.layout_ring_badge_rule_6).visibility = View.VISIBLE
-            }
-            RingtoneBadgeRule.AI_AND_PRESS_LEFT_MID -> {
-                findViewById<View>(R.id.layout_ring_badge_rule_7).visibility = View.VISIBLE
-            }
-        }
+    private fun renderNextRingtoneBadgeRule() {
+        val rule = RingtoneBadgeRuleStore.getNextRuleForPlayback(this)
+        RingtoneBadgeRenderHelper.renderRule(this, bind.ringBadgeCanvas, rule)
     }
 
-    private fun hideRingtoneBadges() {
-        getBadgeRuleLayouts().forEach { it.visibility = View.GONE }
+    private fun clearRingtoneBadges() {
+        RingtoneBadgeRenderHelper.clear(bind.ringBadgeCanvas)
     }
 
     private fun initRingtoneBadges() {
-        hideRingtoneBadges()
-    }
-
-    private fun getBadgeRuleLayouts(): List<View> {
-        return listOf(
-            findViewById(R.id.layout_ring_badge_rule_1),
-            findViewById(R.id.layout_ring_badge_rule_2),
-            findViewById(R.id.layout_ring_badge_rule_3),
-            findViewById(R.id.layout_ring_badge_rule_4),
-            findViewById(R.id.layout_ring_badge_rule_5),
-            findViewById(R.id.layout_ring_badge_rule_6),
-            findViewById(R.id.layout_ring_badge_rule_7)
-        )
+        clearRingtoneBadges()
     }
 
     private fun toggleMute() {

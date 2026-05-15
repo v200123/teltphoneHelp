@@ -50,6 +50,10 @@ class SettingsActivity : BaseActivity() {
             startActivity(Intent(this, RingVideoManageActivity::class.java))
         }
 
+        binding.btnManageBadgeRule.setOnClickListener {
+            startActivity(Intent(this, BadgeRuleManageActivity::class.java))
+        }
+
         binding.btnManageMusic.setOnClickListener {
             startActivity(Intent(this, MusicManageActivity::class.java))
         }

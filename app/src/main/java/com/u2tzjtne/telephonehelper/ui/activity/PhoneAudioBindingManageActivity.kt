@@ -2,6 +2,8 @@ package com.u2tzjtne.telephonehelper.ui.activity
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -25,6 +27,9 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
         PhoneAudioBindingAdapter(onDeleteClick = ::deleteBinding)
     }
 
+    private var allBindingList: List<PhoneDialAudioBindingHelper.PhoneAudioBinding> = emptyList()
+    private var currentSearchKeyword: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -37,6 +42,16 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
         binding.rvPhoneList.layoutManager = LinearLayoutManager(this)
         binding.rvPhoneList.adapter = adapter
         binding.tvClearAll.setOnClickListener { showClearAllConfirm() }
+        binding.etSearchPhone.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+
+            override fun afterTextChanged(s: Editable?) {
+                currentSearchKeyword = normalizePhoneNumber(s?.toString().orEmpty())
+                filterAndDisplayBindings()
+            }
+        })
     }
 
     private fun loadData() {
@@ -45,21 +60,43 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
                 val list = withContext(Dispatchers.IO) {
                     PhoneDialAudioBindingHelper.getAllBindings()
                 }
-                adapter.submitList(list)
-                updateEmptyView(list.isEmpty(), list.size)
+                allBindingList = list
+                filterAndDisplayBindings()
             } catch (_: Exception) {
                 Toast.makeText(this@PhoneAudioBindingManageActivity, getString(R.string.settings_clear_phone_binding_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun updateEmptyView(isEmpty: Boolean, count: Int) {
+    private fun filterAndDisplayBindings() {
+        val filteredList = if (currentSearchKeyword.isBlank()) {
+            allBindingList
+        } else {
+            allBindingList.filter { item ->
+                normalizePhoneNumber(item.phoneNumber).contains(currentSearchKeyword)
+            }
+        }
+        adapter.submitList(filteredList)
+        updateEmptyView(filteredList.isEmpty(), allBindingList.size, filteredList.size)
+    }
+
+    private fun updateEmptyView(isEmpty: Boolean, totalCount: Int, matchCount: Int) {
         binding.tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.rvPhoneList.visibility = if (isEmpty) View.GONE else View.VISIBLE
-        binding.tvPhoneCount.text = if (isEmpty) {
+        binding.tvPhoneCount.text = if (totalCount == 0) {
             getString(R.string.settings_phone_binding_count_zero)
+        } else if (currentSearchKeyword.isBlank()) {
+            getString(R.string.settings_phone_binding_count, totalCount)
         } else {
-            getString(R.string.settings_phone_binding_count, count)
+            getString(R.string.settings_phone_binding_count_with_match, totalCount, matchCount)
+        }
+
+        if (isEmpty) {
+            binding.tvEmpty.text = if (currentSearchKeyword.isBlank()) {
+                getString(R.string.settings_phone_binding_empty)
+            } else {
+                getString(R.string.settings_phone_binding_search_empty)
+            }
         }
     }
 
@@ -121,5 +158,9 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
             digits.length == 11 -> "${digits.substring(0, 3)} ${digits.substring(3, 7)} ${digits.substring(7)}"
             else -> digits
         }
+    }
+
+    private fun normalizePhoneNumber(phoneNumber: String): String {
+        return phoneNumber.replace(Regex("[^0-9]"), "")
     }
 }

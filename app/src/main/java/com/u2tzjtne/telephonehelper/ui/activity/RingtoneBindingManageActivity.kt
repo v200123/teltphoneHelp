@@ -46,6 +46,8 @@ class RingtoneBindingManageActivity : BaseActivity() {
 
     private var currentRingtone: RingVideo? = null
     private var allRingtones: List<RingVideo> = emptyList()
+    private var allBindingList: List<RingtonePhoneBinding> = emptyList()
+    private var currentSearchKeyword: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,6 +125,16 @@ class RingtoneBindingManageActivity : BaseActivity() {
                         binding.etPhoneNumber.setSelection(formatted.length)
                     }
                 }
+            }
+        })
+
+        // 搜索已绑定号码
+        binding.etSearchPhone.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                currentSearchKeyword = normalizePhoneNumber(s?.toString().orEmpty())
+                filterAndDisplayBindings()
             }
         })
     }
@@ -235,13 +247,44 @@ class RingtoneBindingManageActivity : BaseActivity() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ list ->
-                adapter.submitList(list)
-                binding.tvBindCount.text = "已绑定 ${list.size} 个号码"
-                binding.tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
-                binding.rvPhoneList.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+                allBindingList = list
+                filterAndDisplayBindings()
             }, {
                 Toast.makeText(this, "加载绑定列表失败", Toast.LENGTH_SHORT).show()
             })
+    }
+
+    /**
+     * 按搜索关键字过滤并刷新显示
+     */
+    private fun filterAndDisplayBindings() {
+        val filteredList = if (currentSearchKeyword.isBlank()) {
+            allBindingList
+        } else {
+            allBindingList.filter { item ->
+                normalizePhoneNumber(item.phoneNumber).contains(currentSearchKeyword)
+            }
+        }
+
+        adapter.submitList(filteredList)
+        binding.tvBindCount.text = if (currentSearchKeyword.isBlank()) {
+            "已绑定 ${allBindingList.size} 个号码"
+        } else {
+            "已绑定 ${allBindingList.size} 个号码，匹配 ${filteredList.size} 个"
+        }
+
+        if (filteredList.isEmpty()) {
+            binding.tvEmpty.visibility = View.VISIBLE
+            binding.rvPhoneList.visibility = View.GONE
+            binding.tvEmpty.text = if (currentSearchKeyword.isBlank()) {
+                "暂无绑定的号码\n点击上方添加或批量导入"
+            } else {
+                "未找到匹配的号码"
+            }
+        } else {
+            binding.tvEmpty.visibility = View.GONE
+            binding.rvPhoneList.visibility = View.VISIBLE
+        }
     }
 
     /**

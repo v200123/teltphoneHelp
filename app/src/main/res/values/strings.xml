@@ -6,6 +6,7 @@
     <string name="settings_title">&#x8bbe;&#x7f6e;</string>
     <string name="settings_enter">&#x8fdb;&#x5165;</string>
     <string name="settings_ring_video">&#x5f69;&#x94c3;&#x89c6;&#x9891;&#x7ba1;&#x7406;</string>
+    <string name="settings_badge_rule">彩铃图标规则</string>
     <string name="settings_music">&#x97f3;&#x4e50;&#x5e93;&#x7ba1;&#x7406;</string>
     <string name="settings_dial_audio_mode">&#x62e8;&#x6253;&#x64ad;&#x653e;&#x6a21;&#x5f0f;</string>
     <string name="settings_dial_audio_mode_normal">&#x666e;&#x901a;&#x62e8;&#x6253;&#x97f3;</string>
@@ -20,6 +21,9 @@
     <string name="settings_phone_binding_empty">&#x6682;&#x65e0;&#x53f7;&#x7801;&#x7ed1;&#x5b9a;</string>
     <string name="settings_phone_binding_count_zero">&#x5df2;&#x8bb0;&#x4f4f; 0 &#x4e2a;&#x53f7;&#x7801;</string>
     <string name="settings_phone_binding_count">&#x5df2;&#x8bb0;&#x4f4f; %1$d &#x4e2a;&#x53f7;&#x7801;</string>
+    <string name="settings_phone_binding_count_with_match">&#x5df2;&#x8bb0;&#x4f4f; %1$d &#x4e2a;&#x53f7;&#x7801;&#xff0c;&#x5339;&#x914d; %2$d &#x4e2a;</string>
+    <string name="settings_phone_binding_search_hint">&#x641c;&#x7d22;&#x53f7;&#x7801;</string>
+    <string name="settings_phone_binding_search_empty">&#x672a;&#x627e;&#x5230;&#x5339;&#x914d;&#x7684;&#x53f7;&#x7801;</string>
     <string name="settings_phone_binding_delete_message">&#x786e;&#x5b9a;&#x8981;&#x6e05;&#x9664;&#x53f7;&#x7801; %1$s &#x7684;%2$s&#x7ed1;&#x5b9a;&#x5417;&#xff1f;</string>
     <string name="settings_phone_binding_clear_all_message">&#x786e;&#x5b9a;&#x8981;&#x6e05;&#x7a7a;&#x6240;&#x6709;&#x53f7;&#x7801;&#x7ed1;&#x5b9a;&#x5417;&#xff1f;&#x6e05;&#x7a7a;&#x540e;&#x6240;&#x6709;&#x53f7;&#x7801;&#x90fd;&#x4f1a;&#x5728;&#x4e0b;&#x6b21;&#x62e8;&#x6253;&#x65f6;&#x91cd;&#x65b0;&#x8bb0;&#x4f4f;&#x3002;</string>
     <string name="settings_phone_binding_clear_all_success">&#x5df2;&#x6e05;&#x7a7a;&#x6240;&#x6709;&#x53f7;&#x7801;&#x7ed1;&#x5b9a;</string>
