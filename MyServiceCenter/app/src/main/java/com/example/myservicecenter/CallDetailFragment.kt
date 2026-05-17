@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myservicecenter.databinding.FragmentCallDetailBinding
+import com.example.myservicecenter.databinding.LayoutCallDetailFiltersBinding
 import java.time.Instant
 import java.time.YearMonth
 import java.time.ZoneId
@@ -14,9 +15,11 @@ import java.time.ZoneId
 class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
     private var _binding: FragmentCallDetailBinding? = null
     private val binding get() = _binding!!
+    private var filterBinding: LayoutCallDetailFiltersBinding? = null
     private val adapter = CallRecordAdapter()
     private var allRecords: List<CallRecord> = emptyList()
     private var selectedMonth: YearMonth? = null
+    private var displayedRecordCount: Int = 0
     private val monthZoneId: ZoneId = ZoneId.systemDefault()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -25,22 +28,30 @@ class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
+        setupFilterHeader()
         applyCustomSettingsToAdapter()
         binding.swipeRefresh.setOnRefreshListener { (activity as? MainActivity)?.loadCallRecords() }
         bindLoadCompleteHint()
         binding.btnCallAnalysis.setOnClickListener { (activity as? MainActivity)?.showCallAnalysisTip() }
-        binding.callDetailFilterSection.btnSearch.setOnClickListener {
+        filterBinding?.btnSearch?.setOnClickListener {
             applyFilter()
         }
-        binding.callDetailFilterSection.ivClearSearch.setOnClickListener {
-            binding.callDetailFilterSection.etSearchPhone.text?.clear()
+        filterBinding?.ivClearSearch?.setOnClickListener {
+            filterBinding?.etSearchPhone?.text?.clear()
         }
-        binding.callDetailFilterSection.etSearchPhone.doAfterTextChanged {
-            binding.callDetailFilterSection.ivClearSearch.visibility = if (it.isNullOrBlank()) View.GONE else View.VISIBLE
+        filterBinding?.etSearchPhone?.doAfterTextChanged {
+            filterBinding?.ivClearSearch?.visibility = if (it.isNullOrBlank()) View.GONE else View.VISIBLE
             if (it.isNullOrBlank()) {
                 applyFilter()
             }
         }
+    }
+
+    private fun setupFilterHeader() {
+        adapter.removeAllHeaderView()
+        val headerBinding = LayoutCallDetailFiltersBinding.inflate(layoutInflater, binding.recyclerView, false)
+        adapter.addHeaderView(headerBinding.root)
+        filterBinding = headerBinding
     }
 
     fun setRefreshing(refreshing: Boolean) {
@@ -65,20 +76,20 @@ class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
 
     private fun applyFilter() {
         val currentBinding = _binding ?: return
-        val keyword = normalizePhoneNumber(currentBinding.callDetailFilterSection.etSearchPhone.text?.toString().orEmpty())
+        val keyword = normalizePhoneNumber(filterBinding?.etSearchPhone?.text?.toString().orEmpty())
         val filteredRecords = allRecords.filter { record ->
             val matchesMonth = selectedMonth?.let { getRecordYearMonth(record) == it } ?: true
             val matchesKeyword = keyword.isEmpty() || normalizePhoneNumber(record.phoneNumber.orEmpty()).contains(keyword)
             matchesMonth && matchesKeyword
         }
+        displayedRecordCount = filteredRecords.size
+        adapter.setData(filteredRecords)
+        currentBinding.recyclerView.visibility = View.VISIBLE
         if (filteredRecords.isEmpty()) {
             currentBinding.tvEmpty.visibility = View.VISIBLE
-            currentBinding.recyclerView.visibility = View.GONE
             currentBinding.tvLoadComplete.visibility = View.GONE
         } else {
             currentBinding.tvEmpty.visibility = View.GONE
-            currentBinding.recyclerView.visibility = View.VISIBLE
-            adapter.setData(filteredRecords)
             updateLoadCompleteHint()
         }
     }
@@ -117,7 +128,7 @@ class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
     }
 
     private fun updateLoadCompleteHint() {
-        val hasData = adapter.itemCount > 0
+        val hasData = displayedRecordCount > 0
         val atBottom = !binding.recyclerView.canScrollVertically(1)
         val hasScrolledDown = binding.recyclerView.canScrollVertically(-1)
         binding.tvLoadComplete.visibility = if (hasData && atBottom && hasScrolledDown) View.VISIBLE else View.GONE
@@ -125,6 +136,8 @@ class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        adapter.removeAllHeaderView()
+        filterBinding = null
         _binding = null
     }
 }

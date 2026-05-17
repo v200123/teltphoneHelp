@@ -80,6 +80,41 @@ public class MediaPlayerHelper {
         return playRawResource(context, resId, looping, onCompletion);
     }
 
+    public boolean playRawResourceWithRepeat(Context context, int resId, int repeatCount, Runnable onCompletion) {
+        return playRawWithRepeat(context, buildRawUri(context, resId), repeatCount, onCompletion);
+    }
+
+    private boolean playRawWithRepeat(Context context, Uri uri, int repeatCount, Runnable onCompletion) {
+        try {
+            mediaPlayer.reset();
+            configurePlayerAudio();
+            mediaPlayer.setOnCompletionListener(null);
+            mediaPlayer.setDataSource(context, uri);
+            mediaPlayer.setLooping(false);
+
+            final int[] count = {0};
+            mediaPlayer.setOnCompletionListener(mp -> {
+                count[0]++;
+                if (count[0] < repeatCount) {
+                    mp.seekTo(0);
+                    mp.start();
+                } else {
+                    mp.setOnCompletionListener(null);
+                    if (onCompletion != null) {
+                        onCompletion.run();
+                    }
+                }
+            });
+
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void playNoResponseSound(Context context) {
         playRawResource(context, R.raw.audio_no_response, true, null);
     }
@@ -88,11 +123,20 @@ public class MediaPlayerHelper {
         return playRawResource(context, R.raw.audio_no_response, false, onCompletion);
     }
 
+    public boolean playNoResponseSoundWithRepeat(Context context, int repeatCount, Runnable onCompletion) {
+        return playRawResourceWithRepeat(context, R.raw.audio_no_response, repeatCount, onCompletion);
+    }
+
+    public boolean playCallingSound(Context context, Runnable onCompletion) {
+        return playRawResourceWithRepeat(context, R.raw.calling, 4, onCompletion);
+    }
+
     public boolean playPromptSound(Context context, String rawName, Runnable onCompletion) {
-        if (playRawByName(context, rawName, false, onCompletion)) {
-            return true;
+        int resId = context.getResources().getIdentifier(rawName, "raw", context.getPackageName());
+        if (resId != 0) {
+            return playRawResourceWithRepeat(context, resId, 4, onCompletion);
         }
-        return playNoResponseSoundOnce(context, onCompletion);
+        return playNoResponseSoundWithRepeat(context, 4, onCompletion);
     }
 
     public void playGuaduanSound(Context context) {

@@ -19,34 +19,34 @@ object CallPromptSettings {
     ) {
         POWER_OFF(
             value = 1,
-            settingsTitle = "\u5173\u673a\u63d0\u793a\u97f3\u53f7\u7801",
-            addDialogTitle = "\u6dfb\u52a0\u5173\u673a\u63d0\u793a\u97f3\u53f7\u7801",
-            addDialogMessage = "\u8be5\u53f7\u7801\u62e8\u6253\u65f6\u5c06\u64ad\u653e\u5173\u673a\u63d0\u793a\u97f3",
-            statusText = "\u5bf9\u65b9\u5df2\u5173\u673a",
+            settingsTitle = "关机提示音号码",
+            addDialogTitle = "添加关机提示音号码",
+            addDialogMessage = "该号码拨打时将播放关机提示音",
+            statusText = "正在拨号",
             rawName = "audio_power_off"
         ),
         EMPTY_NUMBER(
             value = 2,
-            settingsTitle = "\u7a7a\u53f7\u63d0\u793a\u97f3\u53f7\u7801",
-            addDialogTitle = "\u6dfb\u52a0\u7a7a\u53f7\u63d0\u793a\u97f3\u53f7\u7801",
-            addDialogMessage = "\u8be5\u53f7\u7801\u62e8\u6253\u65f6\u5c06\u64ad\u653e\u7a7a\u53f7\u63d0\u793a\u97f3",
-            statusText = "\u60a8\u62e8\u6253\u7684\u662f\u7a7a\u53f7",
+            settingsTitle = "空号提示音号码",
+            addDialogTitle = "添加空号提示音号码",
+            addDialogMessage = "该号码拨打时将播放空号提示音",
+            statusText = "正在拨号",
             rawName = "audio_empty_number"
         ),
         BUSY(
             value = 3,
-            settingsTitle = "\u7528\u6237\u6b63\u5fd9\u63d0\u793a\u97f3\u53f7\u7801",
-            addDialogTitle = "\u6dfb\u52a0\u7528\u6237\u6b63\u5fd9\u63d0\u793a\u97f3\u53f7\u7801",
-            addDialogMessage = "\u8be5\u53f7\u7801\u62e8\u6253\u65f6\u5c06\u64ad\u653e\u7528\u6237\u6b63\u5fd9\u63d0\u793a\u97f3",
-            statusText = "\u7528\u6237\u6b63\u5fd9",
+            settingsTitle = "用户正忙提示音号码",
+            addDialogTitle = "添加用户正忙提示音号码",
+            addDialogMessage = "该号码拨打时将播放用户正忙提示音",
+            statusText = "正在拨号",
             rawName = "audio_user_busy"
         ),
         UNREACHABLE(
             value = 4,
-            settingsTitle = "\u65e0\u6cd5\u63a5\u901a\u63d0\u793a\u97f3\u53f7\u7801",
-            addDialogTitle = "\u6dfb\u52a0\u65e0\u6cd5\u63a5\u901a\u63d0\u793a\u97f3\u53f7\u7801",
-            addDialogMessage = "\u8be5\u53f7\u7801\u62e8\u6253\u65f6\u5c06\u5148\u9759\u97f3\u7ea63\u79d2\uff0c\u518d\u64ad\u653e\u65e0\u6cd5\u63a5\u901a\u63d0\u793a\u97f3",
-            statusText = "\u5bf9\u65b9\u6682\u65f6\u65e0\u6cd5\u63a5\u901a",
+            settingsTitle = "无法接通提示音号码",
+            addDialogTitle = "添加无法接通提示音号码",
+            addDialogMessage = "该号码拨打时将先静音约3秒，再播放无法接通提示音",
+            statusText = "正在拨号",
             rawName = "audio_busy"
         );
 

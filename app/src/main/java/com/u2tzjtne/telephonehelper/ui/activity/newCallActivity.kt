@@ -191,7 +191,7 @@ class newCallActivity : BaseActivity() {
      */
     private fun onStateDialing() {
         // UI：根据是否有彩铃显示不同文字
-        bind.tvNewCallStatus.text = if (hasRingtone) "正在等待对方接听电话" else "正在拨号"
+        bind.tvNewCallStatus.text = "正在拨号"
         showCallStatus(connected = false)
         setActionAreaEnabled(false)
         setBottomBarMode(dialMode = false)
@@ -226,11 +226,9 @@ class newCallActivity : BaseActivity() {
         if (matchedPromptType != null) {
             hasRingtone = false
             stopRingtonePlayback()
+            bind.tvNewCallStatus.text = "正在拨号"
             if (matchedPromptType?.shouldPlayNormalDialBeforePrompt == true) {
-                bind.tvNewCallStatus.text = "正在拨号"
                 MediaPlayerHelper.getInstance().playCallSound(this)
-            } else {
-                bind.tvNewCallStatus.text = "正在等待对方接听电话"
             }
             startPromptNoAnswerWait()
             return
@@ -555,14 +553,14 @@ class newCallActivity : BaseActivity() {
     }
 
     private fun playBusyThenFinish() {
-        val busyStarted = MediaPlayerHelper.getInstance().playBusySound(this, BUSY_AUDIO_RES_NAME) {
+        val started = MediaPlayerHelper.getInstance().playCallingSound(this) {
             runOnUiThread {
-                endCallAndFinish(statusText = "通话结束", needSave = true, delayMillis = 0L)
+                endCallAndFinish(statusText = "正在拨号", needSave = true, delayMillis = 0L)
             }
         }
-        if (!busyStarted) {
-            Log.w(TAG, "未找到忙线音资源：$BUSY_AUDIO_RES_NAME")
-            endCallAndFinish(statusText = "对方正在通话中", needSave = true, delayMillis = 0L)
+        if (!started) {
+            Log.w(TAG, "未找到正在通话音资源")
+            endCallAndFinish(statusText = "正在拨号", needSave = true, delayMillis = 0L)
         }
     }
 
@@ -585,7 +583,7 @@ class newCallActivity : BaseActivity() {
                     }
                 }
             } else {
-                MediaPlayerHelper.getInstance().playNoResponseSoundOnce(this) {
+                MediaPlayerHelper.getInstance().playNoResponseSoundWithRepeat(this, 4) {
                     runOnUiThread {
                         endCallAndFinish(statusText = statusText, needSave = true, delayMillis = 0L)
                     }
@@ -629,18 +627,12 @@ class newCallActivity : BaseActivity() {
             }
             autoConnectJob?.cancel()
             if (callStateLD.value == CallState.RINGING || callStateLD.value == CallState.DIALING) {
-                if (promptType.shouldPlayNormalDialBeforePrompt) {
-                    bind.tvNewCallStatus.text = "正在拨号"
-                    if (callStateLD.value == CallState.RINGING) {
-                        stopRingtonePlayback()
-                        MediaPlayerHelper.getInstance().playCallSound(this)
-                        startPromptNoAnswerWait()
-                    }
-                } else {
-                    stopRingtonePlayback()
-                    bind.tvNewCallStatus.text = "正在等待对方接听电话"
-                    startPromptNoAnswerWait()
+                stopRingtonePlayback()
+                bind.tvNewCallStatus.text = "正在拨号"
+                if (promptType.shouldPlayNormalDialBeforePrompt && callStateLD.value == CallState.RINGING) {
+                    MediaPlayerHelper.getInstance().playCallSound(this)
                 }
+                startPromptNoAnswerWait()
             }
         }
     }
@@ -668,7 +660,7 @@ class newCallActivity : BaseActivity() {
         bind.llAction3.setOnClickListener {
             if (!callRecord.isConnected && finishJob?.isActive != true) {
                 cancelPreConnectJobs()
-                bind.tvNewCallStatus.text =if(hasRingtone)"正在等待对方接听电话" else "正在拨号"
+                bind.tvNewCallStatus.text = "正在拨号"
                 noAnswerWaitJob = lifecycleScope.launch {
                     delay(NO_ANSWER_TRIGGER_MILLIS)
                     callStateLD.postValue(CallState.NO_ANSWER)

@@ -12,12 +12,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -77,6 +75,7 @@ class MainActivity : AppCompatActivity() {
         topBarExpandedColor = ContextCompat.getColor(this, R.color.panel_blue_start)
         topBarCollapsedColor = ContextCompat.getColor(this, R.color.panel_blue_start)
         binding.topBarContainer.setBackgroundColor(topBarExpandedColor)
+        binding.topBarContainer.bringToFront()
 
         binding.btnMore.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
         applyCustomNumberInfo()
@@ -246,6 +245,9 @@ class MainActivity : AppCompatActivity() {
         val topBarTop = binding.topBarContainer.paddingTop
         val topBarEnd = binding.topBarContainer.paddingEnd
         val topBarBottom = binding.topBarContainer.paddingBottom
+        val appBarContentStart = binding.appBarContentContainer.paddingStart
+        val appBarContentEnd = binding.appBarContentContainer.paddingEnd
+        val appBarContentBottom = binding.appBarContentContainer.paddingBottom
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -256,9 +258,13 @@ class MainActivity : AppCompatActivity() {
                 bottom = topBarBottom
             )
             binding.topBarContainer.post {
-                binding.appBarLayout.updateLayoutParams<CoordinatorLayout.LayoutParams> {
-                    topMargin = binding.topBarContainer.height
-                }
+                binding.appBarContentContainer.updatePadding(
+                    left = appBarContentStart,
+                    top = binding.topBarContainer.height,
+                    right = appBarContentEnd,
+                    bottom = appBarContentBottom
+                )
+                binding.topBarContainer.bringToFront()
             }
             insets
         }
