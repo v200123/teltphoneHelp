@@ -115,7 +115,6 @@ class newCallActivity : BaseActivity() {
         private const val RING_DELAY_MILLIS = 2_000L           // 拨号→振铃 延迟
         private const val AUTO_CONNECT_DELAY_MILLIS = 10_000L  // 振铃→自动接通 延迟
         private const val NO_ANSWER_TRIGGER_MILLIS = 15_000L   // 触发无人接听的等待时间
-        private const val SPECIAL_PROMPT_TRIGGER_MILLIS = 1_000L
         private const val NO_ANSWER_AUDIO_MILLIS = 23_200L     // 无人接听音时长
         private const val FINISH_DELAY_MILLIS = 1_000L         // 挂断后延迟finish
         private const val BUSY_AUDIO_RES_NAME = "audio_busy"
@@ -227,7 +226,12 @@ class newCallActivity : BaseActivity() {
         if (matchedPromptType != null) {
             hasRingtone = false
             stopRingtonePlayback()
-            bind.tvNewCallStatus.text = "正在等待对方接听电话"
+            if (matchedPromptType?.shouldPlayNormalDialBeforePrompt == true) {
+                bind.tvNewCallStatus.text = "正在拨号"
+                MediaPlayerHelper.getInstance().playCallSound(this)
+            } else {
+                bind.tvNewCallStatus.text = "正在等待对方接听电话"
+            }
             startPromptNoAnswerWait()
             return
         }
@@ -606,6 +610,7 @@ class newCallActivity : BaseActivity() {
             return
         }
         val statusText = promptType.statusText
+        bind.tvNewCallStatus.text = statusText
         val started = MediaPlayerHelper.getInstance().playPromptSound(this, promptType.rawName) {
             runOnUiThread {
                 endCallAndFinish(statusText = statusText, needSave = true, delayMillis = 0L)
@@ -624,9 +629,18 @@ class newCallActivity : BaseActivity() {
             }
             autoConnectJob?.cancel()
             if (callStateLD.value == CallState.RINGING || callStateLD.value == CallState.DIALING) {
-                stopRingtonePlayback()
-                bind.tvNewCallStatus.text = "正在等待对方接听电话"
-                startPromptNoAnswerWait()
+                if (promptType.shouldPlayNormalDialBeforePrompt) {
+                    bind.tvNewCallStatus.text = "正在拨号"
+                    if (callStateLD.value == CallState.RINGING) {
+                        stopRingtonePlayback()
+                        MediaPlayerHelper.getInstance().playCallSound(this)
+                        startPromptNoAnswerWait()
+                    }
+                } else {
+                    stopRingtonePlayback()
+                    bind.tvNewCallStatus.text = "正在等待对方接听电话"
+                    startPromptNoAnswerWait()
+                }
             }
         }
     }
@@ -637,7 +651,7 @@ class newCallActivity : BaseActivity() {
             return
         }
         noAnswerWaitJob = lifecycleScope.launch {
-            delay(SPECIAL_PROMPT_TRIGGER_MILLIS)
+            delay(matchedPromptType?.triggerDelayMillis ?: NO_ANSWER_TRIGGER_MILLIS)
             if (!callRecord.isConnected && finishJob?.isActive != true) {
                 callStateLD.postValue(CallState.NO_ANSWER)
             }
@@ -815,7 +829,7 @@ class newCallActivity : BaseActivity() {
      * 切换静音
      */
     private fun renderNextRingtoneBadgeRule() {
-        val rule = RingtoneBadgeRuleStore.getNextRuleForPlayback(this)
+        val rule = RingtoneBadgeRuleStore.getRuleForPhonePlayback(this, callRecord.phoneNumber)
         RingtoneBadgeRenderHelper.renderRule(this, bind.ringBadgeCanvas, rule)
     }
 

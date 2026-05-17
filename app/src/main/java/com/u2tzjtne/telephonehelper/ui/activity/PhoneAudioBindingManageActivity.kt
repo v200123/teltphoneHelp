@@ -13,6 +13,7 @@ import com.u2tzjtne.telephonehelper.databinding.ActivityPhoneAudioBindingManageB
 import com.u2tzjtne.telephonehelper.db.RingVideoDatabase
 import com.u2tzjtne.telephonehelper.ui.adapter.PhoneAudioBindingAdapter
 import com.u2tzjtne.telephonehelper.util.PhoneDialAudioBindingHelper
+import com.u2tzjtne.telephonehelper.util.RingtoneBadgeRuleStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,9 +27,7 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
     private val adapter: PhoneAudioBindingAdapter by lazy {
         PhoneAudioBindingAdapter(onDeleteClick = ::deleteBinding)
     }
-
-    private var allBindingList: List<PhoneDialAudioBindingHelper.PhoneAudioBinding> = emptyList()
-    private var currentSearchKeyword: String = ""
+    private var allBindings: List<PhoneDialAudioBindingHelper.PhoneAudioBinding> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,12 +43,9 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
         binding.tvClearAll.setOnClickListener { showClearAllConfirm() }
         binding.etSearchPhone.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
-
             override fun afterTextChanged(s: Editable?) {
-                currentSearchKeyword = normalizePhoneNumber(s?.toString().orEmpty())
-                filterAndDisplayBindings()
+                applyFilter(s?.toString().orEmpty())
             }
         })
     }
@@ -60,43 +56,34 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
                 val list = withContext(Dispatchers.IO) {
                     PhoneDialAudioBindingHelper.getAllBindings()
                 }
-                allBindingList = list
-                filterAndDisplayBindings()
+                allBindings = list
+                applyFilter(binding.etSearchPhone.text?.toString().orEmpty())
             } catch (_: Exception) {
                 Toast.makeText(this@PhoneAudioBindingManageActivity, getString(R.string.settings_clear_phone_binding_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun filterAndDisplayBindings() {
-        val filteredList = if (currentSearchKeyword.isBlank()) {
-            allBindingList
+    private fun applyFilter(keyword: String) {
+        val normalizedKeyword = keyword.replace(Regex("[^0-9]"), "")
+        val filteredList = if (normalizedKeyword.isEmpty()) {
+            allBindings
         } else {
-            allBindingList.filter { item ->
-                normalizePhoneNumber(item.phoneNumber).contains(currentSearchKeyword)
+            allBindings.filter { item ->
+                item.phoneNumber.replace(Regex("[^0-9]"), "").contains(normalizedKeyword)
             }
         }
         adapter.submitList(filteredList)
-        updateEmptyView(filteredList.isEmpty(), allBindingList.size, filteredList.size)
+        updateEmptyView(filteredList.isEmpty(), filteredList.size)
     }
 
-    private fun updateEmptyView(isEmpty: Boolean, totalCount: Int, matchCount: Int) {
+    private fun updateEmptyView(isEmpty: Boolean, count: Int) {
         binding.tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.rvPhoneList.visibility = if (isEmpty) View.GONE else View.VISIBLE
-        binding.tvPhoneCount.text = if (totalCount == 0) {
+        binding.tvPhoneCount.text = if (isEmpty) {
             getString(R.string.settings_phone_binding_count_zero)
-        } else if (currentSearchKeyword.isBlank()) {
-            getString(R.string.settings_phone_binding_count, totalCount)
         } else {
-            getString(R.string.settings_phone_binding_count_with_match, totalCount, matchCount)
-        }
-
-        if (isEmpty) {
-            binding.tvEmpty.text = if (currentSearchKeyword.isBlank()) {
-                getString(R.string.settings_phone_binding_empty)
-            } else {
-                getString(R.string.settings_phone_binding_search_empty)
-            }
+            getString(R.string.settings_phone_binding_count, count)
         }
     }
 
@@ -130,6 +117,7 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
                     try {
                         withContext(Dispatchers.IO) {
                             PhoneDialAudioBindingHelper.clearAllBindings()
+                            RingtoneBadgeRuleStore.clearAllPhoneRuleBindings(this@PhoneAudioBindingManageActivity)
                             val db = RingVideoDatabase.getInstance()
                             db.phoneRingtoneAssignmentDao().deleteAll().blockingAwait()
                             db.ringtonePhoneBindingDao().clearAll()
@@ -147,6 +135,7 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
 
     private fun clearBindingInternal(phoneNumber: String) {
         PhoneDialAudioBindingHelper.clearBindings(phoneNumber)
+        RingtoneBadgeRuleStore.clearPhoneRuleBinding(this, phoneNumber)
         val db = RingVideoDatabase.getInstance()
         db.phoneRingtoneAssignmentDao().deleteByPhoneNumber(phoneNumber)
         db.ringtonePhoneBindingDao().deleteByPhoneNumber(phoneNumber)
@@ -158,9 +147,5 @@ class PhoneAudioBindingManageActivity : BaseActivity() {
             digits.length == 11 -> "${digits.substring(0, 3)} ${digits.substring(3, 7)} ${digits.substring(7)}"
             else -> digits
         }
-    }
-
-    private fun normalizePhoneNumber(phoneNumber: String): String {
-        return phoneNumber.replace(Regex("[^0-9]"), "")
     }
 }

@@ -40,7 +40,21 @@ object CallPromptSettings {
             addDialogMessage = "\u8be5\u53f7\u7801\u62e8\u6253\u65f6\u5c06\u64ad\u653e\u7528\u6237\u6b63\u5fd9\u63d0\u793a\u97f3",
             statusText = "\u7528\u6237\u6b63\u5fd9",
             rawName = "audio_user_busy"
+        ),
+        UNREACHABLE(
+            value = 4,
+            settingsTitle = "\u65e0\u6cd5\u63a5\u901a\u63d0\u793a\u97f3\u53f7\u7801",
+            addDialogTitle = "\u6dfb\u52a0\u65e0\u6cd5\u63a5\u901a\u63d0\u793a\u97f3\u53f7\u7801",
+            addDialogMessage = "\u8be5\u53f7\u7801\u62e8\u6253\u65f6\u5c06\u5148\u9759\u97f3\u7ea63\u79d2\uff0c\u518d\u64ad\u653e\u65e0\u6cd5\u63a5\u901a\u63d0\u793a\u97f3",
+            statusText = "\u5bf9\u65b9\u6682\u65f6\u65e0\u6cd5\u63a5\u901a",
+            rawName = "audio_busy"
         );
+
+        val triggerDelayMillis: Long
+            get() = if (this == UNREACHABLE) 3_000L else 1_000L
+
+        val shouldPlayNormalDialBeforePrompt: Boolean
+            get() = false
 
         companion object {
             fun fromValue(value: Int): PromptType {

@@ -13,6 +13,7 @@ import com.u2tzjtne.telephonehelper.util.CallPromptSettings
 import com.u2tzjtne.telephonehelper.util.CallVibrationSettings
 import com.u2tzjtne.telephonehelper.util.PhoneDialAudioBindingHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
+import com.u2tzjtne.telephonehelper.util.RingtoneBadgeRuleStore
 import com.u2tzjtne.telephonehelper.util.ToastUtils
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -80,6 +81,10 @@ class SettingsActivity : BaseActivity() {
 
         binding.btnBusyPromptPhone.setOnClickListener {
             CallPromptPhoneManageActivity.start(this, CallPromptSettings.PromptType.BUSY)
+        }
+
+        binding.btnUnreachablePromptPhone.setOnClickListener {
+            CallPromptPhoneManageActivity.start(this, CallPromptSettings.PromptType.UNREACHABLE)
         }
 
         binding.btnCallVibrationDuration.setOnClickListener {
@@ -187,6 +192,7 @@ class SettingsActivity : BaseActivity() {
 
         Completable.fromAction {
             PhoneDialAudioBindingHelper.clearBindings(normalizedNumber)
+            RingtoneBadgeRuleStore.clearPhoneRuleBinding(this, normalizedNumber)
             val db = RingVideoDatabase.getInstance()
             db.phoneRingtoneAssignmentDao().deleteByPhoneNumber(normalizedNumber)
             db.ringtonePhoneBindingDao().deleteByPhoneNumber(normalizedNumber)

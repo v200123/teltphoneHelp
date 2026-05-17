@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken
 import com.u2tzjtne.telephonehelper.R
 import com.u2tzjtne.telephonehelper.base.App
 import java.util.UUID
+import kotlin.random.Random
 
 enum class RuleSourceType {
     PRESET,
@@ -49,10 +50,17 @@ data class BadgeRuleStoreState(
     val nextPlayIndex: Int = 0
 )
 
+data class PhoneBadgeRuleBinding(
+    val phoneNumber: String,
+    val ruleId: String,
+    val ruleName: String
+)
+
 object RingtoneBadgeRuleStore {
     private const val PREF_NAME = "ringtone_badge_rule_store"
     private const val KEY_RULE_STORE_STATE = "key_rule_store_state"
     private const val KEY_PRESET_INIT_DONE = "key_preset_init_done"
+    private const val KEY_PHONE_RULE_PREFIX = "key_phone_rule_"
     private const val MAX_RULE_COUNT = 20
 
     private val gson = Gson()
@@ -144,6 +152,7 @@ object RingtoneBadgeRuleStore {
             if (!removed) {
                 return false
             }
+            removePhoneRuleBindingsForRule(context, ruleId)
             val nextIndex = if (state.rules.isEmpty()) {
                 0
             } else {
@@ -167,6 +176,97 @@ object RingtoneBadgeRuleStore {
             writeState(context, state.copy(nextPlayIndex = nextIndex))
             return currentRule
         }
+    }
+
+    fun getRuleForPhonePlayback(context: Context, phoneNumber: String?): BadgeRule? {
+        synchronized(lock) {
+            ensureInitIfEmpty(context)
+            val state = readState(context)
+            if (state.rules.isEmpty()) {
+                return null
+            }
+
+            val normalizedNumber = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+            if (normalizedNumber.isBlank()) {
+                return state.rules.random()
+            }
+
+            val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            val assignedRuleId = prefs.getString(phoneRuleKey(normalizedNumber), null)
+            val assignedRule = state.rules.firstOrNull { it.id == assignedRuleId }
+            if (assignedRule != null) {
+                return assignedRule
+            }
+
+            val randomRule = state.rules[Random.nextInt(state.rules.size)]
+            prefs.edit()
+                .putString(phoneRuleKey(normalizedNumber), randomRule.id)
+                .apply()
+            return randomRule
+        }
+    }
+
+    fun getAllPhoneRuleBindings(context: Context): List<PhoneBadgeRuleBinding> {
+        synchronized(lock) {
+            ensureInitIfEmpty(context)
+            val state = readState(context)
+            val ruleNameMap = state.rules.associate { it.id to it.name }
+            val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            return prefs.all
+                .mapNotNull { (key, value) ->
+                    if (!key.startsWith(KEY_PHONE_RULE_PREFIX)) {
+                        return@mapNotNull null
+                    }
+                    val phoneNumber = key.removePrefix(KEY_PHONE_RULE_PREFIX)
+                    val ruleId = value as? String ?: return@mapNotNull null
+                    if (phoneNumber.isBlank()) {
+                        return@mapNotNull null
+                    }
+                    PhoneBadgeRuleBinding(
+                        phoneNumber = phoneNumber,
+                        ruleId = ruleId,
+                        ruleName = ruleNameMap[ruleId] ?: "\u89c4\u5219\u5df2\u5220\u9664"
+                    )
+                }
+                .sortedByDescending { it.phoneNumber }
+        }
+    }
+
+    fun clearPhoneRuleBinding(context: Context, phoneNumber: String?) {
+        val normalizedNumber = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+        if (normalizedNumber.isBlank()) {
+            return
+        }
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .remove(phoneRuleKey(normalizedNumber))
+            .apply()
+    }
+
+    fun clearAllPhoneRuleBindings(context: Context) {
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val keys = prefs.all.keys.filter { it.startsWith(KEY_PHONE_RULE_PREFIX) }
+        if (keys.isEmpty()) {
+            return
+        }
+        val editor = prefs.edit()
+        keys.forEach { editor.remove(it) }
+        editor.apply()
+    }
+
+    private fun removePhoneRuleBindingsForRule(context: Context, ruleId: String) {
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val keys = prefs.all
+            .filter { (key, value) ->
+                key.startsWith(KEY_PHONE_RULE_PREFIX) && value == ruleId
+            }
+            .keys
+        if (keys.isEmpty()) {
+            return
+        }
+        val editor = prefs.edit()
+        keys.forEach { editor.remove(it) }
+        editor.apply()
     }
 
     fun createEmptyItems(): MutableMap<String, BadgeItemState> {
@@ -199,6 +299,8 @@ object RingtoneBadgeRuleStore {
             .putString(KEY_RULE_STORE_STATE, gson.toJson(normalized))
             .apply()
     }
+
+    private fun phoneRuleKey(phoneNumber: String): String = KEY_PHONE_RULE_PREFIX + phoneNumber
 
     private fun BadgeRuleStoreState.normalize(): BadgeRuleStoreState {
         val normalizedRules = rules.map { rule ->

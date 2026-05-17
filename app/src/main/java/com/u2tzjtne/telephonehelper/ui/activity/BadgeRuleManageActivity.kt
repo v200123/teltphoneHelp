@@ -39,6 +39,9 @@ class BadgeRuleManageActivity : BaseActivity() {
 
     private fun initView() {
         binding.ivBack.setOnClickListener { finish() }
+        binding.btnRuleBinding.setOnClickListener {
+            startActivity(Intent(this, BadgeRuleBindingManageActivity::class.java))
+        }
         binding.btnCreateRule.setOnClickListener { showCreateRuleDialog() }
         binding.rvRuleList.layoutManager = LinearLayoutManager(this)
         binding.rvRuleList.adapter = adapter

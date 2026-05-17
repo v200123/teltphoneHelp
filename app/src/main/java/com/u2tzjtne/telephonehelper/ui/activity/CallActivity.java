@@ -114,8 +114,6 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     private final int PLAY_NO_RESPONSE_SOUND = 5;
     private final int CALL_END = 6;
     private final int GUADUAN = 7;
-    private static final long SPECIAL_PROMPT_TRIGGER_DELAY = 1_000L;
-
     public static void start(Context context, String phoneNumber) {
         Intent intent;
         if (context.getPackageName().contains("old"))
@@ -313,7 +311,14 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     if (matchedPromptType != null) {
                         handler.removeMessages(CONNECTED);
                         handler.removeMessages(PLAY_NO_RESPONSE_SOUND);
-                        handler.sendEmptyMessageDelayed(PLAY_NO_RESPONSE_SOUND, SPECIAL_PROMPT_TRIGGER_DELAY);
+                        if (matchedPromptType.getShouldPlayNormalDialBeforePrompt()) {
+                            tvCallStatus.setText("正在拨号");
+                            MediaPlayerHelper.getInstance().playCallSound(CallActivity.this);
+                        }
+                        handler.sendEmptyMessageDelayed(
+                                PLAY_NO_RESPONSE_SOUND,
+                                matchedPromptType.getTriggerDelayMillis()
+                        );
                         break;
                     }
                     switch (PhoneDialAudioBindingHelper.resolveMode(number)) {
@@ -682,6 +687,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
             return;
         }
         final String statusText = promptType.getStatusText();
+        tvCallStatus.setText(statusText);
         boolean started = MediaPlayerHelper.getInstance().playPromptSound(
                 CallActivity.this,
                 promptType.getRawName(),
@@ -700,9 +706,13 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
             }
             handler.removeMessages(CONNECTED);
             if (!callRecord.isConnected) {
-                GSYVideoPlayerHelper.getInstance().stopPlaying();
-                MediaPlayerHelper.getInstance().stopAudio();
-                tvCallStatus.setText("正在等待对方接听电话");
+                if (promptType.getShouldPlayNormalDialBeforePrompt()) {
+                    tvCallStatus.setText("正在拨号");
+                } else {
+                    GSYVideoPlayerHelper.getInstance().stopPlaying();
+                    MediaPlayerHelper.getInstance().stopAudio();
+                    tvCallStatus.setText("正在等待对方接听电话");
+                }
             }
         });
     }
