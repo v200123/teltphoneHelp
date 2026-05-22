@@ -11,4 +11,13 @@
         <item name="android:textStyle">normal</item>
         <item name="textAllCaps">false</item>
     </style>
+
+    <style name="HomeGridItem">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#212733</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>
