@@ -18,6 +18,7 @@ import kotlin.concurrent.thread
  * In ringtone library mode, each new call advances to the next item in the library.
  */
 class GSYVideoPlayerHelper private constructor() {
+    private val resetDelayMillis = 80L
 
     private var videoPlayer: EmptyControlVideo? = null
     private var currentContext: Context? = null
@@ -51,6 +52,7 @@ class GSYVideoPlayerHelper private constructor() {
     fun startPlaying(uri: Uri) {
         videoPlayer?.let { player ->
             try {
+                setPlayerMute(player, false)
                 GSYVideoOptionBuilder()
                     .setUrl(uri.toString())
                     .setCacheWithPlay(true)
@@ -87,6 +89,7 @@ class GSYVideoPlayerHelper private constructor() {
 
                 android.util.Log.d("GSYVideoPlayerHelper", "resolved uri=$uri")
 
+                setPlayerMute(player, false)
                 GSYVideoOptionBuilder()
                     .setUrl(uri.toString())
                     .setCacheWithPlay(true)
@@ -234,7 +237,10 @@ class GSYVideoPlayerHelper private constructor() {
     fun stopPlaying() {
         videoPlayer?.let { player ->
             if (isPlaying) {
-                player.onVideoReset()
+                setPlayerMute(player, true)
+                player.postDelayed({
+                    player.onVideoReset()
+                }, resetDelayMillis)
             }
             player.visibility = View.GONE
             isPlaying = false
@@ -254,6 +260,7 @@ class GSYVideoPlayerHelper private constructor() {
     fun release() {
         videoPlayer?.let { player ->
             if (isPlaying) {
+                setPlayerMute(player, true)
                 player.onVideoReset()
             }
             player.visibility = View.GONE
@@ -269,5 +276,28 @@ class GSYVideoPlayerHelper private constructor() {
 
     fun setVisibility(visibility: Int) {
         videoPlayer?.visibility = visibility
+    }
+
+    private fun setPlayerMute(player: EmptyControlVideo, mute: Boolean) {
+        val methodCandidates = listOf(
+            "setNeedMute",
+            "setMute",
+            "setIsMute"
+        )
+        for (methodName in methodCandidates) {
+            runCatching {
+                val method = player.javaClass.methods.firstOrNull {
+                    it.name == methodName &&
+                        it.parameterTypes.size == 1 &&
+                        it.parameterTypes[0] == Boolean::class.javaPrimitiveType
+                } ?: return@runCatching false
+                method.invoke(player, mute)
+                true
+            }.getOrNull()?.let { invoked ->
+                if (invoked) {
+                    return
+                }
+            }
+        }
     }
 }

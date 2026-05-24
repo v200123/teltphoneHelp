@@ -87,6 +87,10 @@ class SettingsActivity : BaseActivity() {
             CallPromptPhoneManageActivity.start(this, CallPromptSettings.PromptType.UNREACHABLE)
         }
 
+        binding.btnAutoHangUp.setOnClickListener {
+            startActivity(Intent(this, AutoHangUpRuleManageActivity::class.java))
+        }
+
         binding.btnCallVibrationDuration.setOnClickListener {
             showVibrationDurationDialog()
         }

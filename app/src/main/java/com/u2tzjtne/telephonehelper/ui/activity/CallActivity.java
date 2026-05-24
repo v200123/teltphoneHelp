@@ -4,6 +4,7 @@ package com.u2tzjtne.telephonehelper.ui.activity;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import com.u2tzjtne.telephonehelper.db.Recording;
 import com.u2tzjtne.telephonehelper.http.bean.PhoneLocalBean;
 import com.u2tzjtne.telephonehelper.http.download.getLocalCallback;
 import com.u2tzjtne.telephonehelper.util.AudioRecorderHelper;
+import com.u2tzjtne.telephonehelper.util.AutoHangUpSettings;
 import com.u2tzjtne.telephonehelper.util.CallDialAudioSettings;
 import com.u2tzjtne.telephonehelper.util.CallPromptSettings;
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper;
@@ -114,6 +116,8 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
     private final int PLAY_NO_RESPONSE_SOUND = 5;
     private final int CALL_END = 6;
     private final int GUADUAN = 7;
+    private final int AUTO_HANG_UP = 8;
+    private int autoHangUpDelaySeconds = 0;
     public static void start(Context context, String phoneNumber) {
         Intent intent;
         if (context.getPackageName().contains("old"))
@@ -123,6 +127,12 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         }
         intent.putExtra("phoneNumber", phoneNumber);
         context.startActivity(intent);
+        if (context instanceof Activity) {
+            ((Activity) context).overridePendingTransition(
+                    R.anim.call_activity_enter,
+                    R.anim.call_activity_exit
+            );
+        }
     }
 
 
@@ -135,12 +145,22 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
         // 初始化视频播放器
         initVideoPlayer();
         preloadPromptType();
+        preloadAutoHangUpRule();
         //10秒后自动接通
         handler.sendEmptyMessageDelayed(CONNECTED, 10 * 1000);
         //2秒后 显示对方振铃
         handler.sendEmptyMessageDelayed(PLAY_RING, 2 * 1000);
         setBackGround();
         MediaPlayerHelper.getInstance().switchAudioOutput(CallActivity.this, isSpeakerOn);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(
+                R.anim.call_activity_pop_enter,
+                R.anim.call_activity_pop_exit
+        );
     }
 
     /**
@@ -305,6 +325,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                     callRecord.connectedTime = System.currentTimeMillis();
                     updateCallTip(true);
                     updateAction();
+                    scheduleAutoHangUpIfNeeded();
                     break;
                 case PLAY_RING:
                     tvCallStatus.setText("对方已振铃");
@@ -382,6 +403,9 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
 
                     finish();
                 case CALL_END:
+                    hangUp("通话结束", true);
+                    break;
+                case AUTO_HANG_UP:
                     hangUp("通话结束", true);
                     break;
             }
@@ -567,6 +591,7 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
      * 挂断
      */
     private void hangUp(String text, Boolean needSave) {
+        handler.removeMessages(AUTO_HANG_UP);
         // 停止录音
         stopAndSaveRecording();
         
@@ -715,6 +740,23 @@ public class CallActivity extends BaseActivity implements View.OnClickListener {
                 }
             }
         });
+    }
+
+    private void preloadAutoHangUpRule() {
+        AutoHangUpSettings.resolveRuleAsync(number, rule -> {
+            autoHangUpDelaySeconds = rule != null ? rule.hangUpDelaySeconds : 0;
+            if (callRecord.isConnected) {
+                scheduleAutoHangUpIfNeeded();
+            }
+        });
+    }
+
+    private void scheduleAutoHangUpIfNeeded() {
+        handler.removeMessages(AUTO_HANG_UP);
+        if (!callRecord.isConnected || autoHangUpDelaySeconds <= 0 || isFinishing() || isDestroyed()) {
+            return;
+        }
+        handler.sendEmptyMessageDelayed(AUTO_HANG_UP, autoHangUpDelaySeconds * 1000L);
     }
 
     @Override

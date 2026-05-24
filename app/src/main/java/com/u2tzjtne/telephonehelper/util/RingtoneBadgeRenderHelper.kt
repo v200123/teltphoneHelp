@@ -1,6 +1,7 @@
 package com.u2tzjtne.telephonehelper.util
 
 import android.content.Context
+import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatImageView
 import kotlin.math.max
@@ -18,13 +19,7 @@ object RingtoneBadgeRenderHelper {
         if (rule == null) {
             return
         }
-        val addedItems = rule.items
-            .mapNotNull { (key, state) ->
-                val badgeId = BadgeId.fromKey(key) ?: return@mapNotNull null
-                if (!state.added) return@mapNotNull null
-                badgeId to state
-            }
-            .sortedBy { it.second.zIndex }
+        val addedItems = getAddedItems(rule)
 
         if (addedItems.isEmpty()) {
             return
@@ -37,6 +32,41 @@ object RingtoneBadgeRenderHelper {
                 applyStateToView(canvas, view, state)
             }
         }
+    }
+
+    fun renderRuleForPlayback(context: Context, canvas: FrameLayout, rule: BadgeRule?) {
+        clear(canvas)
+        if (rule == null) {
+            return
+        }
+        val addedItems = getAddedItems(rule)
+
+        if (addedItems.isEmpty()) {
+            return
+        }
+
+        canvas.post {
+            addedItems.forEach { (badgeId, state) ->
+                val view = createBadgeView(context, badgeId).apply {
+                    visibility = View.INVISIBLE
+                }
+                canvas.addView(view)
+                view.post {
+                    applyStateToView(canvas, view, state)
+                    view.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+
+    private fun getAddedItems(rule: BadgeRule): List<Pair<BadgeId, BadgeItemState>> {
+        return rule.items
+            .mapNotNull { (key, state) ->
+                val badgeId = BadgeId.fromKey(key) ?: return@mapNotNull null
+                if (!state.added) return@mapNotNull null
+                badgeId to state
+            }
+            .sortedBy { it.second.zIndex }
     }
 
     fun createBadgeView(context: Context, badgeId: BadgeId): AppCompatImageView {

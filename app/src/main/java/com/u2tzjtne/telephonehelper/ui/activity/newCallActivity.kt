@@ -23,8 +23,10 @@ import androidx.lifecycle.lifecycleScope
 import com.u2tzjtne.telephonehelper.R
 import com.u2tzjtne.telephonehelper.databinding.NewCallActivityBinding
 import com.u2tzjtne.telephonehelper.db.AppDatabase
+import com.u2tzjtne.telephonehelper.db.AutoHangUpRule
 import com.u2tzjtne.telephonehelper.db.CallRecord
 
+import com.u2tzjtne.telephonehelper.util.AutoHangUpSettings
 import com.u2tzjtne.telephonehelper.util.CallVibrationSettings
 import com.u2tzjtne.telephonehelper.util.CallDialAudioSettings
 import com.u2tzjtne.telephonehelper.util.CallPromptSettings
@@ -93,6 +95,7 @@ class newCallActivity : BaseActivity() {
     private var isJingYin = false
     private var isLuYin = false
     private var matchedPromptType: CallPromptSettings.PromptType? = null
+    private var matchedAutoHangUpRule: AutoHangUpRule? = null
     private var hasRingtone = false  // 是否有彩铃
     private var ringtoneDuration: Long = 0L  // 彩铃视频时长（毫秒）
 
@@ -105,6 +108,7 @@ class newCallActivity : BaseActivity() {
     private var noAnswerWaitJob: Job? = null  // 无人接听等待计时
     private var noAnswerAudioJob: Job? = null // 无人接听音播放计时
     private var finishJob: Job? = null        // 延迟finish
+    private var autoHangUpJob: Job? = null    // 自动挂断计时
 
     private var currentRingtoneBadgeRuleIndex = 0
 
@@ -139,6 +143,7 @@ class newCallActivity : BaseActivity() {
         volumeControlStream = AudioManager.STREAM_VOICE_CALL
         MediaPlayerHelper.getInstance().prepareCallAudio(this, isSpeakerOn)
         preloadPromptType()
+        preloadAutoHangUpRule()
 
         // iv_dial_hang_up 无论任何状态均响应挂断，永久绑定且不可被覆盖
         bind.ivDialHangUp.setOnClickListener { dispatchHangUp(userInitiated = true) }
@@ -149,6 +154,14 @@ class newCallActivity : BaseActivity() {
 
     override fun onBackPressed() {
         dispatchHangUp(userInitiated = true)
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(
+            R.anim.call_activity_pop_enter,
+            R.anim.call_activity_pop_exit
+        )
     }
 
     override fun onDestroy() {
@@ -259,6 +272,11 @@ class newCallActivity : BaseActivity() {
                     hasRingtone = isVideoPlaying
                     if (isVideoPlaying) {
                         updateUIForRingtoneVideo(true)
+                        bind.videoRingtone.post {
+                            if (hasRingtone && !callRecord.isConnected && finishJob?.isActive != true) {
+                                renderNextRingtoneBadgeRule()
+                            }
+                        }
                         bind.tvNewCallStatus.text = "正在等待对方接听电话"
                         // 获取彩铃时长并调整自动接通时间，确保至少播放一次
                         adjustAutoConnectTimeForRingtone()
@@ -363,6 +381,7 @@ class newCallActivity : BaseActivity() {
         setActionAreaEnabled(true)
         setupConnectedActions()
         setBottomBarMode(dialMode = false)
+        scheduleAutoHangUpIfNeeded()
     }
 
     /**
@@ -637,6 +656,32 @@ class newCallActivity : BaseActivity() {
         }
     }
 
+    private fun preloadAutoHangUpRule() {
+        AutoHangUpSettings.resolveRuleAsync(number) { rule ->
+            matchedAutoHangUpRule = rule
+            if (rule == null || isFinishing || isDestroyed) {
+                return@resolveRuleAsync
+            }
+            if (callRecord.isConnected) {
+                scheduleAutoHangUpIfNeeded()
+            }
+        }
+    }
+
+    private fun scheduleAutoHangUpIfNeeded() {
+        val rule = matchedAutoHangUpRule ?: return
+        if (!callRecord.isConnected || finishJob?.isActive == true) {
+            return
+        }
+        autoHangUpJob?.cancel()
+        autoHangUpJob = lifecycleScope.launch {
+            delay(rule.hangUpDelaySeconds * 1000L)
+            if (callRecord.isConnected && finishJob?.isActive != true) {
+                dispatchHangUp(userInitiated = true)
+            }
+        }
+    }
+
     private fun startPromptNoAnswerWait() {
         autoConnectJob?.cancel()
         if (noAnswerWaitJob?.isActive == true) {
@@ -806,7 +851,6 @@ class newCallActivity : BaseActivity() {
             bind.tvAICallStatus.visibility = View.GONE
             bind.tvNewCallPlayingRing.visibility = View.VISIBLE
             bind.ivNewCallHead.visibility = View.GONE
-            renderNextRingtoneBadgeRule()
         } else {
             bind.ivNewCallHead.visibility = View.VISIBLE
             bind.tvAICallStatus.visibility = View.VISIBLE
@@ -822,7 +866,7 @@ class newCallActivity : BaseActivity() {
      */
     private fun renderNextRingtoneBadgeRule() {
         val rule = RingtoneBadgeRuleStore.getRuleForPhonePlayback(this, callRecord.phoneNumber)
-        RingtoneBadgeRenderHelper.renderRule(this, bind.ringBadgeCanvas, rule)
+        RingtoneBadgeRenderHelper.renderRuleForPlayback(this, bind.ringBadgeCanvas, rule)
     }
 
     private fun clearRingtoneBadges() {
@@ -901,6 +945,7 @@ class newCallActivity : BaseActivity() {
 
     private fun cancelAllJobs() {
         cancelPreConnectJobs()
+        autoHangUpJob?.cancel()
         finishJob?.cancel()
     }
 

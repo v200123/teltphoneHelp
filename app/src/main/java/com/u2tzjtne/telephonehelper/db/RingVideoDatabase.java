@@ -16,9 +16,10 @@ import com.u2tzjtne.telephonehelper.base.App;
         RingtonePhoneBinding.class,
         NoRingtonePhone.class,
         PhoneRingtoneAssignment.class,
-        CallPromptPhone.class
+        CallPromptPhone.class,
+        AutoHangUpRule.class
     }, 
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 public abstract class RingVideoDatabase extends RoomDatabase {
@@ -53,6 +54,8 @@ public abstract class RingVideoDatabase extends RoomDatabase {
     public abstract PhoneRingtoneAssignmentDao phoneRingtoneAssignmentDao();
 
     public abstract CallPromptPhoneDao callPromptPhoneDao();
+
+    public abstract AutoHangUpRuleDao autoHangUpRuleDao();
 
     public static RingVideoDatabase getInstance() {
         if (INSTANCE == null) {

@@ -78,6 +78,7 @@
         <activity android:name=".ui.activity.NoRingtonePhoneManageActivity" />
         <activity android:name=".ui.activity.CallPromptPhoneManageActivity" />
         <activity android:name=".ui.activity.PhoneAudioBindingManageActivity" />
+        <activity android:name=".ui.activity.AutoHangUpRuleManageActivity" />
         <activity android:name=".ui.activity.BadgeRuleManageActivity" />
         <activity android:name=".ui.activity.BadgeRuleBindingManageActivity" />
         <activity android:name=".ui.activity.BadgeRuleEditorActivity" />
