@@ -1,6 +1,9 @@
 package com.u2tzjtne.telephonehelper.ui.activity
 
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -14,6 +17,10 @@ import com.u2tzjtne.telephonehelper.util.BadgeItemState
 import com.u2tzjtne.telephonehelper.util.BadgeRule
 import com.u2tzjtne.telephonehelper.util.RingtoneBadgeRenderHelper
 import com.u2tzjtne.telephonehelper.util.RingtoneBadgeRuleStore
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import java.io.File
 import kotlin.math.max
 
 class BadgeRuleEditorActivity : BaseActivity() {
@@ -27,6 +34,7 @@ class BadgeRuleEditorActivity : BaseActivity() {
     private var currentRule: BadgeRule? = null
     private var lastRawX = 0f
     private var lastRawY = 0f
+    private val isPreviewMode by lazy { intent.getBooleanExtra(EXTRA_PREVIEW_MODE, false) }
 
     private val scaleDetector by lazy {
         ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -51,10 +59,25 @@ class BadgeRuleEditorActivity : BaseActivity() {
         setContentView(binding.root)
         initView()
         loadRule()
+        loadPreviewBackgroundIfNeeded()
     }
 
     private fun initView() {
-        binding.ivBack.setOnClickListener { finish() }
+        binding.ivBack.setOnClickListener {
+            if (isPreviewMode) {
+                setResult(RESULT_CANCELED)
+            }
+            finish()
+        }
+        binding.tvAction.text = if (isPreviewMode) "应用" else "完成"
+        binding.tvAction.setOnClickListener {
+            if (isPreviewMode) {
+                persistRule()
+                deliverPreviewResult()
+            } else {
+                finish()
+            }
+        }
         binding.btnDeleteSelected.setOnClickListener { deleteSelectedBadge() }
         binding.btnClearAll.setOnClickListener { clearAllBadges() }
 
@@ -66,21 +89,68 @@ class BadgeRuleEditorActivity : BaseActivity() {
     }
 
     private fun loadRule() {
-        val ruleId = intent.getStringExtra(EXTRA_RULE_ID).orEmpty()
-        if (ruleId.isBlank()) {
-            Toast.makeText(this, "规则ID无效", Toast.LENGTH_SHORT).show()
-            finish()
-            return
+        val rule = if (isPreviewMode) {
+            val previewRule = RingtoneBadgeRuleStore.deserializeRule(intent.getStringExtra(EXTRA_RULE_SNAPSHOT))
+            if (previewRule != null) {
+                val customName = intent.getStringExtra(EXTRA_RULE_NAME)
+                previewRule.copy(name = customName ?: previewRule.name)
+            } else {
+                null
+            }
+        } else {
+            val ruleId = intent.getStringExtra(EXTRA_RULE_ID).orEmpty()
+            if (ruleId.isBlank()) {
+                Toast.makeText(this, "规则ID无效", Toast.LENGTH_SHORT).show()
+                finish()
+                return
+            }
+            RingtoneBadgeRuleStore.getRule(this, ruleId)
         }
-        val rule = RingtoneBadgeRuleStore.getRule(this, ruleId)
+
         if (rule == null) {
             Toast.makeText(this, "规则不存在", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
-        currentRule = rule
-        binding.tvRuleName.text = rule.name
+        currentRule = RingtoneBadgeRuleStore.cloneRule(rule)
+        binding.tvRuleName.text = if (isPreviewMode) "${rule.name} 预览" else rule.name
         renderRule(rule)
+    }
+
+    private fun loadPreviewBackgroundIfNeeded() {
+        if (!isPreviewMode) {
+            return
+        }
+        val uriValue = intent.getStringExtra(EXTRA_PREVIEW_VIDEO_URI).orEmpty()
+        if (uriValue.isBlank()) {
+            return
+        }
+        Single.fromCallable {
+            extractPreviewFrame(uriValue)
+        }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ bitmap ->
+                if (bitmap != null) {
+                    binding.badgeCanvas.background = BitmapDrawable(resources, bitmap)
+                }
+            }, {
+            })
+    }
+
+    private fun extractPreviewFrame(uriValue: String) = try {
+        val retriever = MediaMetadataRetriever()
+        val file = File(uriValue)
+        if (file.exists()) {
+            retriever.setDataSource(file.absolutePath)
+        } else {
+            retriever.setDataSource(this, Uri.parse(uriValue))
+        }
+        val bitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+        retriever.release()
+        bitmap
+    } catch (_: Exception) {
+        null
     }
 
     private fun renderRule(rule: BadgeRule) {
@@ -269,10 +339,33 @@ class BadgeRuleEditorActivity : BaseActivity() {
             }
         }
 
-        val newRule = rule.copy(items = newItems)
-        if (RingtoneBadgeRuleStore.saveRuleLayout(this, newRule)) {
+        val newRule = rule.copy(
+            items = newItems,
+            updatedAt = System.currentTimeMillis()
+        )
+        if (isPreviewMode) {
+            currentRule = newRule
+        } else if (RingtoneBadgeRuleStore.saveRuleLayout(this, newRule)) {
             currentRule = RingtoneBadgeRuleStore.getRule(this, rule.id) ?: newRule
         }
+    }
+
+    private fun deliverPreviewResult() {
+        val rule = currentRule ?: return
+        setResult(
+            RESULT_OK,
+            intentOf(
+                EXTRA_RESULT_RULE_SNAPSHOT to RingtoneBadgeRuleStore.serializeRule(rule),
+                EXTRA_RULE_NAME to rule.name,
+                EXTRA_RESULT_CANVAS_WIDTH to binding.badgeCanvas.width.toString(),
+                EXTRA_RESULT_CANVAS_HEIGHT to binding.badgeCanvas.height.toString()
+            )
+        )
+        finish()
+    }
+
+    private fun intentOf(vararg pairs: Pair<String, String?>) = android.content.Intent().apply {
+        pairs.forEach { (key, value) -> putExtra(key, value) }
     }
 
     private fun clampViewPosition(view: AppCompatImageView) {
@@ -286,6 +379,13 @@ class BadgeRuleEditorActivity : BaseActivity() {
 
     companion object {
         const val EXTRA_RULE_ID = "extra_rule_id"
+        const val EXTRA_PREVIEW_MODE = "extra_preview_mode"
+        const val EXTRA_RULE_NAME = "extra_rule_name"
+        const val EXTRA_RULE_SNAPSHOT = "extra_rule_snapshot"
+        const val EXTRA_PREVIEW_VIDEO_URI = "extra_preview_video_uri"
+        const val EXTRA_RESULT_RULE_SNAPSHOT = "extra_result_rule_snapshot"
+        const val EXTRA_RESULT_CANVAS_WIDTH = "extra_result_canvas_width"
+        const val EXTRA_RESULT_CANVAS_HEIGHT = "extra_result_canvas_height"
         const val MIN_BADGE_SCALE = 0.2f
         const val MAX_BADGE_SCALE = 2.0f
     }

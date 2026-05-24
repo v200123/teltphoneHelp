@@ -146,7 +146,7 @@ class GSYVideoPlayerHelper private constructor() {
         val existingAssignment = db.phoneRingtoneAssignmentDao().getByPhoneNumber(normalizedNumber)
         if (existingAssignment != null) {
             val assignedRingtone = db.ringVideoDao().getByIdSync(existingAssignment.ringtoneId)
-            if (assignedRingtone != null && !assignedRingtone.videoUri.isNullOrBlank()) {
+            if (assignedRingtone != null && !assignedRingtone.resolvedPlaybackUri.isNullOrBlank()) {
                 android.util.Log.d(
                     "GSYVideoPlayerHelper",
                     "reuse assigned ringtone for $normalizedNumber: ${assignedRingtone.videoName} (id=${assignedRingtone.id})"
@@ -198,9 +198,9 @@ class GSYVideoPlayerHelper private constructor() {
                 val ringVideo = getOrAssignRingtone(phoneNumber)
 
                 videoPlayer?.post {
-                    if (ringVideo != null && !ringVideo.videoUri.isNullOrEmpty()) {
+                    if (ringVideo != null && !ringVideo.resolvedPlaybackUri.isNullOrEmpty()) {
                         android.util.Log.d("GSYVideoPlayerHelper", "start ringtone=${ringVideo.videoName}")
-                        startPlaying(ringVideo.videoUri)
+                        startPlaying(ringVideo.resolvedPlaybackUri)
                         onVideoPlaying?.invoke(true)
                     } else {
                         android.util.Log.d("GSYVideoPlayerHelper", "skip ringtone playback")

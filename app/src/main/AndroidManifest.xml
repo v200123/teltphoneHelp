@@ -41,6 +41,16 @@
             android:readPermission="com.u2tzjtne.telephonehelper.permission.READ_CALL_RECORDS"
             android:writePermission="com.u2tzjtne.telephonehelper.permission.WRITE_CALL_RECORDS" />
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <meta-data
             android:name="ScopedStorage"
             android:value="true" />

@@ -35,7 +35,16 @@ class RingVideoAdapter(
 
         fun bind(item: RingVideo) {
             binding.tvVideoName.text = item.videoName?.takeIf { it.isNotBlank() } ?: "未命名视频"
-            binding.tvVideoPath.text = item.videoUri ?: ""
+            binding.tvVideoName.isSelected = true
+            binding.tvVideoPath.text = buildString {
+                append("播放：")
+                append(item.resolvedPlaybackUri ?: "")
+                val sourceUri = item.resolvedSourceUri
+                if (!sourceUri.isNullOrBlank() && sourceUri != item.resolvedPlaybackUri) {
+                    append("\n原始：")
+                    append(sourceUri)
+                }
+            }
 
             val metaParts = mutableListOf<String>()
             if (item.duration > 0) {
@@ -46,6 +55,11 @@ class RingVideoAdapter(
             }
             if (item.createdAt > 0) {
                 metaParts.add("上传 ${DateUtils.convertTimestamp(item.createdAt, false)}")
+            }
+            if (item.hasBakedBadge) {
+                metaParts.add("已烧录${item.appliedBadgeRuleName?.let { " ${it}" } ?: ""}")
+            } else {
+                metaParts.add("原视频")
             }
             binding.tvVideoMeta.text = metaParts.joinToString(" · ")
 

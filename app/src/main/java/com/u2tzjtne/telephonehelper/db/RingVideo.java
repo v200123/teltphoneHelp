@@ -25,6 +25,12 @@ public class RingVideo {
     // 视频 Uri / 路径
     public String videoUri;
 
+    // 原始视频 Uri / 路径
+    public String sourceVideoUri;
+
+    // 实际播放视频 Uri / 路径
+    public String playbackVideoUri;
+
     // 视频类型
     public String mimeType;
 
@@ -39,6 +45,35 @@ public class RingVideo {
 
     // 是否为当前使用中的彩铃视频
     public boolean isSelected;
+
+    // 是否已将图标烧录进视频
+    public boolean hasBakedBadge;
+
+    // 本次烧录所用的规则快照
+    public String appliedBadgeRuleSnapshot;
+
+    // 本次烧录所用的规则名
+    public String appliedBadgeRuleName;
+
+    public String getResolvedPlaybackUri() {
+        if (playbackVideoUri != null && !playbackVideoUri.trim().isEmpty()) {
+            return playbackVideoUri;
+        }
+        if (videoUri != null && !videoUri.trim().isEmpty()) {
+            return videoUri;
+        }
+        return sourceVideoUri;
+    }
+
+    public String getResolvedSourceUri() {
+        if (sourceVideoUri != null && !sourceVideoUri.trim().isEmpty()) {
+            return sourceVideoUri;
+        }
+        if (videoUri != null && !videoUri.trim().isEmpty()) {
+            return videoUri;
+        }
+        return playbackVideoUri;
+    }
 
     /**
      * 获取格式化后的文件大小

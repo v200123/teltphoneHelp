@@ -85,6 +85,7 @@ dependencies {
     implementation 'com.github.wenmingvs:LogReport:1.0.3'
     implementation 'com.github.getActivity:ShapeView:9.3'
     implementation 'com.gitee.zackratos:UltimateBarX:0.8.1'
+    implementation 'com.github.AnJoiner.FFmpegCommand:ffmpeg-lite:1.3.5'
     // GSYVideoPlayer - 视频播放器
     implementation 'io.github.carguo:gsyvideoplayer-java:12.0.0'
     implementation 'io.github.carguo:gsyvideoplayer-arm64:12.0.0'

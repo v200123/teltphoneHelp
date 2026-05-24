@@ -34,11 +34,8 @@ import com.u2tzjtne.telephonehelper.util.PhoneNumberFormatUtils
 import com.u2tzjtne.telephonehelper.util.GSYVideoPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MediaPlayerHelper
 import com.u2tzjtne.telephonehelper.util.MusicPlaybackHelper
-import com.u2tzjtne.telephonehelper.util.PresetRuleInitializer
 import com.u2tzjtne.telephonehelper.util.PhoneDialAudioBindingHelper
 import com.u2tzjtne.telephonehelper.util.PhoneNumberUtils
-import com.u2tzjtne.telephonehelper.util.RingtoneBadgeRenderHelper
-import com.u2tzjtne.telephonehelper.util.RingtoneBadgeRuleStore
 import com.u2tzjtne.telephonehelper.util.ToastUtils
 import com.zackratos.ultimatebarx.ultimatebarx.statusBarOnly
 import io.reactivex.MaybeObserver
@@ -110,11 +107,7 @@ class newCallActivity : BaseActivity() {
     private var finishJob: Job? = null        // 延迟finish
     private var autoHangUpJob: Job? = null    // 自动挂断计时
 
-    private var currentRingtoneBadgeRuleIndex = 0
-
     companion object {
-        private const val PREFS_RINGTONE_BADGE_RULE = "ringtone_badge_rule_prefs"
-        private const val KEY_RINGTONE_BADGE_RULE_INDEX = "key_ringtone_badge_rule_index"
         // 时间常量（毫秒）
         private const val RING_DELAY_MILLIS = 2_000L           // 拨号→振铃 延迟
         private const val AUTO_CONNECT_DELAY_MILLIS = 10_000L  // 振铃→自动接通 延迟
@@ -135,8 +128,6 @@ class newCallActivity : BaseActivity() {
         getNumberData()
         initCallRecord()
         initUI()
-        PresetRuleInitializer.ensureInitIfEmpty(this)
-        clearRingtoneBadges()
         initGSYVideo()
         observeCallState()
         setBackGround()
@@ -272,11 +263,6 @@ class newCallActivity : BaseActivity() {
                     hasRingtone = isVideoPlaying
                     if (isVideoPlaying) {
                         updateUIForRingtoneVideo(true)
-                        bind.videoRingtone.post {
-                            if (hasRingtone && !callRecord.isConnected && finishJob?.isActive != true) {
-                                renderNextRingtoneBadgeRule()
-                            }
-                        }
                         bind.tvNewCallStatus.text = "正在等待对方接听电话"
                         // 获取彩铃时长并调整自动接通时间，确保至少播放一次
                         adjustAutoConnectTimeForRingtone()
@@ -846,6 +832,7 @@ class newCallActivity : BaseActivity() {
      * 根据是否播放彩铃视频更新界面
      */
     private fun updateUIForRingtoneVideo(isPlayingVideo: Boolean) {
+        bind.ringBadgeCanvas.visibility = View.GONE
         if (isPlayingVideo) {
             bind.tvNewCallStatus.text = "正在等待对方接听电话"
             bind.tvAICallStatus.visibility = View.GONE
@@ -855,7 +842,6 @@ class newCallActivity : BaseActivity() {
             bind.ivNewCallHead.visibility = View.VISIBLE
             bind.tvAICallStatus.visibility = View.VISIBLE
             bind.tvNewCallPlayingRing.visibility = View.GONE
-            clearRingtoneBadges()
         }
     }
 
@@ -864,19 +850,6 @@ class newCallActivity : BaseActivity() {
     /**
      * 切换静音
      */
-    private fun renderNextRingtoneBadgeRule() {
-        val rule = RingtoneBadgeRuleStore.getRuleForPhonePlayback(this, callRecord.phoneNumber)
-        RingtoneBadgeRenderHelper.renderRuleForPlayback(this, bind.ringBadgeCanvas, rule)
-    }
-
-    private fun clearRingtoneBadges() {
-        RingtoneBadgeRenderHelper.clear(bind.ringBadgeCanvas)
-    }
-
-    private fun initRingtoneBadges() {
-        clearRingtoneBadges()
-    }
-
     private fun toggleMute() {
         isJingYin = !isJingYin
         val color = if (isJingYin) "#13A8E1".toColorInt() else Color.WHITE

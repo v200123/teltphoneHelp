@@ -94,6 +94,37 @@ object RingtoneBadgeRuleStore {
         return readState(context).rules.firstOrNull { it.id == ruleId }
     }
 
+    fun cloneRule(rule: BadgeRule): BadgeRule {
+        return rule.copy(
+            items = rule.items.toMutableMap(),
+            updatedAt = System.currentTimeMillis()
+        )
+    }
+
+    fun serializeRule(rule: BadgeRule?): String? {
+        if (rule == null) {
+            return null
+        }
+        return gson.toJson(rule)
+    }
+
+    fun deserializeRule(raw: String?): BadgeRule? {
+        if (raw.isNullOrBlank()) {
+            return null
+        }
+        return runCatching { gson.fromJson(raw, BadgeRule::class.java) }
+            .getOrNull()
+            ?.let { rule ->
+                val normalizedItems = createEmptyItems()
+                rule.items.forEach { (key, value) ->
+                    if (BadgeId.fromKey(key) != null) {
+                        normalizedItems[key] = value
+                    }
+                }
+                rule.copy(items = normalizedItems)
+            }
+    }
+
     fun createRule(context: Context, name: String): BadgeRule? {
         synchronized(lock) {
             ensureInitIfEmpty(context)

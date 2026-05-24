@@ -3,6 +3,8 @@ package com.u2tzjtne.telephonehelper.db;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.u2tzjtne.telephonehelper.base.App;
 
@@ -19,13 +21,25 @@ import com.u2tzjtne.telephonehelper.base.App;
         CallPromptPhone.class,
         AutoHangUpRule.class
     }, 
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 public abstract class RingVideoDatabase extends RoomDatabase {
 
     private static volatile RingVideoDatabase INSTANCE;
     private static final String DB_NAME = "ring_video.db";
+    private static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE RingVideo ADD COLUMN sourceVideoUri TEXT");
+            database.execSQL("ALTER TABLE RingVideo ADD COLUMN playbackVideoUri TEXT");
+            database.execSQL("ALTER TABLE RingVideo ADD COLUMN hasBakedBadge INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("ALTER TABLE RingVideo ADD COLUMN appliedBadgeRuleSnapshot TEXT");
+            database.execSQL("ALTER TABLE RingVideo ADD COLUMN appliedBadgeRuleName TEXT");
+            database.execSQL("UPDATE RingVideo SET sourceVideoUri = videoUri WHERE sourceVideoUri IS NULL");
+            database.execSQL("UPDATE RingVideo SET playbackVideoUri = videoUri WHERE playbackVideoUri IS NULL");
+        }
+    };
 
     private static final Callback NORMALIZE_PHONE_NUMBER_CALLBACK = new Callback() {
         @Override
@@ -65,6 +79,7 @@ public abstract class RingVideoDatabase extends RoomDatabase {
                             App.getContext(),
                             RingVideoDatabase.class,
                             DB_NAME)
+                            .addMigrations(MIGRATION_6_7)
                             .fallbackToDestructiveMigration()
                             .addCallback(NORMALIZE_PHONE_NUMBER_CALLBACK)
                             .build();
