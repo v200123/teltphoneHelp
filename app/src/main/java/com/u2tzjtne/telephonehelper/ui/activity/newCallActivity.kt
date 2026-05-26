@@ -705,7 +705,11 @@ class newCallActivity : BaseActivity() {
         bind.llAction3.setOnClickListener {
             if (!callRecord.isConnected && finishJob?.isActive != true) {
                 cancelPreConnectJobs()
-                bind.tvNewCallStatus.text = "正在拨号"
+                bind.tvNewCallStatus.text = if (hasRingtone) {
+                    "正在等待对方接听电话"
+                } else {
+                    "正在拨号"
+                }
                 noAnswerWaitJob = lifecycleScope.launch {
                     delay(NO_ANSWER_TRIGGER_MILLIS)
                     callStateLD.postValue(CallState.NO_ANSWER)

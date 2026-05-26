@@ -99,3 +99,6 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
+/.gradle-user-home/wrapper/dists/gradle-8.13-bin/5xuhj0ry160q40clulazy9h7d/gradle-8.13-bin.zip.lck
+/.gradle-user-home/wrapper/dists/gradle-8.13-bin/5xuhj0ry160q40clulazy9h7d/gradle-8.13-bin.zip.part
+/app/release/baselineProfiles/0/TelephoneHelper_release_2026-05-24_1.6.0_u60.dm

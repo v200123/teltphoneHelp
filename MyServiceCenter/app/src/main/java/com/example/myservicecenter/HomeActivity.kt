@@ -1,22 +1,21 @@
 package com.example.myservicecenter
 
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import androidx.fragment.app.Fragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.myservicecenter.databinding.ActivityHomeBinding
 
 class HomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
-    private var selectedTabIndex: Int = 3
+    private var selectedTabIndex: Int = 0
+    private lateinit var pagerAdapter: HomePagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,37 +34,31 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        pagerAdapter = HomePagerAdapter(this)
+        binding.viewPagerHome.adapter = pagerAdapter
+        binding.viewPagerHome.offscreenPageLimit = 4
+        binding.viewPagerHome.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                if (selectedTabIndex != position) {
+                    selectedTabIndex = position
+                    updateBottomTabs()
+                }
+            }
+        })
+
         binding.tabHome.setOnClickListener { selectTab(0) }
         binding.tabVideo.setOnClickListener { selectTab(1) }
         binding.tabEquity.setOnClickListener { selectTab(2) }
         binding.tabMine.setOnClickListener { selectTab(3) }
-        binding.btnOpenDetail.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-        }
-        Glide.with(this)
-            .load(R.drawable.tab_mine_select_v2)
-            .placeholder(android.R.drawable.sym_def_app_icon)
-            .error(android.R.drawable.sym_def_app_icon)
-            .transform(CircleCrop())
-            .into(binding.ivAvatar)
-        selectTab(3)
+        selectTab(0, false)
     }
 
-    private fun selectTab(index: Int) {
+    private fun selectTab(index: Int, smoothScroll: Boolean = true) {
         selectedTabIndex = index
-        updatePage(index)
         updateBottomTabs()
-    }
-
-    private fun updatePage(index: Int) {
-        if (index == 3) {
-            binding.mineScroll.visibility = View.VISIBLE
-            binding.tvPlaceholder.visibility = View.GONE
-            return
+        if (binding.viewPagerHome.currentItem != index) {
+            binding.viewPagerHome.setCurrentItem(index, smoothScroll)
         }
-        binding.mineScroll.visibility = View.GONE
-        binding.tvPlaceholder.visibility = View.VISIBLE
-        binding.tvPlaceholder.text = getString(R.string.module_placeholder_with_name, getTabTitle(index))
     }
 
     private fun updateBottomTabs() {
@@ -115,20 +108,11 @@ class HomeActivity : AppCompatActivity() {
         )
     }
 
-    private fun getTabTitle(index: Int): String {
-        return when (index) {
-            0 -> getString(R.string.home_tab_home)
-            1 -> getString(R.string.home_tab_video)
-            2 -> getString(R.string.home_tab_equity)
-            else -> getString(R.string.home_tab_mine)
-        }
-    }
-
     private fun applyWindowInsets() {
-        val mineStart = binding.mineScroll.paddingStart
-        val mineTop = binding.mineScroll.paddingTop
-        val mineEnd = binding.mineScroll.paddingEnd
-        val mineBottom = binding.mineScroll.paddingBottom
+        val pagerStart = binding.viewPagerHome.paddingStart
+        val pagerTop = binding.viewPagerHome.paddingTop
+        val pagerEnd = binding.viewPagerHome.paddingEnd
+        val pagerBottom = binding.viewPagerHome.paddingBottom
 
         val tabStart = binding.bottomTabBar.paddingStart
         val tabTop = binding.bottomTabBar.paddingTop
@@ -137,11 +121,11 @@ class HomeActivity : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.mineScroll.updatePadding(
-                left = mineStart,
-                top = mineTop + systemBars.top,
-                right = mineEnd,
-                bottom = mineBottom
+            binding.viewPagerHome.updatePadding(
+                left = pagerStart,
+                top = pagerTop + systemBars.top,
+                right = pagerEnd,
+                bottom = pagerBottom
             )
             binding.bottomTabBar.updatePadding(
                 left = tabStart,
@@ -150,6 +134,26 @@ class HomeActivity : AppCompatActivity() {
                 bottom = tabBottom + systemBars.bottom
             )
             insets
+        }
+    }
+}
+
+private class HomePagerAdapter(
+    activity: AppCompatActivity
+) : FragmentStateAdapter(activity) {
+    private val pageTitles = listOf(
+        activity.getString(R.string.home_tab_home),
+        activity.getString(R.string.home_tab_video),
+        activity.getString(R.string.home_tab_equity)
+    )
+
+    override fun getItemCount(): Int = 4
+
+    override fun createFragment(position: Int): Fragment {
+        return if (position == 3) {
+            HomeMineFragment()
+        } else {
+            ModulePlaceholderFragment.newInstance(pageTitles[position])
         }
     }
 }
