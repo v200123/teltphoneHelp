@@ -122,6 +122,8 @@
     <string name="home_service_detail">详单查询</string>
     <string name="home_service_complaint">我的投诉</string>
     <string name="home_service_invoice">电子发票</string>
+    <string name="home_service_rights">权益中心</string>
+    <string name="home_service_online">在线客服</string>
     <string name="home_device_title">我的设备</string>
     <string name="home_device_more">查看更多 ></string>
     <string name="home_device_badge_gt">GT</string>

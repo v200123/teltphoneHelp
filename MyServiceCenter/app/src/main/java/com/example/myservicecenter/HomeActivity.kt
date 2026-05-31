@@ -2,11 +2,13 @@ package com.example.myservicecenter
 
 import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -19,9 +21,16 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = Color.parseColor("#DCEFFE")
-        window.navigationBarColor = Color.TRANSPARENT
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                Color.parseColor("#DCEFFE"),
+                Color.parseColor("#DCEFFE")
+            ),
+            navigationBarStyle = SystemBarStyle.light(
+                Color.TRANSPARENT,
+                Color.TRANSPARENT
+            )
+        )
         WindowCompat.getInsetsController(window, window.decorView)?.apply {
             isAppearanceLightStatusBars = true
             isAppearanceLightNavigationBars = true
@@ -45,7 +54,6 @@ class HomeActivity : AppCompatActivity() {
                 }
             }
         })
-
         binding.tabHome.setOnClickListener { selectTab(0) }
         binding.tabVideo.setOnClickListener { selectTab(1) }
         binding.tabEquity.setOnClickListener { selectTab(2) }
@@ -66,29 +74,25 @@ class HomeActivity : AppCompatActivity() {
             selected = selectedTabIndex == 0,
             iconSelected = R.drawable.tab_home_select_v2,
             iconUnselected = R.drawable.tab_home_unselect_v2,
-            iconView = binding.ivTabHome,
-            textView = binding.tvTabHome
+            iconView = binding.tabHome
         )
         updateSingleTab(
             selected = selectedTabIndex == 1,
             iconSelected = R.drawable.tab_discovery_select_v2,
             iconUnselected = R.drawable.tab_discovery_unselect_v2,
-            iconView = binding.ivTabVideo,
-            textView = binding.tvTabVideo
+            iconView = binding.tabVideo
         )
         updateSingleTab(
             selected = selectedTabIndex == 2,
             iconSelected = R.drawable.tab_equity_select_v2,
             iconUnselected = R.drawable.tab_equity_default_v2,
-            iconView = binding.ivTabEquity,
-            textView = binding.tvTabEquity
+            iconView = binding.tabEquity
         )
         updateSingleTab(
             selected = selectedTabIndex == 3,
             iconSelected = R.drawable.tab_mine_select_v2,
             iconUnselected = R.drawable.tab_mine_unselect_v2,
-            iconView = binding.ivTabMine,
-            textView = binding.tvTabMine
+            iconView = binding.tabMine
         )
     }
 
@@ -96,16 +100,9 @@ class HomeActivity : AppCompatActivity() {
         selected: Boolean,
         iconSelected: Int,
         iconUnselected: Int,
-        iconView: android.widget.ImageView,
-        textView: android.widget.TextView
+        iconView: android.widget.ImageView
     ) {
         iconView.setImageResource(if (selected) iconSelected else iconUnselected)
-        textView.setTextColor(
-            ContextCompat.getColor(
-                this,
-                if (selected) R.color.action_blue else R.color.text_secondary
-            )
-        )
     }
 
     private fun applyWindowInsets() {
@@ -114,10 +111,8 @@ class HomeActivity : AppCompatActivity() {
         val pagerEnd = binding.viewPagerHome.paddingEnd
         val pagerBottom = binding.viewPagerHome.paddingBottom
 
-        val tabStart = binding.bottomTabBar.paddingStart
-        val tabTop = binding.bottomTabBar.paddingTop
-        val tabEnd = binding.bottomTabBar.paddingEnd
-        val tabBottom = binding.bottomTabBar.paddingBottom
+        val bottomTabBarMarginBottom =
+            (binding.bottomTabBar.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -127,12 +122,9 @@ class HomeActivity : AppCompatActivity() {
                 right = pagerEnd,
                 bottom = pagerBottom
             )
-            binding.bottomTabBar.updatePadding(
-                left = tabStart,
-                top = tabTop,
-                right = tabEnd,
-                bottom = tabBottom + systemBars.bottom
-            )
+            binding.bottomTabBar.updateLayoutParams<android.view.ViewGroup.MarginLayoutParams> {
+                bottomMargin = bottomTabBarMarginBottom + systemBars.bottom
+            }
             insets
         }
     }

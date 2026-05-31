@@ -23,7 +23,7 @@
             android:orientation="vertical"
             android:paddingStart="16dp"
             android:paddingTop="12dp"
-            android:paddingEnd="16dp"
+
             android:paddingBottom="18dp">
 
             <LinearLayout
@@ -31,17 +31,13 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
 
-                <TextView
+                <ImageView
+                    android:id="@+id/iv_mine_change_version"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_home_top_chip"
+                    android:layout_height="30dp"
+                    android:adjustViewBounds="true"
                     android:gravity="center"
-                    android:paddingStart="18dp"
-                    android:paddingEnd="18dp"
-                    android:text="@string/home_care_mode"
-                    android:textColor="#273142"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
+                    />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -60,17 +56,13 @@
                         android:textColor="#1E2632"
                         android:textSize="13sp" />
 
-                    <TextView
+                    <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="34dp"
+                        android:adjustViewBounds="true"
                         android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_home_top_chip"
-                        android:gravity="center"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:text="@string/home_action_hotline"
-                        android:textColor="#1E2632"
-                        android:textSize="13sp" />
+                        android:src="@drawable/title_onlineservice_default_black"
+                        android:gravity="center" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -94,11 +86,11 @@
 
                 <ImageView
                     android:id="@+id/ivAvatar"
-                    android:layout_width="68dp"
-                    android:layout_height="68dp"
-                    android:background="@drawable/bg_avatar_circle"
-                    android:padding="10dp"
-                    android:src="@android:drawable/sym_def_app_icon" />
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
+                    android:src="@drawable/mine_login_icon"
+
+                     />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -118,19 +110,20 @@
                             android:layout_height="wrap_content"
                             android:text="@string/home_phone_default"
                             android:textColor="#101722"
-                            android:textSize="25sp"
+                            android:textSize="17sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="23dp"
                             android:layout_marginStart="8dp"
                             android:background="@drawable/bg_home_round_gray"
+                            android:src="@drawable/mine_login_change_svg"
                             android:gravity="center"
-                            android:text="@string/home_swap_icon"
-                            android:textColor="#FFFFFF"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="6dp" />
                     </LinearLayout>
 
                     <TextView
@@ -142,68 +135,36 @@
                         android:textColor="#5D6673"
                         android:textSize="16sp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnOpenDetail"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="34dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/bg_blue_pill"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        android:minWidth="0dp"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-                        android:text="@string/home_open_detail_short"
-                        android:textAllCaps="false"
-                        android:textColor="#FFFFFF"
-                        android:textSize="13sp"
-                        app:cornerRadius="17dp" />
+<!--                    <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/btnOpenDetail"-->
+<!--                        style="@style/Widget.Material3.Button.TextButton"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="34dp"-->
+<!--                        android:layout_marginTop="10dp"-->
+<!--                        android:background="@drawable/bg_blue_pill"-->
+<!--                        android:insetTop="0dp"-->
+<!--                        android:insetBottom="0dp"-->
+<!--                        android:minWidth="0dp"-->
+<!--                        android:paddingStart="14dp"-->
+<!--                        android:paddingEnd="14dp"-->
+<!--                        android:text="@string/home_open_detail_short"-->
+<!--                        android:textAllCaps="false"-->
+<!--                        android:textColor="#FFFFFF"-->
+<!--                        android:textSize="13sp"-->
+<!--                        app:cornerRadius="17dp" />-->
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="120dp"
-                    android:layout_height="70dp"
+                <ImageView
+                    android:id="@+id/iv_mine_sales"
+                    android:layout_width="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:layout_height="58dp"
                     android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_home_sign_in"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp">
+                    >
 
-                    <TextView
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:background="@drawable/bg_home_sign_in_round"
-                        android:gravity="center"
-                        android:text="@string/home_sign_in_center"
-                        android:textColor="#FF6B1B"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/home_sign_in_title"
-                            android:textColor="#FFFFFF"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/home_sign_in_subtitle"
-                            android:textColor="#FFF2E8"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-                </LinearLayout>
+                </ImageView>
             </LinearLayout>
         </LinearLayout>
 
@@ -313,69 +274,63 @@
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="14dp"
             android:layout_marginEnd="16dp"
-            android:background="@drawable/bg_card_orange_rounded"
+            android:background="@drawable/mine_equity_bg"
             android:elevation="1dp"
             android:orientation="vertical"
             android:paddingStart="16dp"
             android:paddingTop="16dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            android:paddingBottom="8dp">
+            <TextView
+                android:layout_gravity="end"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/home_equity_title"
-                    android:textColor="#8A4E11"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/home_equity_upgrade"
-                    android:textColor="#B5732F"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+                android:text="@string/home_equity_upgrade"
+                android:textColor="#B5732F"
+                android:textSize="14sp" />
+            <TextView
+                android:layout_gravity="bottom"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center_vertical">
+                android:text="@string/home_equity_desc"
+                android:textColor="#8E5A22"
+                android:textSize="14sp" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/home_equity_desc"
-                    android:textColor="#8E5A22"
-                    android:textSize="14sp" />
 
-                <TextView
-                    android:layout_width="92dp"
-                    android:layout_height="38dp"
-                    android:background="@drawable/bg_orange_pill"
-                    android:gravity="center"
-                    android:text="@string/home_equity_action"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </LinearLayout>
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="10dp"-->
+<!--                android:gravity="center_vertical">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="@string/home_equity_desc"-->
+<!--                    android:textColor="#8E5A22"-->
+<!--                    android:textSize="14sp" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="92dp"-->
+<!--                    android:layout_height="38dp"-->
+<!--                    android:background="@drawable/bg_orange_pill"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="@string/home_equity_action"-->
+<!--                    android:textColor="#FFFFFF"-->
+<!--                    android:textSize="14sp"-->
+<!--                    android:textStyle="bold" />-->
+<!--            </LinearLayout>-->
+        </FrameLayout>
 
         <LinearLayout
+            android:id="@+id/ll_mine_combo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -390,124 +345,10 @@
             android:paddingBottom="18dp">
 
             <LinearLayout
+                android:id="@+id/llMineComboContent"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <FrameLayout
-                        android:layout_width="56dp"
-                        android:layout_height="56dp">
-
-                        <TextView
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:background="@drawable/bg_home_icon_circle"
-                            android:gravity="center"
-                            android:text="@string/home_promo_icon_week"
-                            android:textColor="#FF6D26"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <View
-                            android:layout_width="10dp"
-                            android:layout_height="10dp"
-                            android:layout_gravity="top|end"
-                            android:background="@drawable/bg_badge" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_promo_week_pack"
-                        android:textColor="#2B3441"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_promo_icon_day"
-                        android:textColor="#FF6D26"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_promo_day_pack"
-                        android:textColor="#2B3441"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_promo_icon_emergency"
-                        android:textColor="#FF6D26"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_promo_emergency_pack"
-                        android:textColor="#2B3441"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_promo_icon_card"
-                        android:textColor="#FF6D26"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_promo_card_pack"
-                        android:textColor="#2B3441"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
         </LinearLayout>
 
         <LinearLayout
@@ -535,263 +376,57 @@
                     android:layout_weight="1"
                     android:text="@string/home_service_title"
                     android:textColor="#161E2A"
-                    android:textSize="22sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="112dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/bg_blue_pill"
-                    android:gravity="center"
-                    android:text="@string/home_service_hall"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                <ImageView
+                    android:id="@+id/iv_mine_service_center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="23dp"
+                    android:adjustViewBounds="true"
+                />
             </LinearLayout>
 
-            <GridLayout
+            <HorizontalScrollView
+                android:id="@+id/hsvMineServiceCenter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:columnCount="4"
-                android:rowCount="2">
+                android:fillViewport="true"
+                android:overScrollMode="never"
+                android:scrollbars="none">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="92dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_service_icon_left"
-                        android:textColor="#2F9EFF"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_service_query_left"
-                        android:textColor="#212733"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="92dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_service_icon_order"
-                        android:textColor="#2F9EFF"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_service_ordered"
-                        android:textColor="#212733"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="92dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_service_icon_bill"
-                        android:textColor="#2F9EFF"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_service_bill"
-                        android:textColor="#212733"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="92dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <FrameLayout
-                        android:layout_width="52dp"
-                        android:layout_height="52dp">
-
-                        <TextView
-                            android:layout_width="52dp"
-                            android:layout_height="52dp"
-                            android:background="@drawable/bg_home_icon_circle"
-                            android:gravity="center"
-                            android:text="@string/home_service_icon_pay"
-                            android:textColor="#2F9EFF"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <View
-                            android:layout_width="10dp"
-                            android:layout_height="10dp"
-                            android:layout_gravity="top|end"
-                            android:background="@drawable/bg_badge" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_service_pay"
-                        android:textColor="#212733"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="92dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_service_icon_package"
-                        android:textColor="#2F9EFF"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_service_package"
-                        android:textColor="#212733"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="92dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_service_icon_detail"
-                        android:textColor="#2F9EFF"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_service_detail"
-                        android:textColor="#212733"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="92dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_service_icon_complaint"
-                        android:textColor="#2F9EFF"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_service_complaint"
-                        android:textColor="#212733"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="92dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:background="@drawable/bg_home_icon_circle"
-                        android:gravity="center"
-                        android:text="@string/home_service_icon_invoice"
-                        android:textColor="#2F9EFF"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_service_invoice"
-                        android:textColor="#212733"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </GridLayout>
+                <GridLayout
+                    android:id="@+id/gl_mine_service_center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:columnCount="4"
+                    android:rowCount="2" />
+            </HorizontalScrollView>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="6dp">
+                android:layout_marginTop="8dp"
+                android:gravity="center">
 
-                <View
-                    android:layout_width="16dp"
-                    android:layout_height="4dp"
-                    android:background="@drawable/bg_blue_pill" />
+                <FrameLayout
+                    android:id="@+id/flMineServiceCenterIndicator"
+                    android:layout_width="28dp"
+                    android:layout_height="4dp">
 
-                <View
-                    android:layout_width="10dp"
-                    android:layout_height="4dp"
-                    android:layout_marginStart="4dp"
-                    android:background="#D8E1EB" />
+                    <View
+                        android:id="@+id/viewMineServiceCenterIndicatorTrack"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#D8E1EB" />
+
+                    <View
+                        android:id="@+id/viewMineServiceCenterIndicatorThumb"
+                        android:layout_width="16dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_blue_pill" />
+                </FrameLayout>
             </LinearLayout>
         </LinearLayout>
 
