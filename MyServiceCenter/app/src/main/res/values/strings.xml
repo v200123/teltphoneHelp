@@ -134,4 +134,10 @@
     <string name="home_device_price_phone_a">¥7749起</string>
     <string name="home_device_price_phone_b">¥5549起</string>
     <string name="warm_tip_template">温馨提示：\n1、以上信息是移动用户%1$s截至页面打开时间%2$s的查询结果。\n2、除特别说明，以上“国内”指中国大陆，不含港澳台地区。\n3、更多信息可详询10086。若您的诉求在10086未得理，可以致电10080客户服务监督热线反映。</string>
+    <string name="mine_stats_settings_title">我的数据设置</string>
+    <string name="mine_stats_settings_desc">自定义“我的”页面顶部展示的卡券、流量、余额与AI豆数值，设置后将持久化保存。</string>
+    <string name="mine_stats_coupon_hint">请输入卡券数量</string>
+    <string name="mine_stats_data_hint">请输入通用流量数值（如 42.92）</string>
+    <string name="mine_stats_balance_hint">请输入话费余额（如 724.48）</string>
+    <string name="mine_stats_bean_hint">请输入AI豆数量</string>
 </resources>

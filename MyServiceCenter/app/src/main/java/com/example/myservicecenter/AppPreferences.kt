@@ -12,6 +12,10 @@ object AppPreferences {
     private const val KEY_CUSTOM_STAR_LEVEL = "custom_star_level"
     private const val KEY_CUSTOM_SELF_REGION = "custom_self_region"
     private const val KEY_CACHED_CALL_RECORDS = "cached_call_records"
+    private const val KEY_MINE_STAT_COUPON = "mine_stat_coupon"
+    private const val KEY_MINE_STAT_DATA = "mine_stat_data"
+    private const val KEY_MINE_STAT_BALANCE = "mine_stat_balance"
+    private const val KEY_MINE_STAT_BEAN = "mine_stat_bean"
 
     fun getOutgoingPackageInfo(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -101,6 +105,59 @@ object AppPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_CUSTOM_SELF_REGION, value.trim())
+            .apply()
+    }
+
+    // 我的页面统计数值
+    fun getMineStatCoupon(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_MINE_STAT_COUPON, "5")
+            .orEmpty()
+    }
+
+    fun setMineStatCoupon(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_MINE_STAT_COUPON, value.trim())
+            .apply()
+    }
+
+    fun getMineStatData(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_MINE_STAT_DATA, "42.92")
+            .orEmpty()
+    }
+
+    fun setMineStatData(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_MINE_STAT_DATA, value.trim())
+            .apply()
+    }
+
+    fun getMineStatBalance(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_MINE_STAT_BALANCE, "724.48")
+            .orEmpty()
+    }
+
+    fun setMineStatBalance(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_MINE_STAT_BALANCE, value.trim())
+            .apply()
+    }
+
+    fun getMineStatBean(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_MINE_STAT_BEAN, "1833")
+            .orEmpty()
+    }
+
+    fun setMineStatBean(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_MINE_STAT_BEAN, value.trim())
             .apply()
     }
 }

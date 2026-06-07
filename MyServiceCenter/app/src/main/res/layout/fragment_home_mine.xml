@@ -46,6 +46,7 @@
                     android:gravity="end|center_vertical">
 
                     <TextView
+                        android:id="@+id/tvMineSettings"
                         android:layout_width="wrap_content"
                         android:layout_height="34dp"
                         android:background="@drawable/bg_home_top_chip"
@@ -86,8 +87,8 @@
 
                 <ImageView
                     android:id="@+id/ivAvatar"
-                    android:layout_width="58dp"
-                    android:layout_height="58dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:src="@drawable/mine_login_icon"
 
                      />
@@ -110,12 +111,12 @@
                             android:layout_height="wrap_content"
                             android:text="@string/home_phone_default"
                             android:textColor="#101722"
-                            android:textSize="17sp"
+                            android:textSize="19sp"
                             android:textStyle="bold" />
 
                         <ImageView
                             android:layout_width="wrap_content"
-                            android:layout_height="23dp"
+                            android:layout_height="19dp"
                             android:layout_marginStart="8dp"
                             android:background="@drawable/bg_home_round_gray"
                             android:src="@drawable/mine_login_change_svg"
@@ -133,7 +134,7 @@
                         android:layout_marginTop="4dp"
                         android:text="@string/home_region_default"
                         android:textColor="#5D6673"
-                        android:textSize="16sp" />
+                        android:textSize="13sp" />
 
 <!--                    <com.google.android.material.button.MaterialButton-->
 <!--                        android:id="@+id/btnOpenDetail"-->
@@ -171,7 +172,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_card_white_rounded"
             android:gravity="center_vertical"
             android:paddingTop="18dp"
             android:paddingBottom="18dp"
@@ -185,11 +185,13 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tvMineCoupon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5"
+                    android:fontFamily="@font/roboto_medium_numbers"
                     android:textColor="#161D29"
-                    android:textSize="28sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -197,8 +199,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/home_stat_coupon"
-                    android:textColor="#485160"
-                    android:textSize="14sp" />
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -209,11 +211,14 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tvMineData"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="42.92GB"
+                    android:fontFamily="@font/roboto_medium_numbers"
+
                     android:textColor="#161D29"
-                    android:textSize="28sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -221,8 +226,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/home_stat_data"
-                    android:textColor="#485160"
-                    android:textSize="14sp" />
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -233,11 +238,14 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tvMineBalance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="724.48元"
+                    android:fontFamily="@font/roboto_medium_numbers"
+
                     android:textColor="#161D29"
-                    android:textSize="28sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -245,8 +253,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/home_stat_balance"
-                    android:textColor="#485160"
-                    android:textSize="14sp" />
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -257,11 +265,14 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tvMineBean"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1833豆"
+                    android:fontFamily="@font/roboto_medium_numbers"
+
                     android:textColor="#161D29"
-                    android:textSize="28sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -269,8 +280,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/home_stat_ai_bean"
-                    android:textColor="#485160"
-                    android:textSize="14sp" />
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -376,7 +387,7 @@
                     android:layout_weight="1"
                     android:text="@string/home_service_title"
                     android:textColor="#161E2A"
-                    android:textSize="18sp"
+                    android:textSize="17sp"
                     android:textStyle="bold" />
 
                 <ImageView
@@ -391,7 +402,7 @@
                 android:id="@+id/hsvMineServiceCenter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:fillViewport="true"
                 android:overScrollMode="never"
                 android:scrollbars="none">

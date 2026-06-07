@@ -2,9 +2,13 @@ package com.example.myservicecenter
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.AbsoluteSizeSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.GridLayout
+import android.widget.TextView
 import androidx.core.view.doOnLayout
 import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.Fragment
@@ -48,13 +52,14 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         super.onResume()
         if (_binding != null) {
             applyHeaderInfo()
+            applyStatsInfo()
         }
     }
 
     private fun initViews() {
-//        binding.btnOpenDetail.setOnClickListener {
-//            startActivity(Intent(requireContext(), MainActivity::class.java))
-//        }
+        binding.tvMineSettings.setOnClickListener {
+            startActivity(Intent(requireContext(), MineStatsSettingsActivity::class.java))
+        }
 
         Glide.with(this)
             .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/d97e0049625e4cfabfcd6c46a3cd8bb0.png?fmt=webp&width=353&height=115")
@@ -72,6 +77,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         bindServiceCenterScrollIndicator()
 
         applyHeaderInfo()
+        applyStatsInfo()
     }
 
     private fun renderMineComboItems() {
@@ -232,7 +238,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
                 name = getString(R.string.home_service_bill)
             ),
             MineServiceCenterItem(
-                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/cfef7563baf44fc89d3c92fb2bdd03bd.png?fmt=webp&width=123&height=123",
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/f2e4962232794d278e28778cdbd53566.png?fmt=webp&width=92&height=92",
                 name = getString(R.string.home_service_pay)
             ),
             MineServiceCenterItem(
@@ -240,15 +246,15 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
                 name = getString(R.string.home_service_package)
             ),
             MineServiceCenterItem(
-                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8ba6a34a8ce94076805824aa2e34f95b.png?fmt=webp&width=123&height=123",
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/f2e4962232794d278e28778cdbd53566.png?fmt=webp&width=92&height=92",
                 name = getString(R.string.home_service_detail)
             ),
             MineServiceCenterItem(
-                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/c2440e90d2344ae9a72a5c5259e94c0a.png?fmt=webp&width=123&height=123",
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/fd55be1ad7804f00bcccf75910108b0d.png?fmt=webp&width=92&height=92",
                 name = getString(R.string.home_service_complaint)
             ),
             MineServiceCenterItem(
-                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/7dfa61244f04441da5f6cbf1b3cd5d3d.png?fmt=webp&width=123&height=123",
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/e84453b58d4e4cc5bee705d95ea6f0aa.jpg?fmt=webp&width=92&height=92",
                 name = getString(R.string.home_service_invoice)
             ),
             MineServiceCenterItem(
@@ -272,6 +278,50 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
             getString(R.string.home_phone_default)
         }
         binding.tvHomeRegion.text = region.ifEmpty { getString(R.string.home_region_default) }
+    }
+
+    private fun applyStatsInfo() {
+        val context = requireContext()
+        val coupon = AppPreferences.getMineStatCoupon(context)
+        val data = AppPreferences.getMineStatData(context)
+        val balance = AppPreferences.getMineStatBalance(context)
+        val bean = AppPreferences.getMineStatBean(context)
+
+        binding.tvMineCoupon.text = coupon
+        binding.tvMineData.setNumberWithUnit(data, "GB", numberSizeSp = 16, unitSizeSp = 12)
+        binding.tvMineBalance.setNumberWithUnit(balance, "元", numberSizeSp = 16, unitSizeSp = 12)
+        binding.tvMineBean.setNumberWithUnit(bean, "豆", numberSizeSp = 16, unitSizeSp = 12)
+    }
+
+    /**
+     * 设置“数字 + 单位”样式，单位字号比数字小。
+     *
+     * @param number       数字部分文本
+     * @param unit         单位部分文本（如 GB、元、豆）
+     * @param numberSizeSp 数字字号，单位：sp
+     * @param unitSizeSp   单位字号，单位：sp
+     */
+    private fun TextView.setNumberWithUnit(
+        number: String,
+        unit: String,
+        numberSizeSp: Int,
+        unitSizeSp: Int
+    ) {
+        val fullText = number + unit
+        val spannable = SpannableString(fullText)
+        spannable.setSpan(
+            AbsoluteSizeSpan(numberSizeSp, true),
+            0,
+            number.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannable.setSpan(
+            AbsoluteSizeSpan(unitSizeSp, true),
+            number.length,
+            fullText.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        text = spannable
     }
 
     private fun maskPhoneNumber(phoneNumber: String): String {
