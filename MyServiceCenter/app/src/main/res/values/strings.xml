@@ -140,4 +140,18 @@
     <string name="mine_stats_data_hint">请输入通用流量数值（如 42.92）</string>
     <string name="mine_stats_balance_hint">请输入话费余额（如 724.48）</string>
     <string name="mine_stats_bean_hint">请输入AI豆数量</string>
+    <string name="update_dialog_title">发现新版本</string>
+    <string name="update_dialog_title_force">发现重要更新</string>
+    <string name="update_dialog_version_label">最新版本：%1$s</string>
+    <string name="update_dialog_log_label">更新内容：</string>
+    <string name="update_dialog_confirm">立即更新</string>
+    <string name="update_dialog_cancel">暂不更新</string>
+    <string name="update_downloading_title">正在下载更新</string>
+    <string name="update_downloading_message">请稍候，正在准备安装包…</string>
+    <string name="update_downloading_progress">正在下载更新：%1$d%%</string>
+    <string name="update_download_failed">下载升级包失败：%1$s</string>
+    <string name="update_install_permission_title">需要安装权限</string>
+    <string name="update_install_permission_message">请先允许当前应用安装未知来源应用，授权后会继续安装升级包。</string>
+    <string name="update_install_permission_confirm">去授权</string>
+    <string name="update_install_permission_denied">未获得安装权限，暂时无法升级</string>
 </resources>
