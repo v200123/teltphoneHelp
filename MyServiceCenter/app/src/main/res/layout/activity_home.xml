@@ -1,61 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F4F7"
-    android:orientation="vertical">
-
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPagerHome"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+    android:background="#F3F4F7">
 
     <LinearLayout
-        android:id="@+id/bottomTabBar"
         android:layout_width="match_parent"
-        android:layout_height="74dp"
-        android:background="@drawable/bg_home_bottom_ai_new"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/tabHome"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/tab_home_unselect_v2" />
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerHome"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-        <ImageView
-            android:id="@+id/tabVideo"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
+        <LinearLayout
+            android:id="@+id/bottomTabBar"
+            android:layout_width="match_parent"
+            android:layout_height="74dp"
+            android:background="@drawable/bg_home_bottom_ai_new"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            android:scaleType="fitCenter"
-            android:src="@drawable/tab_discovery_unselect_v2" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/tabEquity"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/tab_equity_default_v2" />
+                <ImageView
+                    android:id="@+id/tabHome"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/home_tab_home"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/tab_home_unselect_v2" />
 
-        <ImageView
-            android:id="@+id/tabMine"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/tab_mine_select_v2" />
+                <ImageView
+                    android:id="@+id/tabVideo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/home_tab_video"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/tab_discovery_unselect_v2" />
+            </LinearLayout>
+
+            <Space
+                android:layout_width="104dp"
+                android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/tabEquity"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/home_tab_equity"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/tab_equity_default_v2" />
+
+                <ImageView
+                    android:id="@+id/tabMine"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/home_tab_mine"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/tab_mine_select_v2" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/centerAiButton"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:adjustViewBounds="true"
+        android:clickable="true"
+        android:contentDescription="@string/home_ai_entry"
+        android:focusable="true"
+        android:scaleType="fitCenter"
+        android:translationY="-14dp"
+        tools:src="@drawable/tab_home_select_v2" />
+
+</FrameLayout>
