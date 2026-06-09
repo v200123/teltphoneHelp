@@ -28,10 +28,10 @@
     </FrameLayout>
 
     <TextView
+
         android:id="@+id/tvComboTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:textColor="#2B3441"
         android:textSize="12sp" />
 </LinearLayout>

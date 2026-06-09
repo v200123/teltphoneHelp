@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +18,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.bumptech.glide.Glide
 import com.example.myservicecenter.databinding.ActivityHomeBinding
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -48,8 +50,8 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
-                Color.parseColor("#DCEFFE"),
-                Color.parseColor("#DCEFFE")
+                Color.TRANSPARENT,
+                Color.TRANSPARENT
             ),
             navigationBarStyle = SystemBarStyle.light(
                 Color.TRANSPARENT,
@@ -58,9 +60,8 @@ class HomeActivity : AppCompatActivity() {
         )
         WindowCompat.getInsetsController(window, window.decorView)?.apply {
             isAppearanceLightStatusBars = true
-            isAppearanceLightNavigationBars = true
+            isAppearanceLightNavigationBars = false
         }
-
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initViews()
@@ -84,6 +85,11 @@ class HomeActivity : AppCompatActivity() {
         binding.tabVideo.setOnClickListener { selectTab(1) }
         binding.tabEquity.setOnClickListener { selectTab(2) }
         binding.tabMine.setOnClickListener { selectTab(3) }
+        binding.centerAiButton.setOnClickListener {
+            Toast.makeText(this, getString(R.string.home_ai_entry_tip), Toast.LENGTH_SHORT).show()
+        }
+        Glide.with(this).load("https://img.app.coc.10086.cn/group1/M00/07/79/CtFOBmg3w5aAIvSXAAxdjPeIATU58.webp")
+            .into(binding.centerAiButton)
         selectTab(0, false)
     }
 
@@ -144,7 +150,7 @@ class HomeActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.viewPagerHome.updatePadding(
                 left = pagerStart,
-                top = pagerTop + systemBars.top,
+                top = pagerTop,
                 right = pagerEnd,
                 bottom = pagerBottom
             )

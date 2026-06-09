@@ -9,8 +9,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.GridLayout
 import android.widget.TextView
-import androidx.core.view.doOnLayout
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -45,6 +48,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeMineBinding.bind(view)
+        applyWindowInsets()
         initViews()
     }
 
@@ -57,7 +61,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
     }
 
     private fun initViews() {
-        binding.tvMineSettings.setOnClickListener {
+        binding.ivMineSettings.setOnClickListener {
             startActivity(Intent(requireContext(), MineStatsSettingsActivity::class.java))
         }
 
@@ -78,6 +82,24 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
 
         applyHeaderInfo()
         applyStatsInfo()
+    }
+
+    private fun applyWindowInsets() {
+        val originalTopPadding = binding.layoutMine.paddingTop
+        val originalStartPadding = binding.layoutMine.paddingStart
+        val originalEndPadding = binding.layoutMine.paddingEnd
+        val originalBottomPadding = binding.layoutMine.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutMine) { _, insets ->
+            val statusBarTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            binding.layoutMine.updatePadding(
+                left = originalStartPadding,
+                top = originalTopPadding + statusBarTop,
+                right = originalEndPadding,
+                bottom = originalBottomPadding
+            )
+            insets
+        }
     }
 
     private fun renderMineComboItems() {
