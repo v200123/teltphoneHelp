@@ -243,7 +243,7 @@
                         app:tabRippleColor="@android:color/transparent"
                         app:tabSelectedTextColor="@color/text_primary"
                         app:tabTextAppearance="@style/TextAppearance.MyServiceCenter.Tab"
-                        app:tabTextColor="@color/text_secondary"
+                        app:tabTextColor="@color/text_primary"
                         app:tabUnboundedRipple="false">
 
                         <com.google.android.material.tabs.TabItem android:text="@string/tab_package" />
