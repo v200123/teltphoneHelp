@@ -35,6 +35,10 @@ class SettingsActivity : AppCompatActivity() {
         binding.etCallTypeIncoming.setText(AppPreferences.getCustomIncomingCallType(this))
         binding.etCustomStar.setText(AppPreferences.getCustomStarLevel(this).toString())
         binding.etCustomRegion.setText(AppPreferences.getCustomSelfRegion(this))
+        binding.etMineCoupon.setText(AppPreferences.getMineStatCoupon(this))
+        binding.etMineData.setText(AppPreferences.getMineStatData(this))
+        binding.etMineBalance.setText(AppPreferences.getMineStatBalance(this))
+        binding.etMineBean.setText(AppPreferences.getMineStatBean(this))
         binding.btnBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener {
             AppPreferences.setOutgoingPackageInfo(this, binding.etOutgoingPackage.text?.toString().orEmpty())
@@ -45,6 +49,10 @@ class SettingsActivity : AppCompatActivity() {
             val starLevel = binding.etCustomStar.text?.toString()?.toIntOrNull()?.coerceIn(1, 5) ?: 5
             AppPreferences.setCustomStarLevel(this, starLevel)
             AppPreferences.setCustomSelfRegion(this, binding.etCustomRegion.text?.toString().orEmpty())
+            AppPreferences.setMineStatCoupon(this, binding.etMineCoupon.text?.toString().orEmpty())
+            AppPreferences.setMineStatData(this, binding.etMineData.text?.toString().orEmpty())
+            AppPreferences.setMineStatBalance(this, binding.etMineBalance.text?.toString().orEmpty())
+            AppPreferences.setMineStatBean(this, binding.etMineBean.text?.toString().orEmpty())
             Toast.makeText(this, getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
             finish()
         }

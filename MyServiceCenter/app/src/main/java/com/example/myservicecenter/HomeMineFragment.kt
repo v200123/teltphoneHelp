@@ -1,10 +1,12 @@
 package com.example.myservicecenter
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.GridLayout
@@ -62,7 +64,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
 
     private fun initViews() {
         binding.ivMineSettings.setOnClickListener {
-            startActivity(Intent(requireContext(), MineStatsSettingsActivity::class.java))
+            startActivity(Intent(requireContext(), SettingsActivity::class.java))
         }
 
         Glide.with(this)
@@ -286,6 +288,38 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
             MineServiceCenterItem(
                 iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
                 name = getString(R.string.home_service_online)
+            ),
+            MineServiceCenterItem(
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
+                name = getString(R.string.home_service_online)
+            ),
+            MineServiceCenterItem(
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
+                name = getString(R.string.home_service_online)
+            ),
+            MineServiceCenterItem(
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
+                name = getString(R.string.home_service_online)
+            ),
+            MineServiceCenterItem(
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
+                name = getString(R.string.home_service_online)
+            ),
+            MineServiceCenterItem(
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
+                name = getString(R.string.home_service_online)
+            ),
+            MineServiceCenterItem(
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
+                name = getString(R.string.home_service_online)
+            ),
+            MineServiceCenterItem(
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
+                name = getString(R.string.home_service_online)
+            ),
+            MineServiceCenterItem(
+                iconUrl = "https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8f7fe8a5c053473ca8cd78baadf22534.png?fmt=webp&width=123&height=123",
+                name = getString(R.string.home_service_online)
             )
         )
     }
@@ -333,6 +367,12 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         val spannable = SpannableString(fullText)
         spannable.setSpan(
             AbsoluteSizeSpan(numberSizeSp, true),
+            0,
+            number.length,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannable.setSpan(
+            StyleSpan(Typeface.BOLD),
             0,
             number.length,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
