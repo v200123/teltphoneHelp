@@ -1,5 +1,4 @@
 package com.example.myservicecenter
-
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -23,7 +22,6 @@ import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 class HomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
     private var selectedTabIndex: Int = 0
@@ -91,7 +89,6 @@ class HomeActivity : AppCompatActivity() {
             .into(binding.centerAiButton)
         selectTab(0, false)
     }
-
     private fun selectTab(index: Int, smoothScroll: Boolean = true) {
         selectedTabIndex = index
         updateBottomTabs()
@@ -99,7 +96,6 @@ class HomeActivity : AppCompatActivity() {
             binding.viewPagerHome.setCurrentItem(index, smoothScroll)
         }
     }
-
     private fun updateBottomTabs() {
         updateSingleTab(
             selected = selectedTabIndex == 0,
@@ -126,7 +122,6 @@ class HomeActivity : AppCompatActivity() {
             iconView = binding.tabMine
         )
     }
-
     private fun updateSingleTab(
         selected: Boolean,
         iconSelected: Int,
@@ -135,7 +130,6 @@ class HomeActivity : AppCompatActivity() {
     ) {
         iconView.setImageResource(if (selected) iconSelected else iconUnselected)
     }
-
     private fun applyWindowInsets() {
         val pagerStart = binding.viewPagerHome.paddingStart
         val pagerTop = binding.viewPagerHome.paddingTop
@@ -163,7 +157,6 @@ class HomeActivity : AppCompatActivity() {
     private fun checkAppUpdateOnLaunch() {
         if (hasCheckedAppUpdate) return
         hasCheckedAppUpdate = true
-
         // 首页每次冷启动时发起一次版本检测，避免重复弹窗打断当前会话。
         lifecycleScope.launch {
             val updateResult = withContext(Dispatchers.IO) {
@@ -302,10 +295,10 @@ private class HomePagerAdapter(
     override fun getItemCount(): Int = 4
 
     override fun createFragment(position: Int): Fragment {
-        return if (position == 3) {
-            HomeMineFragment()
-        } else {
-            ModulePlaceholderFragment.newInstance(pageTitles[position])
+        return when (position) {
+            0 -> HomeContentFragment()
+            3 -> HomeMineFragment()
+            else -> ModulePlaceholderFragment.newInstance(pageTitles[position])
         }
     }
 }

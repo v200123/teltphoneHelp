@@ -7,14 +7,17 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
+import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import java.security.MessageDigest
+import java.util.concurrent.TimeUnit
 
 data class UpdateCheckResult(
     val needUpdate: Boolean,
@@ -28,10 +31,19 @@ data class UpdateCheckResult(
 )
 
 object AppUpdateManager {
+    private const val TAG = "AppUpdateManager"
+    private const val LOG_BODY_MAX_LENGTH = 2000
     // TODO: 替换成你的升级服务真实地址，例如 http://192.168.1.10:8080
     private const val UPDATE_SERVICE_BASE_URL = "http://www.lastcoffee.top:8082"
     private const val CONNECT_TIMEOUT_MILLIS = 15000
     private const val READ_TIMEOUT_MILLIS = 15000
+
+    private val httpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(CONNECT_TIMEOUT_MILLIS.toLong(), TimeUnit.MILLISECONDS)
+            .readTimeout(READ_TIMEOUT_MILLIS.toLong(), TimeUnit.MILLISECONDS)
+            .build()
+    }
 
     fun checkForUpdate(context: Context): UpdateCheckResult? {
         // 启动时把当前包名和 versionCode 传给服务端，由服务端决定是否需要更新。
@@ -43,23 +55,25 @@ object AppUpdateManager {
             .build()
             .toString()
 
-        val connection = (URL(requestUrl).openConnection() as HttpURLConnection).apply {
-            requestMethod = "GET"
-            connectTimeout = CONNECT_TIMEOUT_MILLIS
-            readTimeout = READ_TIMEOUT_MILLIS
-            doInput = true
-        }
+        val request = Request.Builder()
+            .url(requestUrl)
+            .get()
+            .build()
 
+        logRequestStart("检查更新", requestUrl)
         return try {
-            val responseCode = connection.responseCode
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                null
-            } else {
-                val body = connection.inputStream.bufferedReader().use { it.readText() }
-                parseCheckResponse(body)
+            httpClient.newCall(request).execute().use { response ->
+                val body = response.body?.string().orEmpty()
+                logResponse("检查更新", response, body)
+                if (!response.isSuccessful) {
+                    null
+                } else {
+                    parseCheckResponse(body)
+                }
             }
-        } finally {
-            connection.disconnect()
+        } catch (throwable: Throwable) {
+            Log.e(TAG, "检查更新请求失败: url=$requestUrl", throwable)
+            null
         }
     }
 
@@ -78,6 +92,7 @@ object AppUpdateManager {
 
         // 如果本地已经有同版本 APK，并且大小/MD5 校验通过，就直接复用，避免重复下载。
         if (targetFile.exists() && verifyDownloadedFile(targetFile, result)) {
+            Log.d(TAG, "升级包复用本地缓存: path=${targetFile.absolutePath}, size=${targetFile.length()}")
             onProgressChanged?.invoke(100)
             return targetFile
         }
@@ -87,59 +102,77 @@ object AppUpdateManager {
             tempFile.delete()
         }
 
-        val connection = (URL(resolvedUrl).openConnection() as HttpURLConnection).apply {
-            requestMethod = "GET"
-            connectTimeout = CONNECT_TIMEOUT_MILLIS
-            readTimeout = READ_TIMEOUT_MILLIS
-            doInput = true
-        }
+        val request = Request.Builder()
+            .url(resolvedUrl)
+            .get()
+            .build()
 
+        logRequestStart("下载升级包", resolvedUrl)
         try {
-            val responseCode = connection.responseCode
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw IllegalStateException("下载升级包失败，HTTP状态码: $responseCode")
-            }
+            httpClient.newCall(request).execute().use { response ->
+                logDownloadResponse(response)
+                if (!response.isSuccessful) {
+                    throw IllegalStateException("下载升级包失败，HTTP状态码: ${response.code}")
+                }
 
-            val expectedSize = result.fileSize ?: connection.contentLengthLong.takeIf { it > 0 }
-            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            var downloadedBytes = 0L
-            var lastProgress = -1
+                val body = response.body
+                    ?: throw IllegalStateException("下载升级包失败，响应体为空")
+                val expectedSize = result.fileSize ?: body.contentLength().takeIf { it > 0L }
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                var downloadedBytes = 0L
+                var lastProgress = -1
+                var lastLoggedProgressBucket = -1
 
-            connection.inputStream.use { input ->
-                FileOutputStream(tempFile).use { output ->
-                    while (true) {
-                        val readSize = input.read(buffer)
-                        if (readSize <= 0) break
-                        output.write(buffer, 0, readSize)
-                        downloadedBytes += readSize
-                        if (expectedSize != null && expectedSize > 0L) {
-                            val progress = ((downloadedBytes * 100) / expectedSize).toInt().coerceIn(0, 100)
-                            if (progress != lastProgress) {
-                                lastProgress = progress
-                                onProgressChanged?.invoke(progress)
+                body.byteStream().use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        while (true) {
+                            val readSize = input.read(buffer)
+                            if (readSize <= 0) break
+                            output.write(buffer, 0, readSize)
+                            downloadedBytes += readSize
+                            if (expectedSize != null && expectedSize > 0L) {
+                                val progress = ((downloadedBytes * 100) / expectedSize).toInt().coerceIn(0, 100)
+                                if (progress != lastProgress) {
+                                    lastProgress = progress
+                                    onProgressChanged?.invoke(progress)
+                                }
+                                val progressBucket = progress / 10
+                                if (progressBucket != lastLoggedProgressBucket) {
+                                    lastLoggedProgressBucket = progressBucket
+                                    Log.d(
+                                        TAG,
+                                        "下载升级包进度: $progress%, downloaded=$downloadedBytes, total=$expectedSize"
+                                    )
+                                }
                             }
                         }
+                        output.flush()
                     }
-                    output.flush()
                 }
-            }
 
-            if (targetFile.exists()) {
-                targetFile.delete()
-            }
-            if (!tempFile.renameTo(targetFile)) {
-                throw IllegalStateException("升级包写入本地失败")
-            }
+                if (targetFile.exists()) {
+                    targetFile.delete()
+                }
+                if (!tempFile.renameTo(targetFile)) {
+                    throw IllegalStateException("升级包写入本地失败")
+                }
 
-            if (!verifyDownloadedFile(targetFile, result)) {
-                targetFile.delete()
-                throw IllegalStateException("下载完成，但升级包校验失败")
-            }
+                if (!verifyDownloadedFile(targetFile, result)) {
+                    targetFile.delete()
+                    throw IllegalStateException("下载完成，但升级包校验失败")
+                }
 
-            onProgressChanged?.invoke(100)
-            return targetFile
+                Log.d(
+                    TAG,
+                    "下载升级包完成: path=${targetFile.absolutePath}, size=${targetFile.length()}, md5=${result.md5.orEmpty()}"
+                )
+                onProgressChanged?.invoke(100)
+                return targetFile
+            }
+        } catch (throwable: Throwable) {
+            Log.e(TAG, "下载升级包请求失败: url=$resolvedUrl", throwable)
+            throw throwable
         } finally {
-            connection.disconnect()
             if (tempFile.exists()) {
                 tempFile.delete()
             }
@@ -169,6 +202,24 @@ object AppUpdateManager {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(installIntent)
+    }
+
+    private fun logRequestStart(scene: String, url: String) {
+        Log.d(TAG, "$scene 请求开始: method=GET, url=$url")
+    }
+
+    private fun logResponse(scene: String, response: Response, body: String) {
+        Log.d(
+            TAG,
+            "$scene 响应: code=${response.code}, successful=${response.isSuccessful}, message=${response.message}, body=${body.take(LOG_BODY_MAX_LENGTH)}"
+        )
+    }
+
+    private fun logDownloadResponse(response: Response) {
+        Log.d(
+            TAG,
+            "下载升级包响应: code=${response.code}, successful=${response.isSuccessful}, message=${response.message}, contentLength=${response.body?.contentLength() ?: -1L}"
+        )
     }
 
     private fun parseCheckResponse(body: String): UpdateCheckResult {
@@ -202,12 +253,14 @@ object AppUpdateManager {
         if (!file.exists() || file.length() <= 0L) return false
         val expectedSize = result.fileSize
         if (expectedSize != null && expectedSize > 0L && file.length() != expectedSize) {
+            Log.w(TAG, "升级包大小校验失败: expected=$expectedSize, actual=${file.length()}")
             return false
         }
         val expectedMd5 = result.md5
         if (!expectedMd5.isNullOrBlank()) {
             val actualMd5 = calculateMd5(file)
             if (!actualMd5.equals(expectedMd5, ignoreCase = true)) {
+                Log.w(TAG, "升级包MD5校验失败: expected=$expectedMd5, actual=$actualMd5")
                 return false
             }
         }

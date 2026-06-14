@@ -16,6 +16,10 @@ object AppPreferences {
     private const val KEY_MINE_STAT_DATA = "mine_stat_data"
     private const val KEY_MINE_STAT_BALANCE = "mine_stat_balance"
     private const val KEY_MINE_STAT_BEAN = "mine_stat_bean"
+    private const val KEY_WEBVIEW_HOME_DATA = "webview_home_data"
+    private const val KEY_WEBVIEW_HOME_BALANCE = "webview_home_balance"
+    private const val KEY_WEBVIEW_HOME_CALL_MINUTES = "webview_home_call_minutes"
+    private const val KEY_WEBVIEW_HOME_PENDING_RIGHTS = "webview_home_pending_rights"
 
     fun getOutgoingPackageInfo(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -158,6 +162,58 @@ object AppPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_MINE_STAT_BEAN, value.trim())
+            .apply()
+    }
+
+    fun getWebViewHomeData(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_WEBVIEW_HOME_DATA, "19.19")
+            .orEmpty()
+    }
+
+    fun setWebViewHomeData(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_WEBVIEW_HOME_DATA, value.trim())
+            .apply()
+    }
+
+    fun getWebViewHomeBalance(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_WEBVIEW_HOME_BALANCE, "547.58")
+            .orEmpty()
+    }
+
+    fun setWebViewHomeBalance(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_WEBVIEW_HOME_BALANCE, value.trim())
+            .apply()
+    }
+
+    fun getWebViewHomeCallMinutes(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_WEBVIEW_HOME_CALL_MINUTES, "200")
+            .orEmpty()
+    }
+
+    fun setWebViewHomeCallMinutes(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_WEBVIEW_HOME_CALL_MINUTES, value.trim())
+            .apply()
+    }
+
+    fun getWebViewHomePendingRights(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_WEBVIEW_HOME_PENDING_RIGHTS, "0")
+            .orEmpty()
+    }
+
+    fun setWebViewHomePendingRights(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_WEBVIEW_HOME_PENDING_RIGHTS, value.trim())
             .apply()
     }
 }
