@@ -69,6 +69,7 @@ class HomeActivity : AppCompatActivity() {
     private fun initViews() {
         pagerAdapter = HomePagerAdapter(this)
         binding.viewPagerHome.adapter = pagerAdapter
+        binding.viewPagerHome.isUserInputEnabled = false
         binding.viewPagerHome.offscreenPageLimit = 4
         binding.viewPagerHome.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {

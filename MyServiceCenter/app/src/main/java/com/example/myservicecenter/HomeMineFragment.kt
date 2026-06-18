@@ -167,6 +167,13 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
                     .load(item.iconUrl)
                     .into(itemBinding.ivServiceCenterIcon)
 
+                // 详单查询入口点击跳转到主界面
+                if (item.name == getString(R.string.home_service_detail)) {
+                    itemBinding.root.setOnClickListener {
+                        startActivity(Intent(requireContext(), MainActivity::class.java))
+                    }
+                }
+
                 // 下标按“先上后下、再到下一列”的方式映射到 GridLayout。
                 val row = index % SERVICE_CENTER_ROW_COUNT
                 val column = index / SERVICE_CENTER_ROW_COUNT

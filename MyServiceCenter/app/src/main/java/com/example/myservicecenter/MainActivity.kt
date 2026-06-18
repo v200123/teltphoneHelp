@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         binding.topBarContainer.bringToFront()
 
         binding.btnMore.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
+        binding.ivBack.setOnClickListener { finish() }
         applyCustomNumberInfo()
 
         setupMonthSelector()

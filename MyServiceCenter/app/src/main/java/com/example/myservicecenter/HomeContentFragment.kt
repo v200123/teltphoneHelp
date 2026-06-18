@@ -1,11 +1,17 @@
 package com.example.myservicecenter
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import android.util.TypedValue
 import android.view.ViewGroup
 import android.view.View
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -26,6 +32,18 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
         _binding?.progressHome?.visibility = View.GONE
     }
 
+    /**
+     * 顶部栏背景从透明过渡到白色的滚动阈值（dp）。
+     * 页面滚动距离超过该值后背景变为纯白色。
+     */
+    private val topBarScrollThreshold by lazy {
+        TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            200f,
+            resources.displayMetrics
+        ).toInt()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeContentBinding.bind(view)
@@ -34,30 +52,127 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
     }
 
     private fun applyWindowInsets() {
-        val start = binding.root.paddingStart
-        val top = binding.root.paddingTop
-        val end = binding.root.paddingEnd
-        val bottom = binding.root.paddingBottom
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.ivHomeTopBar) { view, insets ->
             val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            binding.root.updatePadding(
-                left = start,
-                top = top + statusTop,
-                right = end,
-                bottom = bottom
-            )
+            view.updatePadding(top = statusTop)
             insets
         }
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    /**
+     * 兜底：页面加载 1s / 3s 后再尝试注入一次滚动监听，防止 onPageFinished 不触发。
+     */
+    private fun scheduleFallbackScrollInjection() {
+        mainHandler.postDelayed({
+            Log.d("HomeScroll", "fallback injection 1s")
+            injectScrollListener()
+            testJsBridge()
+        }, 1000)
+        mainHandler.postDelayed({
+            Log.d("HomeScroll", "fallback injection 3s")
+            injectScrollListener()
+            testJsBridge()
+        }, 3000)
+    }
+
+    /**
+     * 调试：测试 JS 桥接是否可用。
+     */
+    private fun testJsBridge() {
+        Log.d("HomeScroll", "testJsBridge called")
+        binding.webViewHome.evaluateJavascript("typeof HomeScrollBridge") { result ->
+            Log.d("HomeScroll", "bridge type=$result")
+        }
+        binding.webViewHome.evaluateJavascript("HomeScrollBridge.onScroll(99999)") { result ->
+            Log.d("HomeScroll", "direct call result=$result")
+        }
+    }
+
+    /**
+     * 向 H5 页面注入滚动监听脚本，通过 HomeScrollBridge 把 scrollY 传回 Android。
+     * 同时使用事件监听 + 定时轮询，兼容 window、body、documentElement 以及各种内部滚动容器。
+     */
+    private fun injectScrollListener() {
+        val js = """
+            (function() {
+                if (window.__homeScrollInjected) return;
+                window.__homeScrollInjected = true;
+                function getScrollY() {
+                    var y = window.scrollY;
+                    if (y > 0) return y;
+                    y = document.documentElement ? document.documentElement.scrollTop : 0;
+                    if (y > 0) return y;
+                    y = document.body ? document.body.scrollTop : 0;
+                    if (y > 0) return y;
+                    return 0;
+                }
+                function reportScroll() {
+                    var scrollY = getScrollY();
+                    if (window.HomeScrollBridge) {
+                        window.HomeScrollBridge.onScroll(scrollY);
+                    }
+                }
+                // 兜底轮询：每 100ms 上报一次，确保不会漏掉任何滚动容器
+                setInterval(reportScroll, 100);
+                // 事件监听：提升响应速度
+                window.addEventListener('scroll', reportScroll, { passive: true });
+                document.addEventListener('scroll', reportScroll, { passive: true });
+                if (document.body) document.body.addEventListener('scroll', reportScroll, { passive: true });
+                if (document.documentElement) document.documentElement.addEventListener('scroll', reportScroll, { passive: true });
+                reportScroll();
+            })();
+        """.trimIndent()
+        binding.webViewHome.evaluateJavascript(js, null)
+    }
+
+    /**
+     * 根据页面滚动距离更新顶部栏：
+     * - 背景色：透明 -> 纯白色
+     * - 图片颜色：黑色背景反转为白色背景，白色图标反转为黑色图标
+     */
+    private fun updateTopBarOnScroll(scrollY: Int) {
+        val ratio = (scrollY.toFloat() / topBarScrollThreshold).coerceIn(0f, 1f)
+        val alpha = (ratio * 255).toInt()
+        binding.ivHomeTopBar.setBackgroundColor(Color.argb(alpha, 255, 255, 255))
+
+        // 颜色矩阵插值：从原图（ratio=0）平滑过渡到完全反转（ratio=1）
+        val scale = 1f - 2f * ratio
+        val translate = 255f * ratio
+        val matrix = ColorMatrix(
+            floatArrayOf(
+                scale, 0f, 0f, 0f, translate,
+                0f, scale, 0f, 0f, translate,
+                0f, 0f, scale, 0f, translate,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+        binding.ivHomeTopBar.colorFilter = ColorMatrixColorFilter(matrix)
+    }
+
+    /**
+     * JS 桥接类，用于接收页面滚动距离。
+     */
+    inner class ScrollBridge(private val callback: (scrollY: Int) -> Unit) {
+        @JavascriptInterface
+        fun onScroll(scrollY: Int) {
+            callback(scrollY)
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     private fun setupWebView() {
         binding.progressHome.visibility = View.VISIBLE
         mainHandler.removeCallbacks(hideLoadingRunnable)
         // 某些外链脚本可能长时间不结束，8 秒后强制收起加载态，避免页面一直显示“加载中”。
         mainHandler.postDelayed(hideLoadingRunnable, 8000)
         binding.webViewHome.apply {
+            addJavascriptInterface(
+                ScrollBridge { scrollY ->
+                    Log.d("HomeScroll", "scrollY=$scrollY")
+                    binding.root.post { updateTopBarOnScroll(scrollY) }
+                },
+                "HomeScrollBridge"
+            )
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.databaseEnabled = true
@@ -67,16 +182,24 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
             settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             settings.allowFileAccess = true
             settings.allowContentAccess = true
+            settings.blockNetworkLoads = false
             settings.mediaPlaybackRequiresUserGesture = false
             overScrollMode = View.OVER_SCROLL_NEVER
             isVerticalScrollBarEnabled = false
             isHorizontalScrollBarEnabled = false
             setBackgroundColor(0xFFFFFFFF.toInt())
+            setOnScrollChangeListener { _, _, scrollY, _, _ ->
+                Log.d("HomeScroll", "native scrollY=$scrollY")
+                updateTopBarOnScroll(scrollY)
+            }
             webChromeClient = WebChromeClient()
             webViewClient = object : WebViewClient() {
                 override fun onPageCommitVisible(view: WebView?, url: String?) {
                     super.onPageCommitVisible(view, url)
+                    Log.d("HomeScroll", "onPageCommitVisible url=$url")
                     binding.progressHome.visibility = View.GONE
+                    injectScrollListener()
+                    scheduleFallbackScrollInjection()
                 }
 
                 override fun shouldOverrideUrlLoading(
@@ -87,10 +210,15 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
                 }
 
                 override fun onPageFinished(view: WebView?, url: String?) {
+                    Log.d("HomeScroll", "onPageFinished start url=$url")
                     super.onPageFinished(view, url)
                     syncHomeStatsToPageStorage()
                     binding.progressHome.visibility = View.GONE
                     mainHandler.removeCallbacks(hideLoadingRunnable)
+                    testJsBridge()
+                    injectScrollListener()
+                    scheduleFallbackScrollInjection()
+                    Log.d("HomeScroll", "onPageFinished end")
                 }
             }
             loadDataWithBaseURL(
