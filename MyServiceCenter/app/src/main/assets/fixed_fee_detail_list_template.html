@@ -5,215 +5,118 @@
     <meta
         name="viewport"
         content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
-    <title>固定费用详单列表模板</title>
+    <title>固定费用详单提取</title>
+    <link href="https://app.online-cmcc.cn/cmcc-service/app-pages-cdn/css/chunk-vendors.c42d770a.css" rel="stylesheet">
+    <link href="https://app.online-cmcc.cn/cmcc-service/app-pages-cdn/css/chunk-common.93d43dd8.css" rel="stylesheet">
+    <link href="https://app.online-cmcc.cn/cmcc-service/app-pages-cdn/css/main_detailQuery.96da5e70.css" rel="stylesheet">
     <style>
         html, body {
             margin: 0;
             padding: 0;
             background: #f5f5f5;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
-                "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-        }
-
-        body {
-            padding: 12px 0 24px;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        .detail-list-wrap {
-            margin: 0;
-        }
-
-        .van-list {
-            width: 100%;
         }
 
         .van-list__placeholder {
             display: none;
         }
-
-        .item {
-            margin: 0 12px 12px;
-        }
-
-        .list1-item {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 16px 16px 14px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-        }
-
-        .row-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .row-left,
-        .row-right {
-            display: flex;
-            align-items: center;
-        }
-
-        .row {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .text,
-        .row-right,
-        .item-detail-row-label,
-        .item-detail-row-value {
-            color: #2d2d2d;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .row-title .text {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1f1f1f;
-        }
-
-        .row .row-left .text {
-            color: #6e6e73;
-        }
-
-        .row .row-right {
-            color: #303133;
-            text-align: right;
-            justify-content: flex-end;
-            flex: 1;
-        }
-
-        .detail {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed #e6e6e6;
-        }
-
-        .item-detail-box {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .item-detail-row {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .item-detail-row-label {
-            color: #6e6e73;
-        }
-
-        .item-detail-row-value {
-            flex: 1;
-            text-align: right;
-            color: #303133;
-            word-break: break-word;
-        }
-
-        .blue,
-        .item-detail-row-value.blue {
-            color: #2f80ff;
-            font-weight: 600;
-        }
     </style>
 </head>
 <body>
-<div class="detail-list-wrap">
-    <div role="feed" class="van-list">
-        <div id="recordList"></div>
-    </div>
-</div>
+<div class="page-main">
+    <div class="detail-area-container">
+        <div class="cycle-date-wrap">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAhhJREFUaEPtmb8vBUEQxz8vaHSISJT+AgUFhUahECIqjUJDQtQapUbtR0KjUFAKUSg0GgWFv0ChkIigk/gVMsmeXM7evbvbufeefbft2/nufOc7O3tvpoInq+IJD5qeyCIwAxwC20qqOmHmVeQSaAM+gCElIk6YeYlch5wfUCLihNkURFqACWAU6AM6TDrlJZ9FuG+Tti/ALXAOnABfcSBxTnUB60B/ltML3nsDrABPtnNsRESJnQYjEfguZBZsytiITAGrxlKq0i5wBjwaueUnp4sZo1wUU6piNzAGzJu0FtM14CiKYSOyESqpW8Ce5WCnUhlDJAlzDlgydrJvOQ2RU6DHbJwE7i0HOz1eMUSSMHuBY2P3AIynIRJERvbKYyfpVe8laSZ+yXoHhtMQuYLfbzCtx04jEMEdktI8mIZIERdZk4hg/Qmw7bKXRDTCnoCRGOBSkYKjb4NXV0Tq/WzopdXkJKV+P+bPmjqRC6Bd0/sI1iswYsFXJ+KNIgWKkQitrkhJxDECpSLWbxrHqLqYl4p4r0iWd+QN2AQOXHLK2KqnVtaX/Q6YbkQi3iiiENxcEOqplcsLBaOSyL8vv960g7xp0KVpmSrc3UwQuVqmaZrYmbxQ2JyriZ1mrKDgW1UI57GCN4MeCZUXo7dA8+gwtBNoDXXqq+aGwwbpuH8Cz67DUAcf6mNai1FzTZiVRGoS5gyHeKPIDxPZmDMMK2bNAAAAAElFTkSuQmCC" alt="">
+            <span class="cycle-date" id="cycleDateText">2026-06-01<span>至</span>2026-06-21</span>
+        </div>
 
-<template id="recordTemplate">
-    <div class="item">
-        <div class="list1-item">
-            <div class="row-title">
-                <div class="row-left">
-                    <div class="text js-package-name"></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="row-left">
-                    <div class="text">使用周期：</div>
-                </div>
-                <div class="row-right js-cycle"></div>
-            </div>
-            <div class="detail">
-                <div class="item-detail-box">
-                    <div class="item-detail-row">
-                        <div class="item-detail-row-label">费用</div>
-                        <div class="item-detail-row-value blue js-fee"></div>
+        <div class="detail-list-wrap">
+            <div role="feed" class="van-list">
+                <div class="item">
+                    <div class="list1-item record-item-0">
+                        <div class="row-title">
+                            <div class="row-left">
+                                <div class="text" id="packageNameText">自由选套餐8元档（语音版）</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="row-left">
+                                <div class="text">使用周期：</div>
+                            </div>
+                            <div class="row-right" id="packageCycleText">2026-06-01至2026-06-21</div>
+                        </div>
+                        <div class="detail">
+                            <div class="item-detail-box">
+                                <div class="item-detail-row">
+                                    <div class="item-detail-row-label">费用</div>
+                                    <div class="item-detail-row-value blue" id="packageFeeText">¥8.00</div>
+                                </div>
+                                <div class="item-detail-row" id="packageDescRow" style="display:none;">
+                                    <div class="item-detail-row-label">说明</div>
+                                    <div class="item-detail-row-value" id="packageDescText"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="item-detail-row js-desc-row" style="display:none;">
-                        <div class="item-detail-row-label">说明</div>
-                        <div class="item-detail-row-value js-desc"></div>
+                </div>
+                <div class="van-list__placeholder"></div>
+            </div>
+        </div>
+
+        <div class="list-bottom-wrap"><!----></div>
+    </div>
+
+    <div class="marketArea">
+        <div></div>
+        <div>
+            <div class="section section0">
+                <div class="section-box">
+                    <div class="notice-view section-noticeOut">
+                        <div class="notice-content">
+                            <div class="notice-content-item">温馨提示：</div>
+                            <div class="notice-content-item" id="noticeLine1">1、以上信息是移动用户136****0135截止至日期2026-06-21 16:35:02的查询结果。</div>
+                            <div class="notice-content-item">2、除特别说明，以上“国内”指中国大陆，不含港澳台地区。</div>
+                            <div class="notice-content-item">3、更多信息可详询10086。若您的诉求在10086未得到妥善处理，可以致电10080客户服务监督热线反映。</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</template>
+</div>
 
 <script>
-    console.log('fixed fee template boot');
-
     function renderFixedFeeList(records) {
-        console.log('renderFixedFeeList records=', records ? records.length : 0);
-        var list = document.getElementById('recordList');
-        list.innerHTML = '';
+        var first = records && records.length ? records[0] : null;
+        if (!first) return;
 
-        var tpl = document.getElementById('recordTemplate');
-        (records || []).forEach(function (record, index) {
-            var fragment = tpl.content.cloneNode(true);
-            var item = fragment.querySelector('.list1-item');
-            item.classList.add('record-item-' + index);
-            fragment.querySelector('.js-package-name').textContent = record.name || '';
-            fragment.querySelector('.js-cycle').textContent = record.cycle || '';
-            fragment.querySelector('.js-fee').textContent = formatFee(record.fee);
+        document.getElementById('packageNameText').textContent = first.name || '';
+        document.getElementById('packageCycleText').textContent = first.cycle || '';
+        document.getElementById('cycleDateText').innerHTML = formatCycle(first.cycle || '');
+        document.getElementById('packageFeeText').textContent = formatFee(first.fee);
 
-            if (record.description) {
-                fragment.querySelector('.js-desc-row').style.display = '';
-                fragment.querySelector('.js-desc').textContent = record.description;
-            }
-
-            list.appendChild(fragment);
-        });
-
-        console.log('renderFixedFeeList done');
+        var descRow = document.getElementById('packageDescRow');
+        var descText = document.getElementById('packageDescText');
+        if (first.description) {
+            descRow.style.display = '';
+            descText.textContent = first.description;
+        } else {
+            descRow.style.display = 'none';
+            descText.textContent = '';
+        }
     }
 
     function formatFee(fee) {
-        if (fee === null || fee === undefined || fee === '') {
-            return '';
-        }
-        if (typeof fee === 'number') {
-            return '¥' + fee.toFixed(2);
-        }
+        if (fee === null || fee === undefined || fee === '') return '';
+        if (typeof fee === 'number') return '¥' + fee.toFixed(2);
         return String(fee).indexOf('¥') === 0 ? String(fee) : '¥' + String(fee);
     }
 
-    window.renderFixedFeeList = renderFixedFeeList;
+    function formatCycle(cycle) {
+        if (!cycle) return '';
+        return String(cycle).replace('至', '<span>至</span>');
+    }
 
-    renderFixedFeeList([
-        {
-            name: '自由选套餐8元档（语音版）',
-            cycle: '2026-06-01至2026-06-21',
-            fee: 8.00
-        }
-    ]);
+    window.renderFixedFeeList = renderFixedFeeList;
 </script>
 </body>
 </html>

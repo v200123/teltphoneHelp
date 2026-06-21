@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
         )
         pagerAdapter = DetailPagerAdapter(this, pages)
         binding.viewPagerDetail.adapter = pagerAdapter
-        binding.viewPagerDetail.isUserInputEnabled = true
+        binding.viewPagerDetail.isUserInputEnabled = false
 
         val tabLayout = binding.tabLayoutDetail
         for (index in 0 until tabLayout.tabCount) {

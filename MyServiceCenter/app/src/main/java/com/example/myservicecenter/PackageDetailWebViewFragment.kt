@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.myservicecenter.databinding.FragmentPackageDetailWebviewBinding
 import org.json.JSONArray
+import java.io.BufferedReader
 
 class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_webview) {
     companion object {
@@ -38,7 +39,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
 
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
     private fun setupWebView() {
-        binding.progressPackageDetail.visibility = View.VISIBLE
+//        binding.progressPackageDetail.visibility = View.VISIBLE
         binding.webViewPackageDetail.apply {
             setBackgroundColor(0xFFF5F5F5.toInt())
             addJavascriptInterface(EditorBridge(), "PackageDetailBridge")
@@ -46,18 +47,32 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                 webView = this,
                 logTag = "PackageDetailWebView",
                 onPageCommitVisible = { _, _ ->
-                    binding.progressPackageDetail.visibility = View.GONE
+//                    binding.progressPackageDetail.visibility = View.GONE
                 },
                 onPageFinished = { _, _ ->
-                    binding.progressPackageDetail.visibility = View.GONE
+//                    binding.progressPackageDetail.visibility = View.GONE
                     syncPackageListToPage()
                     bindEditorClick()
                 }
             )
             settings.useWideViewPort = true
             settings.loadWithOverviewMode = true
-            loadUrl("file:///android_asset/fixed_fee_detail_list_template.html")
+            loadDataWithBaseURL(
+                "file:///android_asset/",
+                buildPackageDetailHtml(),
+                "text/html",
+                "utf-8",
+                null
+            )
         }
+    }
+
+    private fun buildPackageDetailHtml(): String {
+        val context = requireContext()
+        return context.assets
+            .open("00-original.html")
+            .bufferedReader()
+            .use(BufferedReader::readText)
     }
 
     private fun syncPackageListToPage() {

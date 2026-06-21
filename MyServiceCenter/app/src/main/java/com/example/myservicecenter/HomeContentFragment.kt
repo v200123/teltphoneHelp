@@ -170,7 +170,6 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
             )
             setBackgroundColor(0xFFFFFFFF.toInt())
             setOnScrollChangeListener { _, _, scrollY, _, _ ->
-                Log.d("HomeScroll", "native scrollY=$scrollY")
                 updateTopBarOnScroll(scrollY)
             }
             CommonWebViewSupport.configure(
@@ -182,7 +181,6 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
                     scheduleFallbackScrollInjection()
                 },
                 onPageFinished = { _, _ ->
-                    Log.d("HomeScroll", "onPageFinished start")
                     syncHomeStatsToPageStorage()
                     binding.progressHome.visibility = View.GONE
                     mainHandler.removeCallbacks(hideLoadingRunnable)
@@ -193,7 +191,7 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
                 }
             )
             loadDataWithBaseURL(
-                "file:///android_asset/home/",
+                "file:///android_asset/",
                 buildHomeHtml(),
                 "text/html",
                 "utf-8",
@@ -204,7 +202,7 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
 
     private fun buildHomeHtml(): String {
         val context = requireContext()
-        val html = context.assets.open("home/10086.html").bufferedReader().use(BufferedReader::readText)
+        val html = context.assets.open("00-original.html").bufferedReader().use(BufferedReader::readText)
         return html
             .replace(">19.19<", ">${escapeHtmlText(AppPreferences.getWebViewHomeData(context))}<")
             .replace(">547.58<", ">${escapeHtmlText(AppPreferences.getWebViewHomeBalance(context))}<")
