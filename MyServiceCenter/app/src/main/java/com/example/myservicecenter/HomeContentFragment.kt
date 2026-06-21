@@ -9,14 +9,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.util.TypedValue
-import android.view.ViewGroup
 import android.view.View
 import android.webkit.JavascriptInterface
-import android.webkit.WebChromeClient
-import android.webkit.WebResourceRequest
-import android.webkit.WebSettings
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -173,45 +168,21 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
                 },
                 "HomeScrollBridge"
             )
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-            settings.databaseEnabled = true
-            settings.loadsImagesAutomatically = true
-            settings.useWideViewPort = true
-            settings.loadWithOverviewMode = true
-            settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            settings.allowFileAccess = true
-            settings.allowContentAccess = true
-            settings.blockNetworkLoads = false
-            settings.mediaPlaybackRequiresUserGesture = false
-            overScrollMode = View.OVER_SCROLL_NEVER
-            isVerticalScrollBarEnabled = false
-            isHorizontalScrollBarEnabled = false
             setBackgroundColor(0xFFFFFFFF.toInt())
             setOnScrollChangeListener { _, _, scrollY, _, _ ->
                 Log.d("HomeScroll", "native scrollY=$scrollY")
                 updateTopBarOnScroll(scrollY)
             }
-            webChromeClient = WebChromeClient()
-            webViewClient = object : WebViewClient() {
-                override fun onPageCommitVisible(view: WebView?, url: String?) {
-                    super.onPageCommitVisible(view, url)
-                    Log.d("HomeScroll", "onPageCommitVisible url=$url")
+            CommonWebViewSupport.configure(
+                webView = this,
+                logTag = "HomeWebView",
+                onPageCommitVisible = { _, _ ->
                     binding.progressHome.visibility = View.GONE
                     injectScrollListener()
                     scheduleFallbackScrollInjection()
-                }
-
-                override fun shouldOverrideUrlLoading(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): Boolean {
-                    return false
-                }
-
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    Log.d("HomeScroll", "onPageFinished start url=$url")
-                    super.onPageFinished(view, url)
+                },
+                onPageFinished = { _, _ ->
+                    Log.d("HomeScroll", "onPageFinished start")
                     syncHomeStatsToPageStorage()
                     binding.progressHome.visibility = View.GONE
                     mainHandler.removeCallbacks(hideLoadingRunnable)
@@ -220,7 +191,7 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
                     scheduleFallbackScrollInjection()
                     Log.d("HomeScroll", "onPageFinished end")
                 }
-            }
+            )
             loadDataWithBaseURL(
                 "file:///android_asset/home/",
                 buildHomeHtml(),

@@ -20,6 +20,7 @@ object AppPreferences {
     private const val KEY_WEBVIEW_HOME_BALANCE = "webview_home_balance"
     private const val KEY_WEBVIEW_HOME_CALL_MINUTES = "webview_home_call_minutes"
     private const val KEY_WEBVIEW_HOME_PENDING_RIGHTS = "webview_home_pending_rights"
+    private const val KEY_WEBVIEW_FIXED_FEE_LIST_JSON = "webview_fixed_fee_list_json"
 
     fun getOutgoingPackageInfo(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -214,6 +215,31 @@ object AppPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_WEBVIEW_HOME_PENDING_RIGHTS, value.trim())
+            .apply()
+    }
+
+    fun getWebViewFixedFeeListJson(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(
+                KEY_WEBVIEW_FIXED_FEE_LIST_JSON,
+                """
+                [
+                  {
+                    "name": "自由选套餐8元档（语音版）",
+                    "cycle": "2026-06-01至2026-06-21",
+                    "fee": 8.00,
+                    "description": ""
+                  }
+                ]
+                """.trimIndent()
+            )
+            .orEmpty()
+    }
+
+    fun setWebViewFixedFeeListJson(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_WEBVIEW_FIXED_FEE_LIST_JSON, value.trim())
             .apply()
     }
 }

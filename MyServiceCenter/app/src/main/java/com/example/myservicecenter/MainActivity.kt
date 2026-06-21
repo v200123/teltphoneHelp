@@ -463,14 +463,15 @@ private class DetailPagerAdapter(
     activity: AppCompatActivity,
     private val pages: List<String>
 ) : FragmentStateAdapter(activity) {
+    val packageDetailFragment = PackageDetailWebViewFragment()
     val callDetailFragment = CallDetailFragment()
     override fun getItemCount(): Int = pages.size
 
     override fun createFragment(position: Int): androidx.fragment.app.Fragment {
-        return if (position == 1) {
-            callDetailFragment
-        } else {
-            ModulePlaceholderFragment.newInstance(pages[position])
+        return when (position) {
+            0 -> packageDetailFragment
+            1 -> callDetailFragment
+            else -> ModulePlaceholderFragment.newInstance(pages[position])
         }
     }
 }
