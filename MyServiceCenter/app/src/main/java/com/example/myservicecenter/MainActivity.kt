@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        topBarExpandedColor = ContextCompat.getColor(this, R.color.panel_blue_start)
-        topBarCollapsedColor = ContextCompat.getColor(this, R.color.panel_blue_start)
+        topBarExpandedColor = Color.TRANSPARENT
+        topBarCollapsedColor = Color.TRANSPARENT
         binding.topBarContainer.setBackgroundColor(topBarExpandedColor)
         binding.topBarContainer.bringToFront()
 
@@ -98,33 +98,33 @@ class MainActivity : AppCompatActivity() {
         binding.viewPagerDetail.adapter = pagerAdapter
         binding.viewPagerDetail.isUserInputEnabled = false
 
-        val tabLayout = binding.tabLayoutDetail
-        for (index in 0 until tabLayout.tabCount) {
-            val tab = tabLayout.getTabAt(index) ?: continue
-            tab.customView = createDetailTabView(tab.text?.toString().orEmpty(), tab.isSelected)
-        }
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                updateDetailTabStyle(tab, true)
-                binding.viewPagerDetail.setCurrentItem(tab.position, true)
-                notifyCallDetailMonthChanged()
-            }
-            override fun onTabUnselected(tab: TabLayout.Tab) {
-                updateDetailTabStyle(tab, false)
-            }
-            override fun onTabReselected(tab: TabLayout.Tab) {
-                updateDetailTabStyle(tab, true)
-                notifyCallDetailMonthChanged()
-            }
-        })
-        binding.viewPagerDetail.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                if (tabLayout.selectedTabPosition != position) {
-                    tabLayout.getTabAt(position)?.select()
-                }
-                notifyCallDetailMonthChanged()
-            }
-        })
+//        val tabLayout = binding.tabLayoutDetail
+//        for (index in 0 until tabLayout.tabCount) {
+//            val tab = tabLayout.getTabAt(index) ?: continue
+//            tab.customView = createDetailTabView(tab.text?.toString().orEmpty(), tab.isSelected)
+//        }
+//        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+//            override fun onTabSelected(tab: TabLayout.Tab) {
+//                updateDetailTabStyle(tab, true)
+//                binding.viewPagerDetail.setCurrentItem(tab.position, true)
+//                notifyCallDetailMonthChanged()
+//            }
+//            override fun onTabUnselected(tab: TabLayout.Tab) {
+//                updateDetailTabStyle(tab, false)
+//            }
+//            override fun onTabReselected(tab: TabLayout.Tab) {
+//                updateDetailTabStyle(tab, true)
+//                notifyCallDetailMonthChanged()
+//            }
+//        })
+//        binding.viewPagerDetail.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+//            override fun onPageSelected(position: Int) {
+//                if (tabLayout.selectedTabPosition != position) {
+//                    tabLayout.getTabAt(position)?.select()
+//                }
+//                notifyCallDetailMonthChanged()
+//            }
+//        })
     }
 
     private fun createDetailTabView(title: String, selected: Boolean): TextView {
@@ -156,10 +156,10 @@ class MainActivity : AppCompatActivity() {
         val currentMonth = YearMonth.now()
         monthOptions = (0..11).map { currentMonth.minusMonths(it.toLong()) }
         selectedMonth = monthOptions.firstOrNull()
-        binding.monthContainer.removeAllViews()
-        monthOptions.forEachIndexed { index, yearMonth ->
-            binding.monthContainer.addView(createMonthView(yearMonth, yearMonth == selectedMonth, index > 0))
-        }
+//        binding.monthContainer.removeAllViews()
+//        monthOptions.forEachIndexed { index, yearMonth ->
+//            binding.monthContainer.addView(createMonthView(yearMonth, yearMonth == selectedMonth, index > 0))
+//        }
     }
 
     private fun createMonthView(yearMonth: YearMonth, selected: Boolean, addStartMargin: Boolean): TextView {
@@ -183,22 +183,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshMonthSelection() {
-        monthOptions.forEachIndexed { index, yearMonth ->
-            val monthView = binding.monthContainer.getChildAt(index) as? TextView ?: return@forEachIndexed
-            val isSelected = yearMonth == selectedMonth
-            monthView.text = "${yearMonth.monthValue}月\n${yearMonth.year}"
-            monthView.background = if (isSelected) ContextCompat.getDrawable(this, R.drawable.bg_month_selected) else null
-        }
+//        monthOptions.forEachIndexed { index, yearMonth ->
+//            val monthView = binding.monthContainer.getChildAt(index) as? TextView ?: return@forEachIndexed
+//            val isSelected = yearMonth == selectedMonth
+//            monthView.text = "${yearMonth.monthValue}月\n${yearMonth.year}"
+//            monthView.background = if (isSelected) ContextCompat.getDrawable(this, R.drawable.bg_month_selected) else null
+//        }
     }
 
     private fun applyCustomNumberInfo() {
-        val customNumber = AppPreferences.getCustomPhoneNumber(this).trim()
-        val starLevel = AppPreferences.getCustomStarLevel(this).coerceIn(1, 5)
-        val starIcon = AppCompatResources.getDrawable(this, getStarLevelIconRes(starLevel))
-        binding.tvSummarySubtitle.setCompoundDrawablesRelativeWithIntrinsicBounds(starIcon, null, null, null)
-        binding.tvSummaryPhone.text = if (customNumber.isNotEmpty()) maskPhoneNumber(customNumber) else "--"
-        binding.tvSummaryName.text = getSummaryDisplayName()
-        binding.tvSummaryHint.text = getString(R.string.summary_hint_default)
+//        val customNumber = AppPreferences.getCustomPhoneNumber(this).trim()
+//        val starLevel = AppPreferences.getCustomStarLevel(this).coerceIn(1, 5)
+//        val starIcon = AppCompatResources.getDrawable(this, getStarLevelIconRes(starLevel))
+//        binding.tvSummarySubtitle.setCompoundDrawablesRelativeWithIntrinsicBounds(starIcon, null, null, null)
+//        binding.tvSummaryPhone.text = if (customNumber.isNotEmpty()) maskPhoneNumber(customNumber) else "--"
+//        binding.tvSummaryName.text = getSummaryDisplayName()
+//        binding.tvSummaryHint.text = getString(R.string.summary_hint_default)
     }
 
     private fun getSummaryDisplayName(): String {
@@ -235,10 +235,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindAppBarColorTransition() {
-        binding.appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
-            val collapsed = abs(verticalOffset) > 8
-            binding.topBarContainer.setBackgroundColor(if (collapsed) topBarCollapsedColor else topBarExpandedColor)
-        })
+//        binding.appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
+//            val collapsed = abs(verticalOffset) > 8
+//            binding.topBarContainer.setBackgroundColor(if (collapsed) topBarCollapsedColor else topBarExpandedColor)
+//        })
     }
 
     private fun applyWindowInsets() {
@@ -246,29 +246,29 @@ class MainActivity : AppCompatActivity() {
         val topBarTop = binding.topBarContainer.paddingTop
         val topBarEnd = binding.topBarContainer.paddingEnd
         val topBarBottom = binding.topBarContainer.paddingBottom
-        val appBarContentStart = binding.appBarContentContainer.paddingStart
-        val appBarContentEnd = binding.appBarContentContainer.paddingEnd
-        val appBarContentBottom = binding.appBarContentContainer.paddingBottom
+//        val appBarContentStart = binding.appBarContentContainer.paddingStart
+//        val appBarContentEnd = binding.appBarContentContainer.paddingEnd
+//        val appBarContentBottom = binding.appBarContentContainer.paddingBottom
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.topBarContainer.updatePadding(
-                left = topBarStart,
-                top = topBarTop + systemBars.top,
-                right = topBarEnd,
-                bottom = topBarBottom
-            )
-            binding.topBarContainer.post {
-                binding.appBarContentContainer.updatePadding(
-                    left = appBarContentStart,
-                    top = binding.topBarContainer.height,
-                    right = appBarContentEnd,
-                    bottom = appBarContentBottom
-                )
-                binding.topBarContainer.bringToFront()
-            }
-            insets
-        }
+//        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+//            binding.topBarContainer.updatePadding(
+//                left = topBarStart,
+//                top = topBarTop + systemBars.top,
+//                right = topBarEnd,
+//                bottom = topBarBottom
+//            )
+//            binding.topBarContainer.post {
+//                binding.appBarContentContainer.updatePadding(
+//                    left = appBarContentStart,
+//                    top = binding.topBarContainer.height,
+//                    right = appBarContentEnd,
+//                    bottom = appBarContentBottom
+//                )
+//                binding.topBarContainer.bringToFront()
+//            }
+//            insets
+//        }
     }
 
     private fun dpToPx(valueDp: Int): Int {
@@ -330,21 +330,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateMonthOptions(records: List<CallRecord>) {
-        val recordMonths = records
-            .mapNotNull { getRecordYearMonth(it) }
-            .distinct()
-            .sortedDescending()
-        val availableMonths = mergeMonthOptions(recordMonths)
-        selectedMonth = when {
-            availableMonths.isEmpty() -> null
-            selectedMonth in availableMonths -> selectedMonth
-            else -> availableMonths.first()
-        }
-        monthOptions = availableMonths
-        binding.monthContainer.removeAllViews()
-        availableMonths.forEachIndexed { index, yearMonth ->
-            binding.monthContainer.addView(createMonthView(yearMonth, yearMonth == selectedMonth, index > 0))
-        }
+//        val recordMonths = records
+//            .mapNotNull { getRecordYearMonth(it) }
+//            .distinct()
+//            .sortedDescending()
+//        val availableMonths = mergeMonthOptions(recordMonths)
+//        selectedMonth = when {
+//            availableMonths.isEmpty() -> null
+//            selectedMonth in availableMonths -> selectedMonth
+//            else -> availableMonths.first()
+//        }
+//        monthOptions = availableMonths
+//        binding.monthContainer.removeAllViews()
+//        availableMonths.forEachIndexed { index, yearMonth ->
+//            binding.monthContainer.addView(createMonthView(yearMonth, yearMonth == selectedMonth, index > 0))
+//        }
     }
 
     private fun mergeMonthOptions(recordMonths: List<YearMonth>): List<YearMonth> {
@@ -367,22 +367,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateSummary(records: List<CallRecord>) {
-        val latestRecord = records.firstOrNull()
-        val customNumber = AppPreferences.getCustomPhoneNumber(this).trim()
-        binding.tvSummaryPhone.text = if (customNumber.isNotEmpty()) {
-            maskPhoneNumber(customNumber)
-        } else {
-            latestRecord?.phoneNumber?.let { maskPhoneNumber(it) } ?: "--"
-        }
-        binding.tvSummaryName.text = getSummaryDisplayName()
-        binding.tvSummaryHint.text = if (records.isEmpty()) {
-            getString(R.string.empty_call_records).replace("\n", " ")
-        } else {
-            val attribution = latestRecord?.attribution.orEmpty()
-            val operator = latestRecord?.operator.orEmpty()
-            listOf(attribution, operator).filter { it.isNotBlank() }.joinToString(" 路 ")
-                .ifBlank { getString(R.string.summary_hint_default) }
-        }
+//        val latestRecord = records.firstOrNull()
+//        val customNumber = AppPreferences.getCustomPhoneNumber(this).trim()
+//        binding.tvSummaryPhone.text = if (customNumber.isNotEmpty()) {
+//            maskPhoneNumber(customNumber)
+//        } else {
+//            latestRecord?.phoneNumber?.let { maskPhoneNumber(it) } ?: "--"
+//        }
+//        binding.tvSummaryName.text = getSummaryDisplayName()
+//        binding.tvSummaryHint.text = if (records.isEmpty()) {
+//            getString(R.string.empty_call_records).replace("\n", " ")
+//        } else {
+//            val attribution = latestRecord?.attribution.orEmpty()
+//            val operator = latestRecord?.operator.orEmpty()
+//            listOf(attribution, operator).filter { it.isNotBlank() }.joinToString(" 路 ")
+//                .ifBlank { getString(R.string.summary_hint_default) }
+//        }
     }
 
     private suspend fun queryCallRecords(): List<CallRecord> {

@@ -7,10 +7,16 @@
 
 
 
-    <WebView
-        android:id="@+id/webViewHome"
+    <FrameLayout
+        android:id="@+id/webViewHomeContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/webViewHome"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
     <ImageView
         android:adjustViewBounds="true"
         android:id="@+id/iv_home_top_bar"

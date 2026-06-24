@@ -33,13 +33,15 @@ object CommonWebViewSupport {
             domStorageEnabled = true
             databaseEnabled = true
             loadsImagesAutomatically = true
-            useWideViewPort = true
+            useWideViewPort = false
             loadWithOverviewMode = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             allowFileAccess = true
             allowContentAccess = true
             blockNetworkLoads = false
             mediaPlaybackRequiresUserGesture = false
+            allowFileAccessFromFileURLs = true
+            allowUniversalAccessFromFileURLs = true
         }
 
         webView.overScrollMode = View.OVER_SCROLL_NEVER
@@ -61,39 +63,6 @@ object CommonWebViewSupport {
             override fun onReceivedIcon(view: WebView?, icon: android.graphics.Bitmap?) {
                 Log.d(logTag, "onReceivedIcon url=${view?.url} iconNull=${icon == null}")
                 super.onReceivedIcon(view, icon)
-            }
-
-            override fun onJsAlert(
-                view: WebView?,
-                url: String?,
-                message: String?,
-                result: JsResult?
-            ): Boolean {
-                Log.d(logTag, "onJsAlert url=$url message=$message")
-                return super.onJsAlert(view, url, message, result)
-            }
-
-            override fun onJsConfirm(
-                view: WebView?,
-                url: String?,
-                message: String?,
-                result: JsResult?
-            ): Boolean {
-                Log.d(logTag, "onJsConfirm url=$url message=$message")
-                return super.onJsConfirm(view, url, message, result)
-            }
-
-            override fun onPermissionRequest(request: PermissionRequest?) {
-                Log.d(logTag, "onPermissionRequest origin=${request?.origin} resources=${request?.resources?.joinToString()}")
-                super.onPermissionRequest(request)
-            }
-
-            override fun onGeolocationPermissionsShowPrompt(
-                origin: String?,
-                callback: GeolocationPermissions.Callback?
-            ) {
-                Log.d(logTag, "onGeolocationPermissionsShowPrompt origin=$origin")
-                super.onGeolocationPermissionsShowPrompt(origin, callback)
             }
 
             override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {

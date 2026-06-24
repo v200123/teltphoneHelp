@@ -10,18 +10,25 @@ import android.os.Looper
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.example.myservicecenter.databinding.FragmentHomeContentBinding
-import java.io.BufferedReader
 
 class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
+    companion object {
+        private const val HOME_REMOTE_URL = "https://www.msn.cn/zh-cn/news/other/%E8%A3%81%E5%88%A4%E9%A9%AC%E5%AE%81%E9%81%AD%E7%BD%91%E6%9A%B4-%E5%BE%88%E5%A4%9A%E7%90%83%E8%BF%B7%E8%BD%AC%E6%88%911%E5%88%86%E9%92%B1-%E5%86%8D%E9%AA%82%E4%B8%80%E6%AE%B5%E8%AF%9D-%E5%A6%BB%E5%AD%90-%E5%AE%B6%E9%87%8C%E6%94%B6%E5%88%B0%E8%8E%AB%E5%90%8D%E5%8C%85%E8%A3%B9-%E9%97%AE%E9%A2%98%E6%AF%94%E6%83%B3%E8%B1%A1%E7%9A%84%E8%BF%98%E8%A6%81%E4%B8%A5%E9%87%8D/ar-AA26iLZl?ocid=msedgntp&pc=CNNDDB&cvid=6a3a4da402fb479d98aab639bdd25cd7&ei=17"
+    }
+
     private var _binding: FragmentHomeContentBinding? = null
     private val binding get() = _binding!!
+    private var homeWebView: WebView? = null
+    private var isHomeWebViewConfigured = false
     private val mainHandler = Handler(Looper.getMainLooper())
     private val hideLoadingRunnable = Runnable {
         _binding?.progressHome?.visibility = View.GONE
@@ -42,8 +49,9 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeContentBinding.bind(view)
+        homeWebView = binding.webViewHome
         applyWindowInsets()
-        setupWebView()
+        ensureHomeWebView()
     }
 
     private fun applyWindowInsets() {
@@ -75,10 +83,10 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
      */
     private fun testJsBridge() {
         Log.d("HomeScroll", "testJsBridge called")
-        binding.webViewHome.evaluateJavascript("typeof HomeScrollBridge") { result ->
+        homeWebView?.evaluateJavascript("typeof HomeScrollBridge") { result ->
             Log.d("HomeScroll", "bridge type=$result")
         }
-        binding.webViewHome.evaluateJavascript("HomeScrollBridge.onScroll(99999)") { result ->
+        homeWebView?.evaluateJavascript("HomeScrollBridge.onScroll(99999)") { result ->
             Log.d("HomeScroll", "direct call result=$result")
         }
     }
@@ -117,7 +125,7 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
                 reportScroll();
             })();
         """.trimIndent()
-        binding.webViewHome.evaluateJavascript(js, null)
+        homeWebView?.evaluateJavascript(js, null)
     }
 
     /**
@@ -144,6 +152,26 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
         binding.ivHomeTopBar.colorFilter = ColorMatrixColorFilter(matrix)
     }
 
+    private fun ensureHomeWebView() {
+        val binding = _binding ?: return
+        if (homeWebView == null) {
+            val webView = WebView(requireContext()).apply {
+                id = R.id.webViewHome
+                layoutParams = FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            }
+            binding.webViewHomeContainer.addView(webView, 0)
+            homeWebView = webView
+            isHomeWebViewConfigured = false
+        }
+        if (!isHomeWebViewConfigured) {
+            setupWebView(homeWebView ?: return)
+            isHomeWebViewConfigured = true
+        }
+    }
+
     /**
      * JS 桥接类，用于接收页面滚动距离。
      */
@@ -155,12 +183,12 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
     }
 
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    private fun setupWebView() {
+    private fun setupWebView(webView: WebView) {
         binding.progressHome.visibility = View.VISIBLE
         mainHandler.removeCallbacks(hideLoadingRunnable)
         // 某些外链脚本可能长时间不结束，8 秒后强制收起加载态，避免页面一直显示“加载中”。
         mainHandler.postDelayed(hideLoadingRunnable, 8000)
-        binding.webViewHome.apply {
+        webView.apply {
             addJavascriptInterface(
                 ScrollBridge { scrollY ->
                     Log.d("HomeScroll", "scrollY=$scrollY")
@@ -188,30 +216,12 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
                     injectScrollListener()
                     scheduleFallbackScrollInjection()
                     Log.d("HomeScroll", "onPageFinished end")
+                },null, onProgressChanged = { webView, progress ->
+                    Log.d("HomeScroll", "onProgressChanged:"+progress)
                 }
             )
-            loadDataWithBaseURL(
-                "file:///android_asset/",
-                buildHomeHtml(),
-                "text/html",
-                "utf-8",
-                null
-            )
+            loadUrl("https://www.lastcoffee.top:8200/cmcc_home.html")
         }
-    }
-
-    private fun buildHomeHtml(): String {
-        val context = requireContext()
-        val html = context.assets.open("00-original.html").bufferedReader().use(BufferedReader::readText)
-        return html
-            .replace(">19.19<", ">${escapeHtmlText(AppPreferences.getWebViewHomeData(context))}<")
-            .replace(">547.58<", ">${escapeHtmlText(AppPreferences.getWebViewHomeBalance(context))}<")
-            .replace(">200<", ">${escapeHtmlText(AppPreferences.getWebViewHomeCallMinutes(context))}<")
-            .replace(">0<", ">${escapeHtmlText(AppPreferences.getWebViewHomePendingRights(context))}<")
-            .replace("通用流量剩余19.19GB", "通用流量剩余${escapeHtmlText(AppPreferences.getWebViewHomeData(context))}GB")
-            .replace("话费余额547.58元", "话费余额${escapeHtmlText(AppPreferences.getWebViewHomeBalance(context))}元")
-            .replace("通用通话剩余200分钟", "通用通话剩余${escapeHtmlText(AppPreferences.getWebViewHomeCallMinutes(context))}分钟")
-            .replace("待领取权益0个", "待领取权益${escapeHtmlText(AppPreferences.getWebViewHomePendingRights(context))}个")
     }
 
     private fun syncHomeStatsToPageStorage() {
@@ -233,7 +243,7 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
             })();
         """.trimIndent()
 
-        binding.webViewHome.evaluateJavascript(script, null)
+        homeWebView?.evaluateJavascript(script, null)
     }
 
     private fun escapeJsString(value: String): String {
@@ -244,35 +254,27 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
             .replace("\r", "")
     }
 
-    private fun escapeHtmlText(value: String): String {
-        return value
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&#39;")
-    }
-
     override fun onPause() {
         super.onPause()
-        _binding?.webViewHome?.onPause()
+        homeWebView?.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        _binding?.webViewHome?.onResume()
-        _binding?.webViewHome?.post { syncHomeStatsToPageStorage() }
+        ensureHomeWebView()
+        homeWebView?.onResume()
+        homeWebView?.post { syncHomeStatsToPageStorage() }
     }
+
+    override fun onStop() {
+        mainHandler.removeCallbacks(hideLoadingRunnable)
+        super.onStop()
+    }
+
+
 
     override fun onDestroyView() {
         mainHandler.removeCallbacks(hideLoadingRunnable)
-        _binding?.webViewHome?.apply {
-            stopLoading()
-            loadUrl("about:blank")
-            clearHistory()
-            removeAllViews()
-            destroy()
-        }
         super.onDestroyView()
         _binding = null
     }
