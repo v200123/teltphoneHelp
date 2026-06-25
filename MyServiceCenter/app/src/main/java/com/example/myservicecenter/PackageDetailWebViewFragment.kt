@@ -3,6 +3,7 @@ package com.example.myservicecenter
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -25,6 +26,7 @@ import java.util.Locale
 class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_webview) {
     companion object {
         private const val TAG = "PackageDetailFragment"
+        private const val DETAIL_PAGE_URL = "https://www.lastcoffee.top:8200/merged_order_tabs.html"
     }
 
     private var _binding: FragmentPackageDetailWebviewBinding? = null
@@ -62,8 +64,22 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                     bindEditorClick()
                 }
             )
-            loadUrl("https://www.lastcoffee.top:8200/merged_order_tabs.html")
+            loadUrl(buildDetailPageUrl())
         }
+    }
+
+    private fun buildDetailPageUrl(): String {
+        val context = context ?: return DETAIL_PAGE_URL
+        val phoneNumber = AppPreferences.getCustomPhoneNumber(context).trim()
+        val displayName = AppPreferences.getCustomDisplayName(context).trim()
+        val badgeLevel = AppPreferences.getCustomStarLevel(context).toString()
+        return Uri.parse(DETAIL_PAGE_URL)
+            .buildUpon()
+            .appendQueryParameter("phoneNumber", phoneNumber)
+            .appendQueryParameter("name", displayName)
+            .appendQueryParameter("badgeLevel", badgeLevel)
+            .build()
+            .toString()
     }
 
     private fun syncPackageListToPage() {
@@ -125,6 +141,19 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
             })();
         """.trimIndent()
         binding.webViewPackageDetail.evaluateJavascript(script, null)
+    }
+
+    private fun syncPersistedPageState() {
+        _binding?.webViewPackageDetail?.post {
+            val targetUrl = buildDetailPageUrl()
+            val currentUrl = _binding?.webViewPackageDetail?.url.orEmpty()
+            if (currentUrl != targetUrl) {
+                _binding?.webViewPackageDetail?.loadUrl(targetUrl)
+                return@post
+            }
+            syncPackageListToPage()
+            syncBasicInfoToPage()
+        }
     }
 
     private fun bindBasicInfoEditorClick() {
@@ -203,7 +232,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                 AppPreferences.setCustomPhoneNumber(context, phone)
                 AppPreferences.setCustomDisplayName(context, name)
                 AppPreferences.setCustomStarLevel(context, starLevel)
-                syncBasicInfoToPage()
+                syncPersistedPageState()
                 Toast.makeText(context, "详单基本信息已更新", Toast.LENGTH_SHORT).show()
             }
             .show()
@@ -273,9 +302,13 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         super.onResume()
         Log.d(TAG, "onResume")
         _binding?.webViewPackageDetail?.onResume()
-        _binding?.webViewPackageDetail?.post {
-            syncPackageListToPage()
-            syncBasicInfoToPage()
+        syncPersistedPageState()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            syncPersistedPageState()
         }
     }
 
