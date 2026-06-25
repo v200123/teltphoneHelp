@@ -2,6 +2,8 @@ package com.example.myservicecenter
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -15,7 +17,11 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.myservicecenter.databinding.FragmentPackageDetailWebviewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -26,6 +32,8 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
     companion object {
         private const val TAG = "PackageDetailFragment"
         private const val DETAIL_PAGE_URL = "https://www.lastcoffee.top:8200/merged_order_tabs.html"
+        private const val READ_CALL_RECORDS_PERMISSION =
+            "com.u2tzjtne.telephonehelper.permission.READ_CALL_RECORDS"
     }
 
     private var _binding: FragmentPackageDetailWebviewBinding? = null
@@ -43,6 +51,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         setupWebView()
     }
 
+    // WebView setup
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
     private fun setupWebView() {
 //        binding.progressPackageDetail.visibility = View.VISIBLE
@@ -68,6 +77,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         }
     }
 
+    // Page state and sync
     private fun buildDetailPageUrl(): String {
         val context = context ?: return DETAIL_PAGE_URL
         val phoneNumber = AppPreferences.getCustomPhoneNumber(context).trim()
@@ -98,7 +108,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
               }
             })();
         """.trimIndent()
-        binding.webViewPackageDetail.evaluateJavascript(script, null)
+        evaluatePageScript(script)
     }
 
     private fun syncBasicInfoToPage() {
@@ -121,7 +131,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
               }
             })();
         """.trimIndent()
-        binding.webViewPackageDetail.evaluateJavascript(script, null)
+        evaluatePageScript(script)
     }
 
     private fun bindEditorClick() {
@@ -140,26 +150,31 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
               }, true);
             })();
         """.trimIndent()
-        binding.webViewPackageDetail.evaluateJavascript(script, null)
+        evaluatePageScript(script)
     }
 
     private fun syncCallDetailListToPage() {
         val context = context ?: return
-        val listJson = escapeJsString(AppPreferences.getWebViewCallDetailListJson(context))
-        val script = """
-            (function() {
-              var records = [];
-              try {
-                records = JSON.parse('$listJson');
-              } catch (e) {
-                records = [];
-              }
-              if (typeof window.renderCallDetailList === 'function') {
-                window.renderCallDetailList(records);
-              }
-            })();
-        """.trimIndent()
-        binding.webViewPackageDetail.evaluateJavascript(script, null)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val listJson = withContext(Dispatchers.IO) {
+                buildCallDetailListJson(context)
+
+            }
+            val script = """
+                (function() {
+                  var records = [];
+                  try {
+                    records = JSON.parse('${escapeJsString(listJson)}');
+                  } catch (e) {
+                    records = [];
+                  }
+                  if (typeof window.renderCallDetailList === 'function') {
+                    window.renderCallDetailList(records);
+                  }
+                })();
+            """.trimIndent()
+            evaluatePageScript(script)
+        }
     }
 
     private fun syncPersistedPageState() {
@@ -176,6 +191,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         }
     }
 
+    // Page click bindings
     private fun bindBasicInfoEditorClick() {
         val script = """
             (function() {
@@ -193,9 +209,10 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
               }, true);
             })();
         """.trimIndent()
-        binding.webViewPackageDetail.evaluateJavascript(script, null)
+        evaluatePageScript(script)
     }
 
+    // Native editor dialogs
     private fun showBasicInfoEditorDialog() {
         val context = context ?: return
         val phoneInput = EditText(context).apply {
@@ -317,7 +334,8 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
             .show()
     }
 
-    private fun readFixedFeeRecord(context: android.content.Context): FixedFeeRecord {
+    // Fixed-fee editor persistence
+    private fun readFixedFeeRecord(context: Context): FixedFeeRecord {
         return try {
             val array = JSONArray(AppPreferences.getWebViewFixedFeeListJson(context))
             val first = if (array.length() > 0) array.optJSONObject(0) else null
@@ -334,7 +352,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
     }
 
     private fun buildFixedFeeListJson(
-        context: android.content.Context,
+        context: Context,
         packageName: String,
         feeText: String
     ): String {
@@ -362,10 +380,197 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         return array.toString()
     }
 
+    private suspend fun buildCallDetailListJson(context: Context): String {
+        val records = loadCallDetailRecords(context)
+        val result = JSONArray()
+        records.forEach { record ->
+            result.put(record.toWebCallDetailJson(context))
+        }
+        return result.toString()
+    }
+
+    private suspend fun loadCallDetailRecords(context: Context): List<CallRecord> {
+        val providerRecords = if (hasProviderPermission(context)) {
+            queryCallRecords(context)
+        } else {
+            emptyList()
+        }
+        withContext(Dispatchers.Main){
+            Toast.makeText(context,"数据加载完成", Toast.LENGTH_SHORT).show();
+        }
+        if (providerRecords.isNotEmpty()) {
+            return providerRecords
+        }
+        return CallRecordCacheDatabase.getInstance(context).callRecordCacheDao()
+            .getAll()
+            .map { it.toCallRecord() }
+    }
+
+    private fun hasProviderPermission(context: Context): Boolean {
+        return context.checkSelfPermission(READ_CALL_RECORDS_PERMISSION) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun queryCallRecords(context: Context): List<CallRecord> {
+        val list = mutableListOf<CallRecord>()
+        val projection = arrayOf(
+            CallRecordContract.CallRecord.COLUMN_ID,
+            CallRecordContract.CallRecord.COLUMN_PHONE_NUMBER,
+            CallRecordContract.CallRecord.COLUMN_ATTRIBUTION,
+            CallRecordContract.CallRecord.COLUMN_OPERATOR,
+            CallRecordContract.CallRecord.COLUMN_START_TIME,
+            CallRecordContract.CallRecord.COLUMN_CONNECTED_TIME,
+            CallRecordContract.CallRecord.COLUMN_END_TIME,
+            CallRecordContract.CallRecord.COLUMN_IS_CONNECTED,
+            CallRecordContract.CallRecord.COLUMN_CALL_NUMBER,
+            CallRecordContract.CallRecord.COLUMN_CALL_TYPE,
+            CallRecordContract.CallRecord.COLUMN_RECORDING_PATH,
+            CallRecordContract.CallRecord.COLUMN_RECORDING_START_TIME,
+            CallRecordContract.CallRecord.COLUMN_RECORDING_END_TIME
+        )
+        try {
+            context.contentResolver.query(
+                CallRecordContract.CallRecord.CONTENT_URI,
+                projection,
+                null,
+                null,
+                CallRecordContract.CallRecord.DEFAULT_SORT_ORDER
+            )?.use { cursor ->
+                val idIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_ID)
+                val phoneIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_PHONE_NUMBER)
+                val attributionIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_ATTRIBUTION)
+                val operatorIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_OPERATOR)
+                val startTimeIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_START_TIME)
+                val connectedTimeIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_CONNECTED_TIME)
+                val endTimeIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_END_TIME)
+                val isConnectedIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_IS_CONNECTED)
+                val callNumberIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_CALL_NUMBER)
+                val callTypeIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_CALL_TYPE)
+                val recordingPathIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_RECORDING_PATH)
+                val recordingStartTimeIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_RECORDING_START_TIME)
+                val recordingEndTimeIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_RECORDING_END_TIME)
+                while (cursor.moveToNext()) {
+                    val record = CallRecord(
+                        id = if (idIndex >= 0) cursor.getLong(idIndex) else 0,
+                        phoneNumber = if (phoneIndex >= 0) cursor.getString(phoneIndex) else null,
+                        attribution = if (attributionIndex >= 0) cursor.getString(attributionIndex) else null,
+                        operator = if (operatorIndex >= 0) cursor.getString(operatorIndex) else null,
+                        startTime = if (startTimeIndex >= 0) cursor.getLong(startTimeIndex) else 0,
+                        connectedTime = if (connectedTimeIndex >= 0) cursor.getLong(connectedTimeIndex) else 0,
+                        endTime = if (endTimeIndex >= 0) cursor.getLong(endTimeIndex) else 0,
+                        isConnected = if (isConnectedIndex >= 0) cursor.getInt(isConnectedIndex) == 1 else false,
+                        callNumber = if (callNumberIndex >= 0) cursor.getInt(callNumberIndex) else 0,
+                        callType = if (callTypeIndex >= 0) cursor.getInt(callTypeIndex) else 0,
+                        recordingPath = if (recordingPathIndex >= 0) cursor.getString(recordingPathIndex) else null,
+                        recordingStartTime = if (recordingStartTimeIndex >= 0) cursor.getLong(recordingStartTimeIndex) else 0,
+                        recordingEndTime = if (recordingEndTimeIndex >= 0) cursor.getLong(recordingEndTimeIndex) else 0
+                    )
+                    if (record.isConnected) {
+                        list.add(record)
+                    }
+                }
+            }
+        } catch (error: Exception) {
+            Log.w(TAG, "queryCallRecords failed: ${error.message}")
+        }
+        return list.sortedBy { record ->
+            when {
+                record.startTime > 0 -> record.startTime
+                record.connectedTime > 0 -> record.connectedTime
+                else -> record.endTime
+            }
+        }
+    }
+
+    private fun CallRecord.toWebCallDetailJson(context: Context): JSONObject {
+        val isIncoming = callType == 1
+        val billSeconds = calculateBillSeconds(this)
+        val billedMinutes = calculateBilledMinutes(billSeconds)
+        val displayTimestamp = resolveDisplayTimestamp(this)
+        val customRegion = AppPreferences.getCustomSelfRegion(context).trim()
+        val outgoingPackage = AppPreferences.getOutgoingPackageInfo(context).trim()
+        val customOutgoingType = AppPreferences.getCustomOutgoingCallType(context).trim()
+        val customIncomingType = AppPreferences.getCustomIncomingCallType(context).trim()
+        val title = if (isIncoming) {
+            context.getString(R.string.record_voice_hd_incoming)
+        } else {
+            context.getString(R.string.record_voice_hd_outgoing)
+        }
+        val communicationType = if (isIncoming) {
+            customIncomingType.ifBlank { context.getString(R.string.record_type_incoming_domestic) }
+        } else {
+            customOutgoingType.ifBlank { context.getString(R.string.record_type_outgoing_local) }
+        }
+        val packageName = outgoingPackage.ifBlank { "标准资费" }
+        val location = customRegion.ifBlank {
+            attribution ?: operator ?: context.getString(R.string.record_unknown_location)
+        }
+        return JSONObject().apply {
+            put("callType", title)
+            put("phoneNumber", phoneNumber.orEmpty())
+            put("time", formatCallRecordTime(displayTimestamp))
+            put("startTimeMillis", displayTimestamp)
+            put("duration", formatDuration(billSeconds))
+            put("location", location)
+            put("packageName", packageName)
+            put("communicationType", communicationType)
+            put("billingMinutes", billedMinutes.toString())
+            put("fee", "0.00")
+        }
+    }
+
     private data class FixedFeeRecord(
         val name: String,
         val fee: String
     )
+
+    // Utilities
+    private fun evaluatePageScript(script: String) {
+        binding.webViewPackageDetail.evaluateJavascript(script, null)
+    }
+
+    private fun resolveDisplayTimestamp(record: CallRecord): Long {
+        return when {
+            record.startTime > 0 -> record.startTime
+            record.connectedTime > 0 -> record.connectedTime
+            record.endTime > 0 -> record.endTime
+            else -> 0L
+        }
+    }
+
+    private fun calculateBillSeconds(record: CallRecord): Int {
+        val start = if (record.connectedTime > 0) record.connectedTime else record.startTime
+        val end = record.endTime
+        if (start <= 0 || end <= 0 || end < start) {
+            return 0
+        }
+        return ((end - start) / 1000L).coerceAtLeast(0L).toInt()
+    }
+
+    private fun calculateBilledMinutes(totalSeconds: Int): Int {
+        if (totalSeconds <= 0) {
+            return 0
+        }
+        return (totalSeconds + 59) / 60
+    }
+
+    private fun formatDuration(totalSeconds: Int): String {
+        if (totalSeconds <= 0) {
+            return "0秒"
+        }
+        if (totalSeconds < 60) {
+            return "${totalSeconds}秒"
+        }
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format(Locale.getDefault(), "%02d分%02d秒", minutes, seconds)
+    }
+
+    private fun formatCallRecordTime(timestamp: Long): String {
+        if (timestamp <= 0L) {
+            return "--"
+        }
+        return SimpleDateFormat("MM-dd HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
+    }
 
     private fun escapeJsString(value: String): String {
         return value
@@ -383,6 +588,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         ).toInt()
     }
 
+    // Fragment lifecycle
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume")
@@ -413,6 +619,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         super.onDestroy()
     }
 
+    // JS bridge
     inner class EditorBridge {
         @JavascriptInterface
         fun openEditor() {

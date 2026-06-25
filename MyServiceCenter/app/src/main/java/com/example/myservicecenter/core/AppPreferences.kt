@@ -3,6 +3,7 @@ package com.example.myservicecenter
 import android.content.Context
 
 object AppPreferences {
+    // Preference keys
     private const val PREFS_NAME = "service_center_prefs"
     private const val KEY_OUTGOING_PACKAGE_INFO = "outgoing_package_info"
     private const val KEY_CUSTOM_PHONE_NUMBER = "custom_phone_number"
@@ -21,8 +22,8 @@ object AppPreferences {
     private const val KEY_WEBVIEW_HOME_CALL_MINUTES = "webview_home_call_minutes"
     private const val KEY_WEBVIEW_HOME_PENDING_RIGHTS = "webview_home_pending_rights"
     private const val KEY_WEBVIEW_FIXED_FEE_LIST_JSON = "webview_fixed_fee_list_json"
-    private const val KEY_WEBVIEW_CALL_DETAIL_LIST_JSON = "webview_call_detail_list_json"
 
+    // Basic user info and custom display settings
     fun getOutgoingPackageInfo(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_OUTGOING_PACKAGE_INFO, "")
@@ -167,6 +168,7 @@ object AppPreferences {
             .apply()
     }
 
+    // 首页 / WebView 摘要数据
     fun getWebViewHomeData(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_WEBVIEW_HOME_DATA, "19.19")
@@ -219,6 +221,7 @@ object AppPreferences {
             .apply()
     }
 
+    // 详单页面 JSON 缓存
     fun getWebViewFixedFeeListJson(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(
@@ -244,55 +247,4 @@ object AppPreferences {
             .apply()
     }
 
-    fun getWebViewCallDetailListJson(context: Context): String {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(
-                KEY_WEBVIEW_CALL_DETAIL_LIST_JSON,
-                """
-                [
-                  {
-                    "callType": "高清语音被叫",
-                    "phoneNumber": "02880643784",
-                    "time": "06-01 09:49:07",
-                    "duration": "34秒",
-                    "location": "成都资阳眉山三地",
-                    "packageName": "标准资费",
-                    "communicationType": "国内被叫",
-                    "billingMinutes": "0",
-                    "fee": "0.00"
-                  },
-                  {
-                    "callType": "高清语音被叫",
-                    "phoneNumber": "19136066659",
-                    "time": "06-02 11:51:18",
-                    "duration": "22秒",
-                    "location": "成都资阳眉山三地",
-                    "packageName": "标准资费",
-                    "communicationType": "国内被叫",
-                    "billingMinutes": "0",
-                    "fee": "0.00"
-                  },
-                  {
-                    "callType": "高清语音被叫",
-                    "phoneNumber": "19183976240",
-                    "time": "06-02 17:12:23",
-                    "duration": "11秒",
-                    "location": "成都资阳眉山三地",
-                    "packageName": "标准资费",
-                    "communicationType": "国内被叫",
-                    "billingMinutes": "0",
-                    "fee": "0.00"
-                  }
-                ]
-                """.trimIndent()
-            )
-            .orEmpty()
-    }
-
-    fun setWebViewCallDetailListJson(context: Context, value: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(KEY_WEBVIEW_CALL_DETAIL_LIST_JSON, value.trim())
-            .apply()
-    }
 }

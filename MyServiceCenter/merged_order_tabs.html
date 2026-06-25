@@ -203,6 +203,13 @@
     return window.__callDetailItemTemplate;
   }
 
+  function cacheCallDetailTemplate() {
+    if (window.__callDetailItemTemplate) {
+      return;
+    }
+    getCallDetailTemplate();
+  }
+
   function readCallDetailRecordsFromDom() {
     return Array.from(host.querySelectorAll('.list2-item')).map((item) => {
       const titleLeft = item.querySelector('.row-title .row-left .text');
@@ -240,43 +247,84 @@
     const titleRight = item.querySelector('.row-title .row-right');
     const rows = item.querySelectorAll('.row');
     const feeNode = item.querySelector('.row-right.blue');
+    function setNodeText(node, value) {
+      if (!node) {
+        return;
+      }
+      const text = String(value == null ? '' : value).trim();
+      if (!text) {
+        return;
+      }
+      node.textContent = ' ' + text + ' ';
+    }
     if (titleLeft) {
-      titleLeft.textContent = ' ' + String(record.callType || '高清语音被叫').trim() + ' ';
+      setNodeText(titleLeft, record.callType || '高清语音被叫');
     }
     if (titleRight) {
-      titleRight.textContent = ' ' + String(record.phoneNumber || '').trim() + ' ';
+      setNodeText(titleRight, record.phoneNumber);
     }
     if (rows[0]) {
       const left = rows[0].querySelector('.row-left .text') || rows[0].querySelector('.row-left');
       const right = rows[0].querySelector('.row-right');
-      if (left) left.textContent = ' ' + String(record.time || '').trim() + ' ';
-      if (right) right.textContent = ' ' + String(record.duration || '').trim() + ' ';
+      setNodeText(left, record.time);
+      setNodeText(right, record.duration);
     }
     if (rows[1]) {
       const left = rows[1].querySelector('.row-left .text') || rows[1].querySelector('.row-left');
       const right = rows[1].querySelector('.row-right');
-      if (left) left.textContent = ' ' + String(record.location || '').trim() + ' ';
-      if (right) right.textContent = ' ' + String(record.packageName || '标准资费').trim() + ' ';
+      setNodeText(left, record.location);
+      setNodeText(right, record.packageName || '标准资费');
     }
     if (rows[2]) {
       const right = rows[2].querySelector('.row-right');
-      if (right) right.textContent = ' ' + String(record.communicationType || '国内被叫').trim() + ' ';
+      setNodeText(right, record.communicationType || '国内被叫');
     }
     if (rows[3]) {
       const right = rows[3].querySelector('.row-right');
-      if (right) right.textContent = ' ' + String(record.billingMinutes || '0').trim() + ' ';
+      setNodeText(right, record.billingMinutes || '0');
     }
     if (feeNode) {
-      feeNode.textContent = ' ¥' + formatFeeValue(record.fee) + ' ';
+      setNodeText(feeNode, '¥' + formatFeeValue(record.fee));
     }
     return itemWrap.outerHTML;
   }
 
   function getEffectiveCallDetailRecords() {
-    if (callDetailState.records.length) {
-      return callDetailState.records.slice();
+    return callDetailState.records.slice();
+  }
+
+  function matchesSelectedMonth(record) {
+    const timestamp = resolveRecordTimestamp(record);
+    if (!Number.isFinite(timestamp) || timestamp <= 0) {
+      return true;
     }
-    return readCallDetailRecordsFromDom();
+    const recordDate = new Date(timestamp);
+    const monthInfo = new Date(today.getFullYear(), today.getMonth() - selectedMonth.offset, 1);
+    return recordDate.getFullYear() === monthInfo.getFullYear()
+      && recordDate.getMonth() === monthInfo.getMonth();
+  }
+
+  function resolveRecordTimestamp(record) {
+    const timestamp = Number(record && record.startTimeMillis);
+    if (Number.isFinite(timestamp) && timestamp > 0) {
+      return timestamp;
+    }
+    const rawTime = String(record && record.time ? record.time : '').trim();
+    const match = rawTime.match(/^(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/);
+    if (!match) {
+      return 0;
+    }
+    const month = Number(match[1]);
+    const day = Number(match[2]);
+    const hour = Number(match[3]);
+    const minute = Number(match[4]);
+    const second = Number(match[5]);
+    if (![month, day, hour, minute, second].every(Number.isFinite)) {
+      return 0;
+    }
+    const currentMonth = today.getMonth() + 1;
+    const inferredYear = month > currentMonth ? today.getFullYear() - 1 : today.getFullYear();
+    return new Date(inferredYear, month - 1, day, hour, minute, second).getTime();
   }
 
   function refreshCallDetailList() {
@@ -291,11 +339,16 @@
       searchInput.value = query;
     }
     const sourceRecords = getEffectiveCallDetailRecords();
+    if (!sourceRecords.length) {
+      list.innerHTML = '<div class="van-list__placeholder"></div>';
+      return;
+    }
+    const monthFiltered = sourceRecords.filter((record) => matchesSelectedMonth(record));
     const filtered = query
-      ? sourceRecords.filter((record) => normalizePhone(record.phoneNumber).includes(query))
-      : sourceRecords;
+      ? monthFiltered.filter((record) => normalizePhone(record.phoneNumber).includes(query))
+      : monthFiltered;
     if (!filtered.length) {
-      list.innerHTML = '<div data-v-6d67ed6e="" class="item"><div data-v-60402a35="" data-v-6d67ed6e="" class="list2-item"><div data-v-60402a35="" class="row"><div data-v-60402a35="" class="row-left"><div data-v-60402a35="" class="text"> 未查询到匹配的手机号码 </div></div></div></div></div><div class="van-list__placeholder"></div>';
+      list.innerHTML = '<div data-v-6d67ed6e="" class="item"><div data-v-60402a35="" data-v-6d67ed6e="" class="call-detail-empty-row"><div data-v-60402a35="" class="row"><div data-v-60402a35="" class="row-left"><div data-v-60402a35="" class="text"> 未查询到匹配的手机号码 </div></div></div></div></div><div class="van-list__placeholder"></div>';
       return;
     }
     list.innerHTML = filtered.map((record, index) => buildCallDetailItemHtml(record, index)).join('') + '<div class="van-list__placeholder"></div>';
@@ -348,6 +401,7 @@
       updatePackageDates();
     }
     if (index === 1) {
+      cacheCallDetailTemplate();
       refreshCallDetailList();
       bindCallDetailSearch();
     }
@@ -366,6 +420,9 @@
       updateMonthTabs();
       if (tabs[0] && tabs[0].classList.contains('van-tab--active')) {
         updatePackageDates();
+      }
+      if (tabs[1] && tabs[1].classList.contains('van-tab--active')) {
+        refreshCallDetailList();
       }
     });
   });

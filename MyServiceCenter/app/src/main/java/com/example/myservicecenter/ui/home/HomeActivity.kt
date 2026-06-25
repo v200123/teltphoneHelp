@@ -1,7 +1,9 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.home
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -16,8 +18,13 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import com.example.myservicecenter.AppUpdateManager
+import com.example.myservicecenter.R
+import com.example.myservicecenter.UpdateCheckResult
 import com.example.myservicecenter.databinding.ActivityHomeBinding
+import com.example.myservicecenter.ui.main.ModulePlaceholderFragment
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,7 +78,7 @@ class HomeActivity : AppCompatActivity() {
         binding.viewPagerHome.adapter = pagerAdapter
         binding.viewPagerHome.isUserInputEnabled = false
         binding.viewPagerHome.offscreenPageLimit = 4
-        binding.viewPagerHome.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+        binding.viewPagerHome.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 if (selectedTabIndex != position) {
                     selectedTabIndex = position
@@ -127,7 +134,7 @@ class HomeActivity : AppCompatActivity() {
         selected: Boolean,
         iconSelected: Int,
         iconUnselected: Int,
-        iconView: android.widget.ImageView
+        iconView: ImageView
     ) {
         iconView.setImageResource(if (selected) iconSelected else iconUnselected)
     }
@@ -138,7 +145,7 @@ class HomeActivity : AppCompatActivity() {
         val pagerBottom = binding.viewPagerHome.paddingBottom
 
         val bottomTabBarMarginBottom =
-            (binding.bottomTabBar.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0
+            (binding.bottomTabBar.layoutParams as? ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -148,7 +155,7 @@ class HomeActivity : AppCompatActivity() {
                 right = pagerEnd,
                 bottom = pagerBottom
             )
-            binding.bottomTabBar.updateLayoutParams<android.view.ViewGroup.MarginLayoutParams> {
+            binding.bottomTabBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = bottomTabBarMarginBottom + systemBars.bottom
             }
             insets

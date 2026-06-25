@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.home
 
 import android.content.Intent
 import android.graphics.Typeface
@@ -11,17 +11,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.GridLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.example.myservicecenter.AppPreferences
+import com.example.myservicecenter.R
+import com.example.myservicecenter.SettingsActivity
 import com.example.myservicecenter.databinding.FragmentHomeMineBinding
 import com.example.myservicecenter.databinding.ItemHomeMineComboBinding
 import com.example.myservicecenter.databinding.ItemHomeMineServiceCenterBinding
+import com.example.myservicecenter.ui.main.MainActivity
 import kotlin.jvm.java
 
 class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {

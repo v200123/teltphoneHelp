@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.main
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,16 +11,22 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.myservicecenter.AppPreferences
+import com.example.myservicecenter.CallDetailFragment
+import com.example.myservicecenter.CallRecord
+import com.example.myservicecenter.CallRecordCacheDatabase
+import com.example.myservicecenter.CallRecordContract
+import com.example.myservicecenter.PackageDetailWebViewFragment
+import com.example.myservicecenter.R
+import com.example.myservicecenter.SettingsActivity
 import com.example.myservicecenter.databinding.ActivityMainBinding
-import com.google.android.material.appbar.AppBarLayout
+import com.example.myservicecenter.toCachedEntity
+import com.example.myservicecenter.toCallRecord
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,7 +34,6 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.YearMonth
 import java.time.ZoneId
-import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -432,14 +437,22 @@ class MainActivity : AppCompatActivity() {
                         attribution = if (attributionIndex >= 0) cursor.getString(attributionIndex) else null,
                         operator = if (operatorIndex >= 0) cursor.getString(operatorIndex) else null,
                         startTime = if (startTimeIndex >= 0) cursor.getLong(startTimeIndex) else 0,
-                        connectedTime = if (connectedTimeIndex >= 0) cursor.getLong(connectedTimeIndex) else 0,
+                        connectedTime = if (connectedTimeIndex >= 0) cursor.getLong(
+                            connectedTimeIndex
+                        ) else 0,
                         endTime = if (endTimeIndex >= 0) cursor.getLong(endTimeIndex) else 0,
                         isConnected = if (isConnectedIndex >= 0) cursor.getInt(isConnectedIndex) == 1 else false,
                         callNumber = if (callNumberIndex >= 0) cursor.getInt(callNumberIndex) else 0,
                         callType = if (callTypeIndex >= 0) cursor.getInt(callTypeIndex) else 0,
-                        recordingPath = if (recordingPathIndex >= 0) cursor.getString(recordingPathIndex) else null,
-                        recordingStartTime = if (recordingStartTimeIndex >= 0) cursor.getLong(recordingStartTimeIndex) else 0,
-                        recordingEndTime = if (recordingEndTimeIndex >= 0) cursor.getLong(recordingEndTimeIndex) else 0
+                        recordingPath = if (recordingPathIndex >= 0) cursor.getString(
+                            recordingPathIndex
+                        ) else null,
+                        recordingStartTime = if (recordingStartTimeIndex >= 0) cursor.getLong(
+                            recordingStartTimeIndex
+                        ) else 0,
+                        recordingEndTime = if (recordingEndTimeIndex >= 0) cursor.getLong(
+                            recordingEndTimeIndex
+                        ) else 0
                     )
                     if (record.isConnected) list.add(record)
                 }
@@ -467,7 +480,7 @@ private class DetailPagerAdapter(
     val callDetailFragment = CallDetailFragment()
     override fun getItemCount(): Int = pages.size
 
-    override fun createFragment(position: Int): androidx.fragment.app.Fragment {
+    override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> packageDetailFragment
             1 -> callDetailFragment

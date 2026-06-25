@@ -1,8 +1,9 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.main
 
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.example.myservicecenter.R
 import com.example.myservicecenter.databinding.FragmentModulePlaceholderBinding
 
 class ModulePlaceholderFragment : Fragment(R.layout.fragment_module_placeholder) {

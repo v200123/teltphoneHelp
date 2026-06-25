@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.home
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -18,13 +18,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import com.example.myservicecenter.AppPreferences
+import com.example.myservicecenter.CommonWebViewSupport
+import com.example.myservicecenter.R
 import com.example.myservicecenter.databinding.FragmentHomeContentBinding
 
 class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
-    companion object {
-        private const val HOME_REMOTE_URL = "https://www.msn.cn/zh-cn/news/other/%E8%A3%81%E5%88%A4%E9%A9%AC%E5%AE%81%E9%81%AD%E7%BD%91%E6%9A%B4-%E5%BE%88%E5%A4%9A%E7%90%83%E8%BF%B7%E8%BD%AC%E6%88%911%E5%88%86%E9%92%B1-%E5%86%8D%E9%AA%82%E4%B8%80%E6%AE%B5%E8%AF%9D-%E5%A6%BB%E5%AD%90-%E5%AE%B6%E9%87%8C%E6%94%B6%E5%88%B0%E8%8E%AB%E5%90%8D%E5%8C%85%E8%A3%B9-%E9%97%AE%E9%A2%98%E6%AF%94%E6%83%B3%E8%B1%A1%E7%9A%84%E8%BF%98%E8%A6%81%E4%B8%A5%E9%87%8D/ar-AA26iLZl?ocid=msedgntp&pc=CNNDDB&cvid=6a3a4da402fb479d98aab639bdd25cd7&ei=17"
-    }
-
     private var _binding: FragmentHomeContentBinding? = null
     private val binding get() = _binding!!
     private var homeWebView: WebView? = null

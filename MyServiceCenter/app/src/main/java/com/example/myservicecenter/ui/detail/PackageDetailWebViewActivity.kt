@@ -1,10 +1,10 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.detail
 
 import android.os.Bundle
 import android.util.Log
-import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import com.example.myservicecenter.CommonWebViewSupport
 import com.example.myservicecenter.databinding.ActivityPackageDetailWebviewBinding
 import java.io.BufferedReader
 
