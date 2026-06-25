@@ -154,6 +154,184 @@
     });
   }
 
+  function formatFeeValue(value) {
+    const numeric = Number(value);
+    if (Number.isFinite(numeric)) {
+      return numeric.toFixed(2);
+    }
+    const text = String(value == null ? '' : value).trim();
+    return text || '0.00';
+  }
+
+  window.renderFixedFeeList = function(records) {
+    const item = host.querySelector('.list1-item');
+    if (!item || !Array.isArray(records) || !records.length) {
+      return;
+    }
+    const record = records[0] || {};
+    const nameNode = item.querySelector('.row-title .text');
+    const feeNode = item.querySelector('.item-detail-row-value.blue');
+    if (nameNode && record.name) {
+      nameNode.textContent = ' ' + String(record.name).trim() + ' ';
+    }
+    if (feeNode) {
+      feeNode.textContent = ' ¥' + formatFeeValue(record.fee) + ' ';
+    }
+  }
+
+  const callDetailState = {
+    records: [],
+    query: ''
+  }
+
+  function normalizePhone(value) {
+    return String(value == null ? '' : value).replace(/\D/g, '');
+  }
+
+  function getCallDetailTemplate() {
+    const listItem = host.querySelector('.list2-item');
+    if (!listItem) {
+      return '';
+    }
+    const item = listItem.closest('.item');
+    if (!item) {
+      return '';
+    }
+    if (!window.__callDetailItemTemplate) {
+      window.__callDetailItemTemplate = item.outerHTML;
+    }
+    return window.__callDetailItemTemplate;
+  }
+
+  function readCallDetailRecordsFromDom() {
+    return Array.from(host.querySelectorAll('.list2-item')).map((item) => {
+      const titleLeft = item.querySelector('.row-title .row-left .text');
+      const titleRight = item.querySelector('.row-title .row-right');
+      const rows = item.querySelectorAll('.row');
+      const feeNode = item.querySelector('.row-right.blue');
+      return {
+        callType: titleLeft ? titleLeft.textContent.trim() : '',
+        phoneNumber: titleRight ? titleRight.textContent.trim() : '',
+        time: rows[0] ? (rows[0].querySelector('.row-left .text') || rows[0].querySelector('.row-left')).textContent.trim() : '',
+        duration: rows[0] ? (rows[0].querySelector('.row-right') || { textContent: '' }).textContent.trim() : '',
+        location: rows[1] ? (rows[1].querySelector('.row-left .text') || rows[1].querySelector('.row-left')).textContent.trim() : '',
+        packageName: rows[1] ? (rows[1].querySelector('.row-right') || { textContent: '' }).textContent.trim() : '',
+        communicationType: rows[2] ? (rows[2].querySelector('.row-right') || { textContent: '' }).textContent.trim() : '',
+        billingMinutes: rows[3] ? (rows[3].querySelector('.row-right') || { textContent: '' }).textContent.trim() : '',
+        fee: feeNode ? feeNode.textContent.replace('¥', '').trim() : '0.00'
+      };
+    });
+  }
+
+  function buildCallDetailItemHtml(record, index) {
+    const template = getCallDetailTemplate();
+    if (!template) {
+      return '';
+    }
+    const container = document.createElement('div');
+    container.innerHTML = template;
+    const itemWrap = container.firstElementChild;
+    const item = itemWrap ? itemWrap.querySelector('.list2-item') : null;
+    if (!itemWrap || !item) {
+      return '';
+    }
+    item.className = item.className.replace(/record-item-\d+/, 'record-item-' + index);
+    const titleLeft = item.querySelector('.row-title .row-left .text');
+    const titleRight = item.querySelector('.row-title .row-right');
+    const rows = item.querySelectorAll('.row');
+    const feeNode = item.querySelector('.row-right.blue');
+    if (titleLeft) {
+      titleLeft.textContent = ' ' + String(record.callType || '高清语音被叫').trim() + ' ';
+    }
+    if (titleRight) {
+      titleRight.textContent = ' ' + String(record.phoneNumber || '').trim() + ' ';
+    }
+    if (rows[0]) {
+      const left = rows[0].querySelector('.row-left .text') || rows[0].querySelector('.row-left');
+      const right = rows[0].querySelector('.row-right');
+      if (left) left.textContent = ' ' + String(record.time || '').trim() + ' ';
+      if (right) right.textContent = ' ' + String(record.duration || '').trim() + ' ';
+    }
+    if (rows[1]) {
+      const left = rows[1].querySelector('.row-left .text') || rows[1].querySelector('.row-left');
+      const right = rows[1].querySelector('.row-right');
+      if (left) left.textContent = ' ' + String(record.location || '').trim() + ' ';
+      if (right) right.textContent = ' ' + String(record.packageName || '标准资费').trim() + ' ';
+    }
+    if (rows[2]) {
+      const right = rows[2].querySelector('.row-right');
+      if (right) right.textContent = ' ' + String(record.communicationType || '国内被叫').trim() + ' ';
+    }
+    if (rows[3]) {
+      const right = rows[3].querySelector('.row-right');
+      if (right) right.textContent = ' ' + String(record.billingMinutes || '0').trim() + ' ';
+    }
+    if (feeNode) {
+      feeNode.textContent = ' ¥' + formatFeeValue(record.fee) + ' ';
+    }
+    return itemWrap.outerHTML;
+  }
+
+  function getEffectiveCallDetailRecords() {
+    if (callDetailState.records.length) {
+      return callDetailState.records.slice();
+    }
+    return readCallDetailRecordsFromDom();
+  }
+
+  function refreshCallDetailList() {
+    const list = host.querySelector('.detail-list-wrap .van-list');
+    const searchWrap = host.querySelector('.search-box');
+    const searchInput = host.querySelector('.search-box input');
+    if (!list || !searchWrap) {
+      return;
+    }
+    const query = normalizePhone(callDetailState.query || (searchInput ? searchInput.value : ''));
+    if (searchInput) {
+      searchInput.value = query;
+    }
+    const sourceRecords = getEffectiveCallDetailRecords();
+    const filtered = query
+      ? sourceRecords.filter((record) => normalizePhone(record.phoneNumber).includes(query))
+      : sourceRecords;
+    if (!filtered.length) {
+      list.innerHTML = '<div data-v-6d67ed6e="" class="item"><div data-v-60402a35="" data-v-6d67ed6e="" class="list2-item"><div data-v-60402a35="" class="row"><div data-v-60402a35="" class="row-left"><div data-v-60402a35="" class="text"> 未查询到匹配的手机号码 </div></div></div></div></div><div class="van-list__placeholder"></div>';
+      return;
+    }
+    list.innerHTML = filtered.map((record, index) => buildCallDetailItemHtml(record, index)).join('') + '<div class="van-list__placeholder"></div>';
+  }
+
+  function bindCallDetailSearch() {
+    const searchInput = host.querySelector('.search-box input');
+    const searchButton = host.querySelector('.search-box .search-btn');
+    if (!searchInput || searchInput.dataset.callSearchBound === '1') {
+      return;
+    }
+    searchInput.dataset.callSearchBound = '1';
+    searchInput.value = callDetailState.query;
+    const submit = function() {
+      callDetailState.query = normalizePhone(searchInput.value);
+      refreshCallDetailList();
+    };
+    searchInput.addEventListener('input', function() {
+      callDetailState.query = normalizePhone(searchInput.value);
+    });
+    searchInput.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        submit();
+      }
+    });
+    if (searchButton) {
+      searchButton.addEventListener('click', submit);
+    }
+  }
+
+  window.renderCallDetailList = function(records) {
+    callDetailState.records = Array.isArray(records) ? records.slice() : [];
+    refreshCallDetailList();
+    bindCallDetailSearch();
+  }
+
   function render(index) {
     const current = records[index] || records[0];
     tabs.forEach((tab, tabIndex) => {
@@ -168,6 +346,10 @@
     host.innerHTML = current.detail_html;
     if (index === 0) {
       updatePackageDates();
+    }
+    if (index === 1) {
+      refreshCallDetailList();
+      bindCallDetailSearch();
     }
     window.scrollTo({ top: 0, behavior: 'auto' });
   }

@@ -8,17 +8,16 @@ import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.util.TypedValue
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.myservicecenter.databinding.FragmentPackageDetailWebviewBinding
 import org.json.JSONArray
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -59,6 +58,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                 onPageFinished = { _, _ ->
 //                    binding.progressPackageDetail.visibility = View.GONE
                     syncPackageListToPage()
+                    syncCallDetailListToPage()
                     syncBasicInfoToPage()
                     bindBasicInfoEditorClick()
                     bindEditorClick()
@@ -143,6 +143,25 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         binding.webViewPackageDetail.evaluateJavascript(script, null)
     }
 
+    private fun syncCallDetailListToPage() {
+        val context = context ?: return
+        val listJson = escapeJsString(AppPreferences.getWebViewCallDetailListJson(context))
+        val script = """
+            (function() {
+              var records = [];
+              try {
+                records = JSON.parse('$listJson');
+              } catch (e) {
+                records = [];
+              }
+              if (typeof window.renderCallDetailList === 'function') {
+                window.renderCallDetailList(records);
+              }
+            })();
+        """.trimIndent()
+        binding.webViewPackageDetail.evaluateJavascript(script, null)
+    }
+
     private fun syncPersistedPageState() {
         _binding?.webViewPackageDetail?.post {
             val targetUrl = buildDetailPageUrl()
@@ -152,6 +171,7 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                 return@post
             }
             syncPackageListToPage()
+            syncCallDetailListToPage()
             syncBasicInfoToPage()
         }
     }
@@ -240,47 +260,112 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
 
     private fun showEditorDialog() {
         val context = context ?: return
-        val editor = EditText(context).apply {
-            setText(AppPreferences.getWebViewFixedFeeListJson(context))
-            inputType = InputType.TYPE_CLASS_TEXT or
-                InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            minLines = 10
-            gravity = Gravity.TOP or Gravity.START
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+        val currentRecord = readFixedFeeRecord(context)
+        val nameInput = EditText(context).apply {
+            hint = "请输入套餐名称"
+            inputType = InputType.TYPE_CLASS_TEXT
+            setText(currentRecord.name)
+            maxLines = 2
+        }
+        val feeInput = EditText(context).apply {
+            hint = "请输入金额"
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            setText(currentRecord.fee)
+            maxLines = 1
         }
 
-        val container = FrameLayout(context).apply {
-            val horizontal = dpToPx(20)
-            val vertical = dpToPx(12)
-            setPadding(horizontal, vertical, horizontal, 0)
-            addView(
-                editor,
-                FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-            )
+        listOf(nameInput, feeInput).forEachIndexed { index, editText ->
+            editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+            editText.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                if (index > 0) {
+                    topMargin = dpToPx(12)
+                }
+            }
+        }
+
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dpToPx(20), dpToPx(12), dpToPx(20), 0)
+            addView(nameInput)
+            addView(feeInput)
         }
 
         AlertDialog.Builder(context)
             .setTitle("设置套餐及固定费用详单数据")
-            .setMessage("请输入列表 JSON 数组，字段支持 name、cycle、fee、description。")
+            .setMessage("点击套餐内容即可再次打开。这里只修改套餐名称和费用。")
             .setView(container)
             .setNegativeButton("取消", null)
             .setPositiveButton("保存") { _, _ ->
-                val input = editor.text?.toString().orEmpty().trim()
+                val packageName = nameInput.text?.toString().orEmpty().trim()
+                val feeText = feeInput.text?.toString().orEmpty().trim()
                 try {
-                    JSONArray(input)
-                    AppPreferences.setWebViewFixedFeeListJson(context, input)
+                    val savedJson = buildFixedFeeListJson(
+                        context = context,
+                        packageName = packageName,
+                        feeText = feeText
+                    )
+                    AppPreferences.setWebViewFixedFeeListJson(context, savedJson)
                     syncPackageListToPage()
                     Toast.makeText(context, "套餐详单数据已更新", Toast.LENGTH_SHORT).show()
                 } catch (error: Exception) {
-                    Toast.makeText(context, "JSON 格式不正确：${error.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "保存失败：${error.message}", Toast.LENGTH_LONG).show()
                 }
             }
             .show()
     }
+
+    private fun readFixedFeeRecord(context: android.content.Context): FixedFeeRecord {
+        return try {
+            val array = JSONArray(AppPreferences.getWebViewFixedFeeListJson(context))
+            val first = if (array.length() > 0) array.optJSONObject(0) else null
+            FixedFeeRecord(
+                name = first?.optString("name").orEmpty().ifBlank { "自由选套餐8元档（语音版）" },
+                fee = first?.opt("fee")?.toString().orEmpty().ifBlank { "8.00" }
+            )
+        } catch (_: Exception) {
+            FixedFeeRecord(
+                name = "自由选套餐8元档（语音版）",
+                fee = "8.00"
+            )
+        }
+    }
+
+    private fun buildFixedFeeListJson(
+        context: android.content.Context,
+        packageName: String,
+        feeText: String
+    ): String {
+        val existingJson = AppPreferences.getWebViewFixedFeeListJson(context)
+        val array = try {
+            JSONArray(existingJson)
+        } catch (_: Exception) {
+            JSONArray()
+        }
+        val first = if (array.length() > 0) {
+            array.optJSONObject(0) ?: JSONObject()
+        } else {
+            JSONObject()
+        }
+        first.put("name", packageName.ifBlank { "自由选套餐8元档（语音版）" })
+        first.put("fee", feeText.toDoubleOrNull() ?: 8.0)
+        if (!first.has("description")) {
+            first.put("description", "")
+        }
+        if (array.length() > 0) {
+            array.put(0, first)
+        } else {
+            array.put(first)
+        }
+        return array.toString()
+    }
+
+    private data class FixedFeeRecord(
+        val name: String,
+        val fee: String
+    )
 
     private fun escapeJsString(value: String): String {
         return value
