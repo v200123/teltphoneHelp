@@ -256,18 +256,55 @@
     }
     window.__packageDetailScrollBound = true;
     let ticking = false;
+    let lastReportedScrollTop = -1;
+    let anchorBaseTop = null;
+    function getAnchorHost() {
+      return (
+        document.querySelector('.page-content') ||
+        document.querySelector('.page-main') ||
+        document.querySelector('.page-container') ||
+        document.body
+      );
+    }
+    function ensureAnchor() {
+      const hostNode = getAnchorHost();
+      if (!hostNode) {
+        return null;
+      }
+      let anchor = document.getElementById('native-scroll-anchor');
+      if (anchor) {
+        return anchor;
+      }
+      anchor = document.createElement('div');
+      anchor.id = 'native-scroll-anchor';
+      anchor.style.cssText = 'position:relative;height:0;pointer-events:none;';
+      if (hostNode.firstChild) {
+        hostNode.insertBefore(anchor, hostNode.firstChild);
+      } else {
+        hostNode.appendChild(anchor);
+      }
+      return anchor;
+    }
     function getScrollTop() {
-      let y = window.scrollY || 0;
-      if (y > 0) return y;
-      y = document.documentElement ? document.documentElement.scrollTop : 0;
-      if (y > 0) return y;
-      y = document.body ? document.body.scrollTop : 0;
-      return y || 0;
+      const anchor = ensureAnchor();
+      if (!anchor) {
+        return 0;
+      }
+      const currentTop = anchor.getBoundingClientRect().top;
+      if (anchorBaseTop === null) {
+        anchorBaseTop = currentTop;
+      }
+      return Math.max(0, Math.round(anchorBaseTop - currentTop));
     }
     function reportScroll() {
       ticking = false;
+      const scrollTop = getScrollTop();
+      if (scrollTop === lastReportedScrollTop) {
+        return;
+      }
+      lastReportedScrollTop = scrollTop;
       if (window.PackageDetailBridge && typeof window.PackageDetailBridge.onPageScroll === 'function') {
-        window.PackageDetailBridge.onPageScroll(String(getScrollTop()));
+        window.PackageDetailBridge.onPageScroll(String(scrollTop));
       }
     }
     function scheduleReport() {
@@ -281,8 +318,21 @@
         setTimeout(reportScroll, 16);
       }
     }
-    window.addEventListener('scroll', scheduleReport, { passive: true });
-    document.addEventListener('scroll', scheduleReport, { passive: true });
+    const eventTargets = [
+      window,
+      document,
+      document.documentElement,
+      document.body,
+      document.querySelector('.page-content'),
+      document.querySelector('.page-main'),
+      document.querySelector('.page-container')
+    ].filter(Boolean);
+    eventTargets.forEach(function(target) {
+      if (typeof target.addEventListener === 'function') {
+        target.addEventListener('scroll', scheduleReport, { passive: true });
+      }
+    });
+    setInterval(reportScroll, 120);
     reportScroll();
   }
 
