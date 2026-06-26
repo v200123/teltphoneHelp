@@ -21,7 +21,7 @@ import com.example.myservicecenter.CallDetailFragment
 import com.example.myservicecenter.CallRecord
 import com.example.myservicecenter.CallRecordCacheDatabase
 import com.example.myservicecenter.CallRecordContract
-import com.example.myservicecenter.PackageDetailWebViewFragment
+import com.example.myservicecenter.ui.detail.PackageDetailWebViewFragment
 import com.example.myservicecenter.R
 import com.example.myservicecenter.SettingsActivity
 import com.example.myservicecenter.databinding.ActivityMainBinding
@@ -39,6 +39,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var topBarExpandedColor: Int = Color.TRANSPARENT
     private var topBarCollapsedColor: Int = Color.TRANSPARENT
+    private var pageScrollThresholdPx: Int = 0
+    private var lastTopBarCollapsedState: Boolean? = null
     private var monthOptions: List<YearMonth> = emptyList()
     private var selectedMonth: YearMonth? = null
     private val monthZoneId: ZoneId = ZoneId.systemDefault()
@@ -78,17 +80,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         topBarExpandedColor = Color.TRANSPARENT
-        topBarCollapsedColor = Color.TRANSPARENT
+        topBarCollapsedColor = Color.WHITE
+        pageScrollThresholdPx = dpToPx(72)
         binding.topBarContainer.setBackgroundColor(topBarExpandedColor)
         binding.topBarContainer.bringToFront()
 
         binding.btnMore.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
-        binding.ivBack.setOnClickListener { finish() }
+        binding.ivBack.setOnClickListener  { finish() }
         applyCustomNumberInfo()
 
         setupMonthSelector()
         setupDetailTabsAndPager()
         loadCallRecords()
+    }
+
+    fun updateTopBarForPageScroll(scrollY: Int) {
+        val collapsed = scrollY >= pageScrollThresholdPx
+        if (lastTopBarCollapsedState == collapsed) {
+            return
+        }
+        lastTopBarCollapsedState = collapsed
+        binding.topBarContainer.setBackgroundColor(
+            if (collapsed) topBarCollapsedColor else topBarExpandedColor
+        )
     }
 
     private fun setupDetailTabsAndPager() {

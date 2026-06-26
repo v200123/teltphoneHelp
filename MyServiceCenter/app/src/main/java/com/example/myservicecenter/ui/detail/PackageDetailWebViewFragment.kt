@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.detail
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -18,15 +18,25 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.myservicecenter.AppPreferences
+import com.example.myservicecenter.CallRecord
+import com.example.myservicecenter.CallRecordCacheDatabase
+import com.example.myservicecenter.CallRecordContract
+import com.example.myservicecenter.CommonWebViewSupport
+import com.example.myservicecenter.R
 import com.example.myservicecenter.databinding.FragmentPackageDetailWebviewBinding
+import com.example.myservicecenter.ui.main.MainActivity
+import com.example.myservicecenter.toCallRecord
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.collections.forEach
 
 class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_webview) {
     companion object {
@@ -67,7 +77,6 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                 onPageFinished = { _, _ ->
 //                    binding.progressPackageDetail.visibility = View.GONE
                     syncPackageListToPage()
-                    syncCallDetailListToPage()
                     syncBasicInfoToPage()
                     bindBasicInfoEditorClick()
                     bindEditorClick()
@@ -153,12 +162,24 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         evaluatePageScript(script)
     }
 
-    private fun syncCallDetailListToPage() {
+    private fun syncPersistedPageState() {
+        _binding?.webViewPackageDetail?.post {
+            val targetUrl = buildDetailPageUrl()
+            val currentUrl = _binding?.webViewPackageDetail?.url.orEmpty()
+            if (currentUrl != targetUrl) {
+                _binding?.webViewPackageDetail?.loadUrl(targetUrl)
+                return@post
+            }
+            syncPackageListToPage()
+            syncBasicInfoToPage()
+        }
+    }
+
+    private fun requestCallDetailListForMonth(year: Int, month: Int) {
         val context = context ?: return
         viewLifecycleOwner.lifecycleScope.launch {
             val listJson = withContext(Dispatchers.IO) {
-                buildCallDetailListJson(context)
-
+                buildCallDetailListJson(context, year, month)
             }
             val script = """
                 (function() {
@@ -169,25 +190,11 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                     records = [];
                   }
                   if (typeof window.renderCallDetailList === 'function') {
-                    window.renderCallDetailList(records);
+                    window.renderCallDetailList(records, { year: $year, month: $month });
                   }
                 })();
             """.trimIndent()
             evaluatePageScript(script)
-        }
-    }
-
-    private fun syncPersistedPageState() {
-        _binding?.webViewPackageDetail?.post {
-            val targetUrl = buildDetailPageUrl()
-            val currentUrl = _binding?.webViewPackageDetail?.url.orEmpty()
-            if (currentUrl != targetUrl) {
-                _binding?.webViewPackageDetail?.loadUrl(targetUrl)
-                return@post
-            }
-            syncPackageListToPage()
-            syncCallDetailListToPage()
-            syncBasicInfoToPage()
         }
     }
 
@@ -380,8 +387,8 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         return array.toString()
     }
 
-    private suspend fun buildCallDetailListJson(context: Context): String {
-        val records = loadCallDetailRecords(context)
+    private suspend fun buildCallDetailListJson(context: Context, year: Int, month: Int): String {
+        val records = loadCallDetailRecords(context, year, month)
         val result = JSONArray()
         records.forEach { record ->
             result.put(record.toWebCallDetailJson(context))
@@ -389,28 +396,32 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         return result.toString()
     }
 
-    private suspend fun loadCallDetailRecords(context: Context): List<CallRecord> {
+    private suspend fun loadCallDetailRecords(context: Context, year: Int, month: Int): List<CallRecord> {
         val providerRecords = if (hasProviderPermission(context)) {
-            queryCallRecords(context)
+            queryCallRecords(context, year, month)
         } else {
             emptyList()
         }
-        withContext(Dispatchers.Main){
-            Toast.makeText(context,"数据加载完成", Toast.LENGTH_SHORT).show();
-        }
         if (providerRecords.isNotEmpty()) {
+            withContext(Dispatchers.Main){
+                Toast.makeText(context,"读取到${providerRecords.size}条数据", Toast.LENGTH_SHORT).show()
+            }
             return providerRecords
         }
-        return CallRecordCacheDatabase.getInstance(context).callRecordCacheDao()
+        return filterCallRecordsByMonth(
+            CallRecordCacheDatabase.getInstance(context).callRecordCacheDao()
             .getAll()
-            .map { it.toCallRecord() }
+            .map { it.toCallRecord() },
+            year,
+            month
+        )
     }
 
     private fun hasProviderPermission(context: Context): Boolean {
         return context.checkSelfPermission(READ_CALL_RECORDS_PERMISSION) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun queryCallRecords(context: Context): List<CallRecord> {
+    private fun queryCallRecords(context: Context, year: Int, month: Int): List<CallRecord> {
         val list = mutableListOf<CallRecord>()
         val projection = arrayOf(
             CallRecordContract.CallRecord.COLUMN_ID,
@@ -427,12 +438,32 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
             CallRecordContract.CallRecord.COLUMN_RECORDING_START_TIME,
             CallRecordContract.CallRecord.COLUMN_RECORDING_END_TIME
         )
+        val (monthStartMillis, nextMonthStartMillis) = buildMonthRange(year, month)
+        val selection = """
+            (
+              (${CallRecordContract.CallRecord.COLUMN_START_TIME} >= ? AND ${CallRecordContract.CallRecord.COLUMN_START_TIME} < ?)
+              OR
+              (${CallRecordContract.CallRecord.COLUMN_START_TIME} <= 0 AND ${CallRecordContract.CallRecord.COLUMN_CONNECTED_TIME} >= ? AND ${CallRecordContract.CallRecord.COLUMN_CONNECTED_TIME} < ?)
+              OR
+              (${CallRecordContract.CallRecord.COLUMN_START_TIME} <= 0 AND ${CallRecordContract.CallRecord.COLUMN_CONNECTED_TIME} <= 0 AND ${CallRecordContract.CallRecord.COLUMN_END_TIME} >= ? AND ${CallRecordContract.CallRecord.COLUMN_END_TIME} < ?)
+            )
+            AND ${CallRecordContract.CallRecord.COLUMN_IS_CONNECTED} = ?
+        """.trimIndent()
+        val selectionArgs = arrayOf(
+            monthStartMillis.toString(),
+            nextMonthStartMillis.toString(),
+            monthStartMillis.toString(),
+            nextMonthStartMillis.toString(),
+            monthStartMillis.toString(),
+            nextMonthStartMillis.toString(),
+            "1"
+        )
         try {
             context.contentResolver.query(
                 CallRecordContract.CallRecord.CONTENT_URI,
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 CallRecordContract.CallRecord.DEFAULT_SORT_ORDER
             )?.use { cursor ->
                 val idIndex = cursor.getColumnIndex(CallRecordContract.CallRecord.COLUMN_ID)
@@ -455,14 +486,22 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                         attribution = if (attributionIndex >= 0) cursor.getString(attributionIndex) else null,
                         operator = if (operatorIndex >= 0) cursor.getString(operatorIndex) else null,
                         startTime = if (startTimeIndex >= 0) cursor.getLong(startTimeIndex) else 0,
-                        connectedTime = if (connectedTimeIndex >= 0) cursor.getLong(connectedTimeIndex) else 0,
+                        connectedTime = if (connectedTimeIndex >= 0) cursor.getLong(
+                            connectedTimeIndex
+                        ) else 0,
                         endTime = if (endTimeIndex >= 0) cursor.getLong(endTimeIndex) else 0,
                         isConnected = if (isConnectedIndex >= 0) cursor.getInt(isConnectedIndex) == 1 else false,
                         callNumber = if (callNumberIndex >= 0) cursor.getInt(callNumberIndex) else 0,
                         callType = if (callTypeIndex >= 0) cursor.getInt(callTypeIndex) else 0,
-                        recordingPath = if (recordingPathIndex >= 0) cursor.getString(recordingPathIndex) else null,
-                        recordingStartTime = if (recordingStartTimeIndex >= 0) cursor.getLong(recordingStartTimeIndex) else 0,
-                        recordingEndTime = if (recordingEndTimeIndex >= 0) cursor.getLong(recordingEndTimeIndex) else 0
+                        recordingPath = if (recordingPathIndex >= 0) cursor.getString(
+                            recordingPathIndex
+                        ) else null,
+                        recordingStartTime = if (recordingStartTimeIndex >= 0) cursor.getLong(
+                            recordingStartTimeIndex
+                        ) else 0,
+                        recordingEndTime = if (recordingEndTimeIndex >= 0) cursor.getLong(
+                            recordingEndTimeIndex
+                        ) else 0
                     )
                     if (record.isConnected) {
                         list.add(record)
@@ -477,6 +516,36 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
                 record.startTime > 0 -> record.startTime
                 record.connectedTime > 0 -> record.connectedTime
                 else -> record.endTime
+            }
+        }
+    }
+
+    private fun buildMonthRange(year: Int, month: Int): Pair<Long, Long> {
+        val startCalendar = Calendar.getInstance().apply {
+            clear()
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month - 1)
+            set(Calendar.DAY_OF_MONTH, 1)
+        }
+        val endCalendar = Calendar.getInstance().apply {
+            timeInMillis = startCalendar.timeInMillis
+            add(Calendar.MONTH, 1)
+        }
+        return startCalendar.timeInMillis to endCalendar.timeInMillis
+    }
+
+    private fun filterCallRecordsByMonth(records: List<CallRecord>, year: Int, month: Int): List<CallRecord> {
+        if (records.isEmpty()) {
+            return emptyList()
+        }
+        return records.filter { record ->
+            val timestamp = resolveDisplayTimestamp(record)
+            if (timestamp <= 0L) {
+                false
+            } else {
+                val calendar = Calendar.getInstance()
+                calendar.timeInMillis = timestamp
+                calendar.get(Calendar.YEAR) == year && calendar.get(Calendar.MONTH) + 1 == month
             }
         }
     }
@@ -598,12 +667,16 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
+        if (hidden) {
+            (activity as? MainActivity)?.updateTopBarForPageScroll(0)
+        }
         if (!hidden) {
             syncPersistedPageState()
         }
     }
 
     override fun onPause() {
+        (activity as? MainActivity)?.updateTopBarForPageScroll(0)
         Log.d(TAG, "onPause")
         _binding?.webViewPackageDetail?.onPause()
         super.onPause()
@@ -629,6 +702,26 @@ class PackageDetailWebViewFragment : Fragment(R.layout.fragment_package_detail_w
         @JavascriptInterface
         fun openBasicInfoEditor() {
             activity?.runOnUiThread { showBasicInfoEditorDialog() }
+        }
+
+        @JavascriptInterface
+        fun requestCallDetailMonth(yearText: String?, monthText: String?) {
+            val year = yearText?.toIntOrNull() ?: return
+            val month = monthText?.toIntOrNull() ?: return
+            if (month !in 1..12) {
+                return
+            }
+            activity?.runOnUiThread {
+                requestCallDetailListForMonth(year, month)
+            }
+        }
+
+        @JavascriptInterface
+        fun onPageScroll(scrollYText: String?) {
+            val scrollY = scrollYText?.toIntOrNull() ?: 0
+            activity?.runOnUiThread {
+                (activity as? MainActivity)?.updateTopBarForPageScroll(scrollY)
+            }
         }
     }
 }

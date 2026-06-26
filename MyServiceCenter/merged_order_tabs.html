@@ -181,8 +181,17 @@
 
   const callDetailState = {
     records: [],
-    query: ''
+    query: '',
+    loading: false,
+    requestedYear: null,
+    requestedMonth: null
   }
+
+  const CALL_DETAIL_LOADING_HTML = `
+    <div data-v-a8188e86="" data-v-6d67ed6e=""><div data-v-a8188e86="" class="cycle-top skeleton-item animation"></div><div data-v-a8188e86="" class="skeleton-wrap"><div data-v-a8188e86="" class="flex justify-between align-center row row1"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row2"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row3"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row4"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row5"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row6"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div></div><div data-v-a8188e86="" class="skeleton-wrap"><div data-v-a8188e86="" class="flex justify-between align-center row row1"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row2"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row3"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row4"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row5"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div><div data-v-a8188e86="" class="flex justify-between align-center row row6"><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-1"></div><div data-v-a8188e86="" class="skeleton-item animation skeleton-item-2"></div></div></div></div>
+  `;
+
+  const CALL_DETAIL_BOTTOM_HTML = '<div data-v-edb119d2="" data-v-6d67ed6e="" class="list-bottom-wrap"><div data-v-edb119d2="" class="list-bottom-area-wrap"><!----> 数据加载完毕 </div></div>';
 
   function normalizePhone(value) {
     return String(value == null ? '' : value).replace(/\D/g, '');
@@ -203,10 +212,85 @@
     return window.__callDetailItemTemplate;
   }
 
+  function cacheCallDetailListWrapTemplate() {
+    const listWrap = host.querySelector('.detail-list-wrap');
+    if (!listWrap) {
+      return '';
+    }
+    if (!window.__callDetailListWrapTemplate) {
+      window.__callDetailListWrapTemplate = listWrap.innerHTML;
+    }
+    return window.__callDetailListWrapTemplate;
+  }
+
+  function restoreCallDetailListWrap() {
+    const listWrap = host.querySelector('.detail-list-wrap');
+    if (!listWrap) {
+      return false;
+    }
+    if (listWrap.querySelector('.van-list')) {
+      return true;
+    }
+    const template = cacheCallDetailListWrapTemplate();
+    if (!template) {
+      return false;
+    }
+    listWrap.innerHTML = template;
+    return true;
+  }
+
+  function ensureCallDetailBottom() {
+    const listWrap = host.querySelector('.detail-list-wrap');
+    if (!listWrap) {
+      return;
+    }
+    if (listWrap.querySelector('.list-bottom-wrap')) {
+      return;
+    }
+    listWrap.insertAdjacentHTML('beforeend', CALL_DETAIL_BOTTOM_HTML);
+  }
+
+  function bindNativeScrollBridge() {
+    if (window.__packageDetailScrollBound) {
+      return;
+    }
+    window.__packageDetailScrollBound = true;
+    let ticking = false;
+    function getScrollTop() {
+      let y = window.scrollY || 0;
+      if (y > 0) return y;
+      y = document.documentElement ? document.documentElement.scrollTop : 0;
+      if (y > 0) return y;
+      y = document.body ? document.body.scrollTop : 0;
+      return y || 0;
+    }
+    function reportScroll() {
+      ticking = false;
+      if (window.PackageDetailBridge && typeof window.PackageDetailBridge.onPageScroll === 'function') {
+        window.PackageDetailBridge.onPageScroll(String(getScrollTop()));
+      }
+    }
+    function scheduleReport() {
+      if (ticking) {
+        return;
+      }
+      ticking = true;
+      if (window.requestAnimationFrame) {
+        window.requestAnimationFrame(reportScroll);
+      } else {
+        setTimeout(reportScroll, 16);
+      }
+    }
+    window.addEventListener('scroll', scheduleReport, { passive: true });
+    document.addEventListener('scroll', scheduleReport, { passive: true });
+    reportScroll();
+  }
+
   function cacheCallDetailTemplate() {
     if (window.__callDetailItemTemplate) {
       return;
     }
+    cacheCallDetailListWrapTemplate();
     getCallDetailTemplate();
   }
 
@@ -327,7 +411,44 @@
     return new Date(inferredYear, month - 1, day, hour, minute, second).getTime();
   }
 
+  function getSelectedMonthInfo() {
+    const date = new Date(today.getFullYear(), today.getMonth() - selectedMonth.offset, 1);
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1
+    };
+  }
+
+  function showCallDetailLoading() {
+    const listWrap = host.querySelector('.detail-list-wrap');
+    if (!listWrap) {
+      return;
+    }
+    cacheCallDetailListWrapTemplate();
+    listWrap.innerHTML = CALL_DETAIL_LOADING_HTML;
+  }
+
+  function requestCurrentMonthCallDetail() {
+    const monthInfo = getSelectedMonthInfo();
+    callDetailState.records = [];
+    callDetailState.loading = true;
+    callDetailState.requestedYear = monthInfo.year;
+    callDetailState.requestedMonth = monthInfo.month;
+    showCallDetailLoading();
+    if (window.PackageDetailBridge && typeof window.PackageDetailBridge.requestCallDetailMonth === 'function') {
+      window.PackageDetailBridge.requestCallDetailMonth(String(monthInfo.year), String(monthInfo.month));
+      return;
+    }
+    callDetailState.loading = false;
+    refreshCallDetailList();
+  }
+
   function refreshCallDetailList() {
+    if (callDetailState.loading) {
+      showCallDetailLoading();
+      return;
+    }
+    restoreCallDetailListWrap();
     const list = host.querySelector('.detail-list-wrap .van-list');
     const searchWrap = host.querySelector('.search-box');
     const searchInput = host.querySelector('.search-box input');
@@ -341,17 +462,19 @@
     const sourceRecords = getEffectiveCallDetailRecords();
     if (!sourceRecords.length) {
       list.innerHTML = '<div class="van-list__placeholder"></div>';
+      ensureCallDetailBottom();
       return;
     }
-    const monthFiltered = sourceRecords.filter((record) => matchesSelectedMonth(record));
     const filtered = query
-      ? monthFiltered.filter((record) => normalizePhone(record.phoneNumber).includes(query))
-      : monthFiltered;
+      ? sourceRecords.filter((record) => normalizePhone(record.phoneNumber).includes(query))
+      : sourceRecords;
     if (!filtered.length) {
       list.innerHTML = '<div data-v-6d67ed6e="" class="item"><div data-v-60402a35="" data-v-6d67ed6e="" class="call-detail-empty-row"><div data-v-60402a35="" class="row"><div data-v-60402a35="" class="row-left"><div data-v-60402a35="" class="text"> 未查询到匹配的手机号码 </div></div></div></div></div><div class="van-list__placeholder"></div>';
+      ensureCallDetailBottom();
       return;
     }
     list.innerHTML = filtered.map((record, index) => buildCallDetailItemHtml(record, index)).join('') + '<div class="van-list__placeholder"></div>';
+    ensureCallDetailBottom();
   }
 
   function bindCallDetailSearch() {
@@ -368,6 +491,7 @@
     };
     searchInput.addEventListener('input', function() {
       callDetailState.query = normalizePhone(searchInput.value);
+      refreshCallDetailList();
     });
     searchInput.addEventListener('keydown', function(event) {
       if (event.key === 'Enter') {
@@ -379,7 +503,17 @@
     }
   }
 
-  window.renderCallDetailList = function(records) {
+  window.renderCallDetailList = function(records, meta) {
+    const year = Number(meta && meta.year);
+    const month = Number(meta && meta.month);
+    if (
+      Number.isFinite(callDetailState.requestedYear) &&
+      Number.isFinite(callDetailState.requestedMonth) &&
+      (year !== callDetailState.requestedYear || month !== callDetailState.requestedMonth)
+    ) {
+      return;
+    }
+    callDetailState.loading = false;
     callDetailState.records = Array.isArray(records) ? records.slice() : [];
     refreshCallDetailList();
     bindCallDetailSearch();
@@ -402,8 +536,8 @@
     }
     if (index === 1) {
       cacheCallDetailTemplate();
-      refreshCallDetailList();
       bindCallDetailSearch();
+      requestCurrentMonthCallDetail();
     }
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
@@ -422,7 +556,7 @@
         updatePackageDates();
       }
       if (tabs[1] && tabs[1].classList.contains('van-tab--active')) {
-        refreshCallDetailList();
+        requestCurrentMonthCallDetail();
       }
     });
   });
@@ -439,6 +573,7 @@
     });
   });
 
+  bindNativeScrollBridge();
   updateMonthTabs();
   render(0);
   window.applyPackageDetailConfig(Object.assign({}, readConfigFromQuery(), window.PackageDetailPageConfig || {}));
