@@ -39,6 +39,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".SmsDetailManageActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.main.MainActivity"
             android:exported="false" />
 

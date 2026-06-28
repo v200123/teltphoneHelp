@@ -193,6 +193,158 @@
 
   const CALL_DETAIL_BOTTOM_HTML = '<div data-v-edb119d2="" data-v-6d67ed6e="" class="list-bottom-wrap"><div data-v-edb119d2="" class="list-bottom-area-wrap"><!----> 数据加载完毕 </div></div>';
 
+  const smsDetailState = {
+    records: [],
+    query: '',
+    loading: false,
+    requestedYear: null,
+    requestedMonth: null
+  };
+
+  function getSmsDetailTemplate() {
+    const listItem = host.querySelector('.fix2-item');
+    if (!listItem) {
+      return '';
+    }
+    const item = listItem.closest('.item');
+    if (!item) {
+      return '';
+    }
+    if (!window.__smsDetailItemTemplate) {
+      window.__smsDetailItemTemplate = item.outerHTML;
+    }
+    return window.__smsDetailItemTemplate;
+  }
+
+  function cacheSmsDetailTemplate() {
+    getSmsDetailTemplate();
+  }
+
+  function buildSmsDetailItemHtml(record, index) {
+    const template = getSmsDetailTemplate();
+    if (!template) {
+      return '';
+    }
+    const container = document.createElement('div');
+    container.innerHTML = template;
+    const itemWrap = container.firstElementChild;
+    const item = itemWrap ? itemWrap.querySelector('.fix2-item') : null;
+    if (!itemWrap || !item) {
+      return '';
+    }
+    item.className = item.className.replace(/record-item-\d+/, 'record-item-' + index);
+    const spans = item.querySelectorAll('.row-title .text span');
+    const typeNode = item.querySelector('.row-title .row-right');
+    const rows = item.querySelectorAll('.row');
+    const feeNode = item.querySelector('.row-right.blue');
+    function setNodeText(node, value) {
+      if (!node) {
+        return;
+      }
+      node.textContent = ' ' + String(value == null ? '' : value).trim() + ' ';
+    }
+    setNodeText(spans[0], record.direction || '接收');
+    setNodeText(spans[1], record.phoneNumber || '');
+    setNodeText(typeNode, record.messageType || '短信');
+    if (rows[0]) {
+      setNodeText(rows[0].querySelector('.row-left'), record.location || '内地');
+      setNodeText(rows[0].querySelector('.row-right'), record.time || '');
+    }
+    if (rows[1]) {
+      setNodeText(rows[1].querySelector('.row-right'), record.packageName || '标准资费');
+    }
+    if (feeNode) {
+      setNodeText(feeNode, '¥' + formatFeeValue(record.fee));
+    }
+    return itemWrap.outerHTML;
+  }
+
+  function updateSmsDetailStats(records) {
+    const stats = { '短信': 0, '彩信': 0, '5G消息': 0 };
+    records.forEach(function(record) {
+      const type = String(record && record.messageType ? record.messageType : '短信').trim();
+      if (Object.prototype.hasOwnProperty.call(stats, type)) {
+        stats[type] += 1;
+      } else {
+        stats['短信'] += 1;
+      }
+    });
+    host.querySelectorAll('.top-view').forEach(function(item) {
+      const label = item.querySelector('p');
+      const value = item.querySelector('span');
+      const key = label ? label.textContent.trim() : '';
+      if (value && Object.prototype.hasOwnProperty.call(stats, key)) {
+        value.textContent = String(stats[key]);
+      }
+    });
+  }
+
+  function refreshSmsDetailList() {
+    const list = host.querySelector('.detail-list-wrap .van-list');
+    const searchInput = host.querySelector('.search-box input');
+    if (!list) {
+      return;
+    }
+    const query = normalizePhone(smsDetailState.query || (searchInput ? searchInput.value : ''));
+    if (searchInput) {
+      searchInput.value = query;
+    }
+    const sourceRecords = smsDetailState.records.slice();
+    updateSmsDetailStats(sourceRecords);
+    const filtered = query
+      ? sourceRecords.filter((record) => normalizePhone(record.phoneNumber).includes(query))
+      : sourceRecords;
+    if (!filtered.length) {
+      list.innerHTML = '<div data-v-6d67ed6e="" class="item"><div data-v-0427f985="" data-v-6d67ed6e="" class="fix2-item"><div data-v-0427f985="" class="row"><div data-v-0427f985="" class="row-left"> 未查询到短/彩信详单数据 </div></div></div></div><div class="van-list__placeholder"></div>';
+      return;
+    }
+    list.innerHTML = filtered.map((record, index) => buildSmsDetailItemHtml(record, index)).join('') + '<div class="van-list__placeholder"></div>';
+  }
+
+  function bindSmsDetailSearch() {
+    const searchInput = host.querySelector('.search-box input');
+    const searchButton = host.querySelector('.search-box .search-btn');
+    if (!searchInput || searchInput.dataset.smsSearchBound === '1') {
+      return;
+    }
+    searchInput.dataset.smsSearchBound = '1';
+    searchInput.value = smsDetailState.query;
+    const submit = function() {
+      smsDetailState.query = normalizePhone(searchInput.value);
+      refreshSmsDetailList();
+    };
+    searchInput.addEventListener('input', function() {
+      smsDetailState.query = normalizePhone(searchInput.value);
+      refreshSmsDetailList();
+    });
+    searchInput.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        submit();
+      }
+    });
+    if (searchButton) {
+      searchButton.addEventListener('click', submit);
+    }
+  }
+
+  function requestCurrentMonthSmsDetail() {
+    const monthInfo = getSelectedMonthInfo();
+    smsDetailState.requestedYear = monthInfo.year;
+    smsDetailState.requestedMonth = monthInfo.month;
+    if (window.PackageDetailBridge && typeof window.PackageDetailBridge.requestSmsDetailMonth === 'function') {
+      window.PackageDetailBridge.requestSmsDetailMonth(String(monthInfo.year), String(monthInfo.month));
+      return;
+    }
+    smsDetailState.records = [];
+    refreshSmsDetailList();
+  }
+
+  window.requestCurrentSmsDetailData = function() {
+    if (tabs[2] && tabs[2].classList.contains('van-tab--active')) {
+      requestCurrentMonthSmsDetail();
+    }
+  };
+
   function normalizePhone(value) {
     return String(value == null ? '' : value).replace(/\D/g, '');
   }
@@ -569,6 +721,24 @@
     bindCallDetailSearch();
   }
 
+  window.renderSmsDetailList = function(records, meta) {
+    if (!(tabs[2] && tabs[2].classList.contains('van-tab--active'))) {
+      return;
+    }
+    const year = Number(meta && meta.year);
+    const month = Number(meta && meta.month);
+    if (
+      Number.isFinite(smsDetailState.requestedYear) &&
+      Number.isFinite(smsDetailState.requestedMonth) &&
+      (year !== smsDetailState.requestedYear || month !== smsDetailState.requestedMonth)
+    ) {
+      return;
+    }
+    smsDetailState.records = Array.isArray(records) ? records.slice() : [];
+    refreshSmsDetailList();
+    bindSmsDetailSearch();
+  }
+
   function render(index) {
     const current = records[index] || records[0];
     tabs.forEach((tab, tabIndex) => {
@@ -589,6 +759,11 @@
       bindCallDetailSearch();
       requestCurrentMonthCallDetail();
     }
+    if (index === 2) {
+      cacheSmsDetailTemplate();
+      bindSmsDetailSearch();
+      requestCurrentMonthSmsDetail();
+    }
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
@@ -607,6 +782,9 @@
       }
       if (tabs[1] && tabs[1].classList.contains('van-tab--active')) {
         requestCurrentMonthCallDetail();
+      }
+      if (tabs[2] && tabs[2].classList.contains('van-tab--active')) {
+        requestCurrentMonthSmsDetail();
       }
     });
   });

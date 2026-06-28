@@ -24,6 +24,8 @@ import com.example.myservicecenter.CallRecordContract
 import com.example.myservicecenter.CommonWebViewSupport
 import com.example.myservicecenter.R
 import com.example.myservicecenter.SettingsActivity
+import com.example.myservicecenter.SmsDetailDatabase
+import com.example.myservicecenter.SmsDetailRecordEntity
 import com.example.myservicecenter.databinding.ActivityMainBinding
 import com.example.myservicecenter.toCachedEntity
 import com.example.myservicecenter.toCallRecord
@@ -42,6 +44,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val callRecordCacheDao by lazy {
         CallRecordCacheDatabase.getInstance(applicationContext).callRecordCacheDao()
+    }
+    private val smsDetailDao by lazy {
+        SmsDetailDatabase.getInstance(applicationContext).smsDetailDao()
     }
 
     private var topBarExpandedColor: Int = Color.TRANSPARENT
@@ -110,6 +115,7 @@ class MainActivity : AppCompatActivity() {
                 onPageFinished = { _, _ ->
                     syncPackageListToPage()
                     syncBasicInfoToPage()
+                    requestActiveSmsDetailList()
                     bindBasicInfoEditorClick()
                     bindEditorClick()
                 }
@@ -219,6 +225,7 @@ class MainActivity : AppCompatActivity() {
             }
             syncPackageListToPage()
             syncBasicInfoToPage()
+            requestActiveSmsDetailList()
         }
     }
 
@@ -242,6 +249,39 @@ class MainActivity : AppCompatActivity() {
             """.trimIndent()
             evaluatePageScript(script)
         }
+    }
+
+    private fun requestSmsDetailListForMonth(year: Int, month: Int) {
+        lifecycleScope.launch {
+            val listJson = withContext(Dispatchers.IO) {
+                buildSmsDetailListJson(year, month)
+            }
+            val script = """
+                (function() {
+                  var records = [];
+                  try {
+                    records = JSON.parse('${escapeJsString(listJson)}');
+                  } catch (e) {
+                    records = [];
+                  }
+                  if (typeof window.renderSmsDetailList === 'function') {
+                    window.renderSmsDetailList(records, { year: $year, month: $month });
+                  }
+                })();
+            """.trimIndent()
+            evaluatePageScript(script)
+        }
+    }
+
+    private fun requestActiveSmsDetailList() {
+        val script = """
+            (function() {
+              if (typeof window.requestCurrentSmsDetailData === 'function') {
+                window.requestCurrentSmsDetailData();
+              }
+            })();
+        """.trimIndent()
+        evaluatePageScript(script)
     }
 
     private fun showBasicInfoEditorDialog() {
@@ -405,6 +445,16 @@ class MainActivity : AppCompatActivity() {
         val result = JSONArray()
         records.forEach { record ->
             result.put(record.toWebCallDetailJson())
+        }
+        return result.toString()
+    }
+
+    private suspend fun buildSmsDetailListJson(year: Int, month: Int): String {
+        val (monthStartMillis, nextMonthStartMillis) = buildMonthRange(year, month)
+        val records = smsDetailDao.getByMonth(monthStartMillis, nextMonthStartMillis)
+        val result = JSONArray()
+        records.forEach { record ->
+            result.put(record.toWebSmsDetailJson())
         }
         return result.toString()
     }
@@ -590,6 +640,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun SmsDetailRecordEntity.toWebSmsDetailJson(): JSONObject {
+        return JSONObject().apply {
+            put("direction", direction)
+            put("phoneNumber", phoneNumber)
+            put("messageType", messageType)
+            put("location", location)
+            put("time", formatCallRecordTime(timestampMillis))
+            put("timestampMillis", timestampMillis)
+            put("packageName", packageName)
+            put("fee", fee)
+        }
+    }
+
     private fun evaluatePageScript(script: String) {
         binding.webViewPackageDetail.evaluateJavascript(script, null)
     }
@@ -685,6 +748,18 @@ class MainActivity : AppCompatActivity() {
             }
             runOnUiThread {
                 requestCallDetailListForMonth(year, month)
+            }
+        }
+
+        @JavascriptInterface
+        fun requestSmsDetailMonth(yearText: String?, monthText: String?) {
+            val year = yearText?.toIntOrNull() ?: return
+            val month = monthText?.toIntOrNull() ?: return
+            if (month !in 1..12) {
+                return
+            }
+            runOnUiThread {
+                requestSmsDetailListForMonth(year, month)
             }
         }
 

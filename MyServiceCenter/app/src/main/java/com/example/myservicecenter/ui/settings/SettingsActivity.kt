@@ -1,6 +1,7 @@
 package com.example.myservicecenter
 
 import android.graphics.Color
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -43,6 +44,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.etWebHomeBalance.setText(AppPreferences.getWebViewHomeBalance(this))
         binding.etWebHomeCall.setText(AppPreferences.getWebViewHomeCallMinutes(this))
         binding.etWebHomeRights.setText(AppPreferences.getWebViewHomePendingRights(this))
+        binding.btnSmsDetailManage.setOnClickListener {
+            startActivity(Intent(this, SmsDetailManageActivity::class.java))
+        }
         binding.btnBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener {
             AppPreferences.setOutgoingPackageInfo(this, binding.etOutgoingPackage.text?.toString().orEmpty())
