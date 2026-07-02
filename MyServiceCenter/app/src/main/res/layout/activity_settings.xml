@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="@string/detail_back"
             android:textColor="@color/text_primary"
-            android:textSize="21sp"
+            android:textSize="21dp"
             android:textStyle="bold" />
 
         <TextView
@@ -34,7 +34,7 @@
             android:gravity="center"
             android:text="@string/settings_title"
             android:textColor="@color/text_primary"
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:textStyle="bold" />
 
         <TextView
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="@string/settings_save"
             android:textColor="@color/action_blue"
-            android:textSize="14sp"
+            android:textSize="14dp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/settings_outgoing_package_title"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -84,7 +84,7 @@
                     android:layout_marginTop="6dp"
                     android:text="@string/settings_outgoing_package_hint"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="12dp" />
 
                 <EditText
                     android:id="@+id/etOutgoingPackage"
@@ -99,7 +99,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -117,7 +117,7 @@
                     android:layout_height="wrap_content"
                     android:text="号码信息自定义"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -126,7 +126,7 @@
                     android:layout_marginTop="6dp"
                     android:text="可统一配置我的页面顶部号码、归属地，以及通话详单中的对应展示信息。"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="12dp" />
 
                 <EditText
                     android:id="@+id/etCustomNumber"
@@ -142,7 +142,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
 
                 <EditText
                     android:id="@+id/etCustomName"
@@ -158,7 +158,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
 
                 <EditText
                     android:id="@+id/etCustomStar"
@@ -174,7 +174,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
 
                 <EditText
                     android:id="@+id/etCustomRegion"
@@ -189,7 +189,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
 
                 <EditText
                     android:id="@+id/etCallTypeOutgoing"
@@ -205,7 +205,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
 
                 <EditText
                     android:id="@+id/etCallTypeIncoming"
@@ -221,7 +221,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -239,7 +239,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/mine_stats_settings_title"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -248,7 +248,7 @@
                     android:layout_marginTop="6dp"
                     android:text="@string/mine_stats_settings_desc"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="12dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -256,7 +256,7 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/home_stat_coupon"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <EditText
@@ -273,7 +273,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -281,7 +281,7 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/home_stat_data"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <EditText
@@ -298,7 +298,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -306,7 +306,7 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/home_stat_balance"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <EditText
@@ -323,7 +323,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -331,7 +331,7 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/home_stat_ai_bean"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <EditText
@@ -348,7 +348,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -376,7 +376,7 @@
                         android:layout_height="wrap_content"
                         android:text="短/彩信详单数据管理"
                         android:textColor="@color/text_primary"
-                        android:textSize="15sp"
+                        android:textSize="15dp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -385,7 +385,7 @@
                         android:layout_marginTop="6dp"
                         android:text="新增、批量上传、搜索、编辑和删除短/彩信详单记录。"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="12dp" />
                 </LinearLayout>
 
                 <TextView
@@ -394,7 +394,7 @@
                     android:layout_marginStart="16dp"
                     android:text="进入"
                     android:textColor="@color/action_blue"
-                    android:textSize="14sp"
+                    android:textSize="14dp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -413,7 +413,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/web_home_stats_settings_title"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -422,57 +422,7 @@
                     android:layout_marginTop="6dp"
                     android:text="@string/web_home_stats_settings_desc"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/web_home_stat_data_title"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etWebHomeData"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_search_input"
-                    android:gravity="center_vertical"
-                    android:hint="@string/web_home_stat_data_hint"
-                    android:inputType="numberDecimal"
-                    android:maxLines="1"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/web_home_stat_balance_title"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etWebHomeBalance"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_search_input"
-                    android:gravity="center_vertical"
-                    android:hint="@string/web_home_stat_balance_hint"
-                    android:inputType="numberDecimal"
-                    android:maxLines="1"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="12dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -480,7 +430,7 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/web_home_stat_call_title"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <EditText
@@ -497,7 +447,32 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/web_home_stat_points_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etWebHomePoints"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_search_input"
+                    android:gravity="center_vertical"
+                    android:hint="@string/web_home_stat_points_hint"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="13dp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -505,7 +480,7 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/web_home_stat_rights_title"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="15dp"
                     android:textStyle="bold" />
 
                 <EditText
@@ -522,7 +497,7 @@
                     android:paddingEnd="12dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_hint"
-                    android:textSize="13sp" />
+                    android:textSize="13dp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

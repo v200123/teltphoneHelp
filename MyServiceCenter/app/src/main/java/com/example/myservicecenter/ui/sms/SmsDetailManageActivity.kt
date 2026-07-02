@@ -244,7 +244,7 @@ class SmsDetailManageActivity : AppCompatActivity() {
             hint = hintText
             inputType = type
             setText(value)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
             setTextColor(Color.parseColor("#333333"))
             setPadding(dpToPx(12), 0, dpToPx(12), 0)
             background = getDrawable(R.drawable.bg_search_input)
@@ -276,7 +276,7 @@ class SmsDetailManageActivity : AppCompatActivity() {
                 val label = TextView(this@SmsDetailManageActivity).apply {
                     text = field.label
                     setTextColor(Color.parseColor("#333333"))
-                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+                    setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT

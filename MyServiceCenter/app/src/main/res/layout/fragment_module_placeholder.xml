@@ -10,5 +10,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColor="@color/text_hint"
-        android:textSize="15sp" />
+        android:textSize="15dp" />
 </FrameLayout>

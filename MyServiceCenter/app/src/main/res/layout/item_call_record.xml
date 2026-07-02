@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp"
+                android:textSize="13dp"
                 android:textStyle="bold" />
 
             <ImageView
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
-            android:textSize="17sp" />
+            android:textSize="17dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -62,14 +62,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
 
         <TextView
             android:id="@+id/tv_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
 
         <TextView
             android:id="@+id/tv_package"
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textColor="@color/text_secondary"
-            android:textSize="14sp"
+            android:textSize="14dp"
             android:visibility="gone" />
     </LinearLayout>
 
@@ -108,7 +108,7 @@
             android:layout_height="wrap_content"
             android:text="@string/record_type_label"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
 
         <TextView
             android:id="@+id/tv_type"
@@ -117,7 +117,7 @@
             android:layout_weight="1"
             android:gravity="end"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -131,7 +131,7 @@
             android:layout_height="wrap_content"
             android:text="@string/record_bill_seconds_label"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
 
         <TextView
             android:id="@+id/tv_bill_seconds"
@@ -140,7 +140,7 @@
             android:layout_weight="1"
             android:gravity="end"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -155,7 +155,7 @@
             android:layout_height="wrap_content"
             android:text="@string/record_fee_label"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
 
         <TextView
             android:id="@+id/tv_fee"
@@ -164,14 +164,14 @@
             android:layout_weight="1"
             android:gravity="end"
             android:textColor="@color/fee_blue"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
 
         <TextView
             android:id="@+id/tv_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_secondary"
-            android:textSize="12sp"
+            android:textSize="12dp"
             android:visibility="gone" />
     </LinearLayout>
 

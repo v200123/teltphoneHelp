@@ -17,9 +17,8 @@ object AppPreferences {
     private const val KEY_MINE_STAT_DATA = "mine_stat_data"
     private const val KEY_MINE_STAT_BALANCE = "mine_stat_balance"
     private const val KEY_MINE_STAT_BEAN = "mine_stat_bean"
-    private const val KEY_WEBVIEW_HOME_DATA = "webview_home_data"
-    private const val KEY_WEBVIEW_HOME_BALANCE = "webview_home_balance"
     private const val KEY_WEBVIEW_HOME_CALL_MINUTES = "webview_home_call_minutes"
+    private const val KEY_WEBVIEW_HOME_POINTS = "webview_home_points"
     private const val KEY_WEBVIEW_HOME_PENDING_RIGHTS = "webview_home_pending_rights"
     private const val KEY_WEBVIEW_FIXED_FEE_LIST_JSON = "webview_fixed_fee_list_json"
 
@@ -169,32 +168,7 @@ object AppPreferences {
     }
 
     // 首页 / WebView 摘要数据
-    fun getWebViewHomeData(context: Context): String {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_WEBVIEW_HOME_DATA, "19.19")
-            .orEmpty()
-    }
-
-    fun setWebViewHomeData(context: Context, value: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(KEY_WEBVIEW_HOME_DATA, value.trim())
-            .apply()
-    }
-
-    fun getWebViewHomeBalance(context: Context): String {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_WEBVIEW_HOME_BALANCE, "547.58")
-            .orEmpty()
-    }
-
-    fun setWebViewHomeBalance(context: Context, value: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(KEY_WEBVIEW_HOME_BALANCE, value.trim())
-            .apply()
-    }
-
+    // 注：流量、余额复用上面的 MineStat 系列，不再单独存储。
     fun getWebViewHomeCallMinutes(context: Context): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_WEBVIEW_HOME_CALL_MINUTES, "200")
@@ -205,6 +179,19 @@ object AppPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_WEBVIEW_HOME_CALL_MINUTES, value.trim())
+            .apply()
+    }
+
+    fun getWebViewHomePoints(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_WEBVIEW_HOME_POINTS, "1929")
+            .orEmpty()
+    }
+
+    fun setWebViewHomePoints(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_WEBVIEW_HOME_POINTS, value.trim())
             .apply()
     }
 

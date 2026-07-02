@@ -12,7 +12,7 @@
         android:layout_height="30dp"
         android:gravity="center"
         android:textColor="#FFFFFF"
-        android:textSize="13sp"
+        android:textSize="13dp"
         android:textStyle="bold" />
 
     <TextView
@@ -21,5 +21,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:textColor="#FFF8F6"
-        android:textSize="12sp" />
+        android:textSize="12dp" />
 </LinearLayout>

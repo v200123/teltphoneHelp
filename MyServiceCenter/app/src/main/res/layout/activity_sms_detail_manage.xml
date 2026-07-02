@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="@string/detail_back"
             android:textColor="@color/text_primary"
-            android:textSize="21sp"
+            android:textSize="21dp"
             android:textStyle="bold" />
 
         <TextView
@@ -34,7 +34,7 @@
             android:gravity="center"
             android:text="短/彩信详单数据"
             android:textColor="@color/text_primary"
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:textStyle="bold" />
 
         <TextView
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="清空"
             android:textColor="@color/action_blue"
-            android:textSize="14sp"
+            android:textSize="14dp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -70,7 +70,7 @@
             android:paddingEnd="12dp"
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_hint"
-            android:textSize="13sp" />
+            android:textSize="13dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -86,7 +86,7 @@
                 android:layout_weight="1"
                 android:text="共0条"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textSize="13dp" />
 
             <TextView
                 android:id="@+id/btnAdd"
@@ -99,7 +99,7 @@
                 android:paddingEnd="14dp"
                 android:text="新增"
                 android:textColor="@color/card_white"
-                android:textSize="13sp"
+                android:textSize="13dp"
                 android:textStyle="bold" />
 
             <TextView
@@ -114,7 +114,7 @@
                 android:paddingEnd="14dp"
                 android:text="批量上传"
                 android:textColor="@color/card_white"
-                android:textSize="13sp"
+                android:textSize="13dp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>

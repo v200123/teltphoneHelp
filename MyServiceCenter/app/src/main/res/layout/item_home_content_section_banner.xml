@@ -18,7 +18,7 @@
         android:paddingEnd="7dp"
         android:paddingBottom="3dp"
         android:textColor="#8F5A21"
-        android:textSize="10sp"
+        android:textSize="10dp"
         android:textStyle="bold" />
 
     <TextView
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
-        android:textSize="22sp"
+        android:textSize="22dp"
         android:textStyle="bold" />
 
     <TextView
@@ -35,5 +35,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
         android:textColor="#F5FAFF"
-        android:textSize="12sp" />
+        android:textSize="12dp" />
 </FrameLayout>

@@ -65,13 +65,13 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
     }
 
     private fun initViews() {
-        binding.ivMineSettings.setOnClickListener {
-            startActivity(Intent(requireContext(), SettingsActivity::class.java))
-        }
-
-        Glide.with(this)
-            .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/d97e0049625e4cfabfcd6c46a3cd8bb0.png?fmt=webp&width=353&height=115")
-            .into(binding.ivMineChangeVersion)
+//        binding.ivMineSettings.setOnClickListener {
+//            startActivity(Intent(requireContext(), SettingsActivity::class.java))
+//        }
+//
+//        Glide.with(this)
+//            .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/d97e0049625e4cfabfcd6c46a3cd8bb0.png?fmt=webp&width=353&height=115")
+//            .into(binding.ivMineChangeVersion)
         //服务大厅
         Glide.with(this)
             .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/c587d3a308314e34aa7885d8f37f8d9a.png?fmt=webp&width=288&height=80")

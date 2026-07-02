@@ -49,7 +49,7 @@
 <!--                        android:ellipsize="end"-->
 <!--                        android:maxLines="1"-->
 <!--                        android:textColor="@color/text_primary"-->
-<!--                        android:textSize="15sp"-->
+<!--                        android:textSize="15dp"-->
 <!--                        android:textStyle="bold" />-->
 
 <!--                    <TextView-->
@@ -60,7 +60,7 @@
 <!--                        android:maxLines="1"-->
 <!--                        android:text="@string/summary_name_default"-->
 <!--                        android:textColor="@color/text_primary"-->
-<!--                        android:textSize="12sp" />-->
+<!--                        android:textSize="12dp" />-->
 
 <!--                    <View-->
 <!--                        android:layout_width="0dp"-->
@@ -78,7 +78,7 @@
 <!--                        android:paddingBottom="7dp"-->
 <!--                        android:text="@string/detail_query_account"-->
 <!--                        android:textColor="@color/text_secondary"-->
-<!--                        android:textSize="14sp"-->
+<!--                        android:textSize="14dp"-->
 <!--                        android:textStyle="bold" />-->
 <!--                </LinearLayout>-->
 
@@ -90,7 +90,7 @@
 <!--                    android:drawablePadding="5dp"-->
 <!--                    android:gravity="center_vertical"-->
 <!--                    android:textColor="@color/text_secondary"-->
-<!--                    android:textSize="14sp" />-->
+<!--                    android:textSize="14dp" />-->
 
 <!--                <TextView-->
 <!--                    android:id="@+id/tvSummaryHint"-->
@@ -242,7 +242,7 @@
             android:gravity="center"
             android:text="@string/detail_title"
             android:textColor="@color/text_primary"
-            android:textSize="17sp"
+            android:textSize="17dp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -259,7 +259,7 @@
                 android:tint="#000000"
                 android:src="@drawable/icon_common_question"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
+                android:textSize="16dp"
                 android:textStyle="bold" />
 
             <ImageView
@@ -277,7 +277,7 @@
                 android:gravity="center"
                 android:text="•••"
                 android:textColor="@color/text_primary"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
         </LinearLayout>
     </LinearLayout>
     <WebView

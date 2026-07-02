@@ -157,13 +157,15 @@
     <string name="update_install_permission_confirm">去授权</string>
     <string name="update_install_permission_denied">未获得安装权限，暂时无法升级</string>
     <string name="web_home_stats_settings_title">首页 WebView 数据设置</string>
-    <string name="web_home_stats_settings_desc">用于覆盖 10086 首页码表里的 4 个主要数值，保存后重新进入首页会自动生效。</string>
+    <string name="web_home_stats_settings_desc">用于覆盖 10086 首页码表里的通话剩余、积分、待领取权益数值。流量与余额复用“我的数据设置”，保存后重新进入首页会自动生效。</string>
     <string name="web_home_stat_data_title">通用流量剩余</string>
     <string name="web_home_stat_data_hint">请输入流量数值，例如 19.19</string>
     <string name="web_home_stat_balance_title">话费余额</string>
     <string name="web_home_stat_balance_hint">请输入余额数值，例如 547.58</string>
     <string name="web_home_stat_call_title">通用通话剩余</string>
     <string name="web_home_stat_call_hint">请输入分钟数，例如 200</string>
+    <string name="web_home_stat_points_title">积分</string>
+    <string name="web_home_stat_points_hint">请输入积分数，例如 1929</string>
     <string name="web_home_stat_rights_title">待领取权益</string>
     <string name="web_home_stat_rights_hint">请输入权益数量，例如 0</string>
     <string name="home_hero_title">10GB牛双倍视频版月卡</string>

@@ -305,7 +305,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         listOf(phoneInput, nameInput, starInput).forEachIndexed { index, editText ->
-            editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+            editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
             editText.setTextColor(Color.parseColor("#333333"))
             editText.setPadding(dpToPx(12), 0, dpToPx(12), 0)
             editText.background = getDrawable(R.drawable.bg_search_input)
@@ -361,7 +361,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         listOf(nameInput, feeInput).forEachIndexed { index, editText ->
-            editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+            editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
             editText.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT

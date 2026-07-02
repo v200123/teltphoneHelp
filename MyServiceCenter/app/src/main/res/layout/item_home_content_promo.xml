@@ -19,7 +19,7 @@
         android:paddingEnd="6dp"
         android:paddingBottom="2dp"
         android:textColor="#7A5A29"
-        android:textSize="10sp"
+        android:textSize="10dp"
         android:textStyle="bold" />
 
     <TextView
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textColor="#2C3340"
-        android:textSize="13sp"
+        android:textSize="13dp"
         android:textStyle="bold" />
 
     <TextView
@@ -37,5 +37,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textColor="#7B8798"
-        android:textSize="11sp" />
+        android:textSize="11dp" />
 </LinearLayout>
