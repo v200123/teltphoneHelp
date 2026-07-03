@@ -20,7 +20,7 @@
             android:id="@+id/bottomTabBar"
             android:layout_width="match_parent"
             android:layout_height="74dp"
-            android:background="@drawable/bg_home_bottom_ai_new"
+            android:background="@drawable/bg_home_bottom_ai"
             android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -98,7 +98,7 @@
         android:contentDescription="@string/home_ai_entry"
         android:focusable="true"
         android:scaleType="fitCenter"
-        android:translationY="-14dp"
+
         tools:src="@drawable/tab_home_select_v2" />
 
 </FrameLayout>

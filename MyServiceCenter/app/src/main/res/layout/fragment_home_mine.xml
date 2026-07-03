@@ -1,549 +1,556 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/mineScroll"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#F5F6F8"
-    android:clipToPadding="false"
-    android:fillViewport="true"
-    android:scrollbars="none">
 
-    <LinearLayout
-        android:background="@drawable/mine_bg_user_origin"
-        android:id="@+id/layoutMine"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="#F5F6F8"
+    android:layout_height="match_parent">
+    <ImageView
+        android:contentDescription=""
+        android:src="@drawable/mine_bg_user_origin"
+        android:adjustViewBounds="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="16dp">
+        android:layout_height="wrap_content"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/mineScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
+            android:id="@+id/layoutMine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:orientation="vertical"
-
-            android:paddingTop="12dp"
-            android:paddingBottom="18dp">
-
-            <LinearLayout
-                android:paddingEnd="16dp"
-                android:background="@drawable/ic_home_mine_top"
-                android:layout_width="match_parent"
-                android:layout_height="43dp"
-                android:gravity="center_vertical">
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/iv_mine_change_version"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="30dp"-->
-<!--                    android:adjustViewBounds="true"-->
-<!--                    android:gravity="center"-->
-<!--                    />-->
-
-<!--                <LinearLayout-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:gravity="end|center_vertical">-->
-
-<!--                    <ImageView-->
-<!--                        android:id="@+id/ivMineSettings"-->
-<!--                        android:layout_width="24dp"-->
-<!--                        android:layout_height="24dp"-->
-<!--                        android:adjustViewBounds="true"-->
-<!--                        android:src="@drawable/title_setting_default_black"/>-->
-
-<!--                    <ImageView-->
-<!--                        android:layout_width="24dp"-->
-<!--                        android:layout_height="24dp"-->
-<!--                        android:adjustViewBounds="true"-->
-<!--                        android:layout_marginStart="12dp"-->
-<!--                        android:src="@drawable/title_onlineservice_default_black"-->
-<!--                        android:gravity="center" />-->
-
-<!--                    <ImageView-->
-<!--                        android:layout_width="24dp"-->
-<!--                        android:layout_height="24dp"-->
-<!--                        android:tint="@color/text_primary"-->
-<!--                        android:adjustViewBounds="true"-->
-<!--                        android:layout_marginStart="12dp"-->
-<!--                        android:src="@drawable/title_menu_msg"-->
-<!--                        android:gravity="center" />-->
-<!--                </LinearLayout>-->
-            </LinearLayout>
+            android:paddingBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:gravity="center_vertical">
 
-                <ImageView
-                    android:id="@+id/ivAvatar"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/mine_login_icon"
-
-                     />
+                android:orientation="vertical"
+                android:paddingBottom="18dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="43dp"
+                    android:background="@drawable/ic_home_mine_top"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="16dp">
+
+                    <!--                <ImageView-->
+                    <!--                    android:id="@+id/iv_mine_change_version"-->
+                    <!--                    android:layout_width="wrap_content"-->
+                    <!--                    android:layout_height="30dp"-->
+                    <!--                    android:adjustViewBounds="true"-->
+                    <!--                    android:gravity="center"-->
+                    <!--                    />-->
+
+                    <!--                <LinearLayout-->
+                    <!--                    android:layout_width="0dp"-->
+                    <!--                    android:layout_height="match_parent"-->
+                    <!--                    android:layout_weight="1"-->
+                    <!--                    android:gravity="end|center_vertical">-->
+
+                    <!--                    <ImageView-->
+                    <!--                        android:id="@+id/ivMineSettings"-->
+                    <!--                        android:layout_width="24dp"-->
+                    <!--                        android:layout_height="24dp"-->
+                    <!--                        android:adjustViewBounds="true"-->
+                    <!--                        android:src="@drawable/title_setting_default_black"/>-->
+
+                    <!--                    <ImageView-->
+                    <!--                        android:layout_width="24dp"-->
+                    <!--                        android:layout_height="24dp"-->
+                    <!--                        android:adjustViewBounds="true"-->
+                    <!--                        android:layout_marginStart="12dp"-->
+                    <!--                        android:src="@drawable/title_onlineservice_default_black"-->
+                    <!--                        android:gravity="center" />-->
+
+                    <!--                    <ImageView-->
+                    <!--                        android:layout_width="24dp"-->
+                    <!--                        android:layout_height="24dp"-->
+                    <!--                        android:tint="@color/text_primary"-->
+                    <!--                        android:adjustViewBounds="true"-->
+                    <!--                        android:layout_marginStart="12dp"-->
+                    <!--                        android:src="@drawable/title_menu_msg"-->
+                    <!--                        android:gravity="center" />-->
+                    <!--                </LinearLayout>-->
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_marginStart="16dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:layout_marginTop="22dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/mine_login_icon"
+
+                        />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical">
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/tvHomePhone"
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/home_phone_default"
-                            android:textColor="#101722"
-                            android:textSize="19dp"
-                            android:textStyle="bold" />
+                            android:gravity="center_vertical">
 
-                        <ImageView
+                            <TextView
+                                android:id="@+id/tvHomePhone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/home_phone_default"
+                                android:textColor="#101722"
+                                android:textSize="19dp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="19dp"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/bg_home_round_gray"
+                                android:gravity="center"
+                                android:paddingStart="6dp"
+                                android:paddingTop="4dp"
+                                android:paddingEnd="6dp"
+                                android:paddingBottom="4dp"
+                                android:src="@drawable/mine_login_change_svg" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvHomeRegion"
                             android:layout_width="wrap_content"
-                            android:layout_height="19dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_home_round_gray"
-                            android:src="@drawable/mine_login_change_svg"
-                            android:gravity="center"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp" />
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/home_region_default"
+                            android:textColor="#5D6673"
+                            android:textSize="13dp" />
+
+                        <!--                    <com.google.android.material.button.MaterialButton-->
+                        <!--                        android:id="@+id/btnOpenDetail"-->
+                        <!--                        style="@style/Widget.Material3.Button.TextButton"-->
+                        <!--                        android:layout_width="wrap_content"-->
+                        <!--                        android:layout_height="34dp"-->
+                        <!--                        android:layout_marginTop="10dp"-->
+                        <!--                        android:background="@drawable/bg_blue_pill"-->
+                        <!--                        android:insetTop="0dp"-->
+                        <!--                        android:insetBottom="0dp"-->
+                        <!--                        android:minWidth="0dp"-->
+                        <!--                        android:paddingStart="14dp"-->
+                        <!--                        android:paddingEnd="14dp"-->
+                        <!--                        android:text="@string/home_open_detail_short"-->
+                        <!--                        android:textAllCaps="false"-->
+                        <!--                        android:textColor="#FFFFFF"-->
+                        <!--                        android:textSize="13dp"-->
+                        <!--                        app:cornerRadius="17dp" />-->
                     </LinearLayout>
 
+                    <ImageView
+                        android:id="@+id/iv_mine_sales"
+                        android:layout_width="wrap_content"
+                        android:layout_height="58dp"
+                        android:layout_marginStart="10dp"
+                        android:adjustViewBounds="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                    </ImageView>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="1dp"
+                android:gravity="center_vertical"
+                android:paddingTop="18dp"
+                android:paddingBottom="6dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:id="@+id/tvHomeRegion"
+                        android:id="@+id/tvMineCoupon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/home_region_default"
-                        android:textColor="#5D6673"
-                        android:textSize="13dp" />
+                        android:fontFamily="@font/roboto_medium_numbers"
+                        android:text="5"
+                        android:textColor="#161D29"
+                        android:textSize="16dp"
+                        android:textStyle="bold" />
 
-<!--                    <com.google.android.material.button.MaterialButton-->
-<!--                        android:id="@+id/btnOpenDetail"-->
-<!--                        style="@style/Widget.Material3.Button.TextButton"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="34dp"-->
-<!--                        android:layout_marginTop="10dp"-->
-<!--                        android:background="@drawable/bg_blue_pill"-->
-<!--                        android:insetTop="0dp"-->
-<!--                        android:insetBottom="0dp"-->
-<!--                        android:minWidth="0dp"-->
-<!--                        android:paddingStart="14dp"-->
-<!--                        android:paddingEnd="14dp"-->
-<!--                        android:text="@string/home_open_detail_short"-->
-<!--                        android:textAllCaps="false"-->
-<!--                        android:textColor="#FFFFFF"-->
-<!--                        android:textSize="13dp"-->
-<!--                        app:cornerRadius="17dp" />-->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/home_stat_coupon"
+                        android:textColor="#000000"
+                        android:textSize="12dp" />
                 </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/iv_mine_sales"
-                    android:layout_width="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:layout_height="58dp"
-                    android:layout_marginStart="10dp"
-                    android:gravity="center_vertical"
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvMineData"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="42.92GB"
+                        android:textColor="#161D29"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/home_stat_data"
+                        android:textColor="#000000"
+                        android:textSize="12dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvMineBalance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="724.48元"
+                        android:textColor="#161D29"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/home_stat_balance"
+                        android:textColor="#000000"
+                        android:textSize="12dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvMineBean"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1833豆"
+                        android:textColor="#161D29"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="@string/home_stat_ai_bean"
+                        android:textColor="#000000"
+                        android:textSize="12dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/fl_mine_mine_equity"
+                android:layout_width="match_parent"
+                android:layout_height="67dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ic_home_mine_quanyi"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"></FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_mine_combo"
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ic_home_mine_01"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/llMineComboContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    >
-
-                </ImageView>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:paddingTop="18dp"
-            android:paddingBottom="6dp"
-            android:elevation="1dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvMineCoupon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="5"
-                    android:fontFamily="@font/roboto_medium_numbers"
-                    android:textColor="#161D29"
-                    android:textSize="16dp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="@string/home_stat_coupon"
-                    android:textColor="#000000"
-                    android:textSize="12dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvMineData"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="42.92GB"
-                    android:textColor="#161D29"
-                    android:textSize="16dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="@string/home_stat_data"
-                    android:textColor="#000000"
-                    android:textSize="12dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvMineBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="724.48元"
-                    android:textColor="#161D29"
-                    android:textSize="16dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="@string/home_stat_balance"
-                    android:textColor="#000000"
-                    android:textSize="12dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvMineBean"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1833豆"
-                    android:textColor="#161D29"
-                    android:textSize="16dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="@string/home_stat_ai_bean"
-                    android:textColor="#000000"
-                    android:textSize="12dp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/fl_mine_mine_equity"
-            android:layout_width="match_parent"
-            android:layout_height="67dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/ic_home_mine_quanyi"
-            android:elevation="1dp"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp">
-        </FrameLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_mine_combo"
-            android:layout_width="match_parent"
-            android:layout_height="90dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/ic_home_mine_01"
-            android:orientation="vertical"
-           >
-
-            <LinearLayout
-                android:visibility="gone"
-                android:id="@+id/llMineComboContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/bg_card_white_rounded"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="18dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="18dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/home_service_title"
-                    android:textColor="#161E2A"
-                    android:textSize="17dp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:id="@+id/iv_mine_service_center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="23dp"
-                    android:adjustViewBounds="true"
-                />
-            </LinearLayout>
-
-            <HorizontalScrollView
-                android:id="@+id/hsvMineServiceCenter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fillViewport="true"
-                android:overScrollMode="never"
-                android:scrollbars="none">
-
-                <GridLayout
-                    android:id="@+id/gl_mine_service_center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:columnCount="4"
-                    android:rowCount="2" />
-            </HorizontalScrollView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center">
-
-                <FrameLayout
-                    android:id="@+id/flMineServiceCenterIndicator"
-                    android:layout_width="28dp"
-                    android:layout_height="4dp">
-
-                    <View
-                        android:id="@+id/viewMineServiceCenterIndicatorTrack"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="#D8E1EB" />
-
-                    <View
-                        android:id="@+id/viewMineServiceCenterIndicatorThumb"
-                        android:layout_width="16dp"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_blue_pill" />
-                </FrameLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/bg_card_white_rounded"
-            android:elevation="1dp"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="18dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="18dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/home_device_title"
-                    android:textColor="#161E2A"
-                    android:textSize="22dp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/home_device_more"
-                    android:textColor="#A0A7B3"
-                    android:textSize="14dp" />
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="horizontal">
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_card_white_rounded"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="18dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="18dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="136dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_home_device_card"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
 
                     <TextView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_home_device_phone_dark"
-                        android:gravity="center"
-                        android:text="@string/home_device_badge_gt"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16dp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/home_service_title"
+                        android:textColor="#161E2A"
+                        android:textSize="17dp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/iv_mine_service_center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="23dp"
+                        android:adjustViewBounds="true" />
+                </LinearLayout>
+
+                <HorizontalScrollView
+                    android:id="@+id/hsvMineServiceCenter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fillViewport="true"
+                    android:overScrollMode="never"
+                    android:scrollbars="none">
+
+                    <GridLayout
+                        android:id="@+id/gl_mine_service_center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:columnCount="4"
+                        android:rowCount="2" />
+                </HorizontalScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center">
+
+                    <FrameLayout
+                        android:id="@+id/flMineServiceCenterIndicator"
+                        android:layout_width="28dp"
+                        android:layout_height="4dp">
+
+                        <View
+                            android:id="@+id/viewMineServiceCenterIndicatorTrack"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#D8E1EB" />
+
+                        <View
+                            android:id="@+id/viewMineServiceCenterIndicatorThumb"
+                            android:layout_width="16dp"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_blue_pill" />
+                    </FrameLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_card_white_rounded"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="18dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/home_device_title"
+                        android:textColor="#161E2A"
+                        android:textSize="22dp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_device_name_gt"
-                        android:textColor="#232B37"
+                        android:text="@string/home_device_more"
+                        android:textColor="#A0A7B3"
                         android:textSize="14dp" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="136dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_home_device_card"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_home_device_trade"
-                        android:gravity="center"
-                        android:text="@string/home_device_badge_trade"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16dp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="136dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_home_device_card"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_device_price_trade"
-                        android:textColor="#232B37"
-                        android:textSize="14dp" />
-                </LinearLayout>
+                        <TextView
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/bg_home_device_phone_dark"
+                            android:gravity="center"
+                            android:text="@string/home_device_badge_gt"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16dp"
+                            android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="136dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_home_device_card"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="@string/home_device_name_gt"
+                            android:textColor="#232B37"
+                            android:textSize="14dp" />
+                    </LinearLayout>
 
-                    <TextView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_home_device_phone_orange"
-                        android:gravity="center"
-                        android:text="@string/home_device_badge_phone"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16dp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="136dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_home_device_card"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_device_price_phone_a"
-                        android:textColor="#232B37"
-                        android:textSize="14dp" />
-                </LinearLayout>
+                        <TextView
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/bg_home_device_trade"
+                            android:gravity="center"
+                            android:text="@string/home_device_badge_trade"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16dp"
+                            android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="136dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_home_device_card"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="@string/home_device_price_trade"
+                            android:textColor="#232B37"
+                            android:textSize="14dp" />
+                    </LinearLayout>
 
-                    <TextView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_home_device_phone_light"
-                        android:gravity="center"
-                        android:text="@string/home_device_badge_phone"
-                        android:textColor="#7E5FB8"
-                        android:textSize="16dp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="136dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_home_device_card"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="@string/home_device_price_phone_b"
-                        android:textColor="#232B37"
-                        android:textSize="14dp" />
+                        <TextView
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/bg_home_device_phone_orange"
+                            android:gravity="center"
+                            android:text="@string/home_device_badge_phone"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16dp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="@string/home_device_price_phone_a"
+                            android:textColor="#232B37"
+                            android:textSize="14dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="136dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_home_device_card"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp">
+
+                        <TextView
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:background="@drawable/bg_home_device_phone_light"
+                            android:gravity="center"
+                            android:text="@string/home_device_badge_phone"
+                            android:textColor="#7E5FB8"
+                            android:textSize="16dp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="@string/home_device_price_phone_b"
+                            android:textColor="#232B37"
+                            android:textSize="14dp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>
+
