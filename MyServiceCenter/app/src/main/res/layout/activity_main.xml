@@ -256,7 +256,7 @@
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:gravity="center"
-                android:tint="#000000"
+                app:tint="#000000"
                 android:src="@drawable/icon_common_question"
                 android:textColor="@color/text_primary"
                 android:textSize="16dp"

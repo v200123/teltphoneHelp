@@ -304,7 +304,7 @@ private class HomePagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> HomeContentFragment()
+            0 -> HomeFragment()
             3 -> HomeMineFragment()
             else -> ModulePlaceholderFragment.newInstance(pageTitles[position])
         }
