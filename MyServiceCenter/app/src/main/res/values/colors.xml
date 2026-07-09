@@ -26,4 +26,14 @@
     <color name="switch_track">#EEF2F6</color>
     <color name="switch_thumb">#FFFFFF</color>
     <color name="top_bar_shadow">#12000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="color_FF000000">#ff000000</color>
+    <color name="color_F3513B">#F3513B</color>
+    <color name="color_ff4b36">#ff4b36</color>
+    <color name="color_333333">#333333</color>
+    <color name="color_ccffffff">#ccffffff</color>
+    <color name="color_e0e3e6">#e0e3e6</color>
+    <color name="color_33000000">#33000000</color>
+
+
 </resources>

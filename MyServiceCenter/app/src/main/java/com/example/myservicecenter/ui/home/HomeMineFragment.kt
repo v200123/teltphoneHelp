@@ -77,7 +77,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
             .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/c587d3a308314e34aa7885d8f37f8d9a.png?fmt=webp&width=288&height=80")
             .into(binding.ivMineServiceCenter)
 
-        Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8082574b7e0840088dea618a969af000.gif").into(binding.ivMineSales)
+        Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8082574b7e0840088dea618a969af000.gif").into(binding.floatWindowImg)
 
 
         renderMineComboItems()
@@ -337,12 +337,12 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         val context = requireContext()
         val rawPhoneNumber = AppPreferences.getCustomPhoneNumber(context).trim()
         val region = AppPreferences.getCustomSelfRegion(context).trim()
-        binding.tvHomePhone.text = if (rawPhoneNumber.isNotEmpty()) {
+        binding.telNumTxt.text = if (rawPhoneNumber.isNotEmpty()) {
             maskPhoneNumber(rawPhoneNumber)
         } else {
             getString(R.string.home_phone_default)
         }
-        binding.tvHomeRegion.text = region.ifEmpty { getString(R.string.home_region_default) }
+        binding.cityNameTxt.text = region.ifEmpty { getString(R.string.home_region_default) }
     }
 
     private fun applyStatsInfo() {
@@ -351,11 +351,15 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         val data = AppPreferences.getMineStatData(context)
         val balance = AppPreferences.getMineStatBalance(context)
         val bean = AppPreferences.getMineStatBean(context)
+        binding.baseCode01.setData(coupon,"","卡券")
+        binding.baseCode02.setData(data,"GB","通用流量剩余")
+        binding.baseCode03.setData(balance,"元","话费余额")
+        binding.baseCode04.setData(bean,"豆","AI豆")
 
-        binding.tvMineCoupon.text = coupon
-        binding.tvMineData.setNumberWithUnit(data, "GB", numberSizeSp = 16, unitSizeSp = 12)
-        binding.tvMineBalance.setNumberWithUnit(balance, "元", numberSizeSp = 16, unitSizeSp = 12)
-        binding.tvMineBean.setNumberWithUnit(bean, "豆", numberSizeSp = 16, unitSizeSp = 12)
+//        binding.tvMineCoupon.text = coupon
+//        binding.tvMineData.setNumberWithUnit(data, "GB", numberSizeSp = 16, unitSizeSp = 12)
+//        binding.tvMineBalance.setNumberWithUnit(balance, "元", numberSizeSp = 16, unitSizeSp = 12)
+//        binding.tvMineBean.setNumberWithUnit(bean, "豆", numberSizeSp = 16, unitSizeSp = 12)
     }
 
     /**

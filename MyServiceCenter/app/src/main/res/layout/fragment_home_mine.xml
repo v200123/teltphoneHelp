@@ -30,7 +30,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 android:orientation="vertical"
                 android:paddingBottom="18dp">
 
@@ -41,251 +40,239 @@
                     android:gravity="center_vertical"
                     android:paddingEnd="16dp">
 
-                    <!--                <ImageView-->
-                    <!--                    android:id="@+id/iv_mine_change_version"-->
-                    <!--                    android:layout_width="wrap_content"-->
-                    <!--                    android:layout_height="30dp"-->
-                    <!--                    android:adjustViewBounds="true"-->
-                    <!--                    android:gravity="center"-->
-                    <!--                    />-->
 
-                    <!--                <LinearLayout-->
-                    <!--                    android:layout_width="0dp"-->
-                    <!--                    android:layout_height="match_parent"-->
-                    <!--                    android:layout_weight="1"-->
-                    <!--                    android:gravity="end|center_vertical">-->
-
-                    <!--                    <ImageView-->
-                    <!--                        android:id="@+id/ivMineSettings"-->
-                    <!--                        android:layout_width="24dp"-->
-                    <!--                        android:layout_height="24dp"-->
-                    <!--                        android:adjustViewBounds="true"-->
-                    <!--                        android:src="@drawable/title_setting_default_black"/>-->
-
-                    <!--                    <ImageView-->
-                    <!--                        android:layout_width="24dp"-->
-                    <!--                        android:layout_height="24dp"-->
-                    <!--                        android:adjustViewBounds="true"-->
-                    <!--                        android:layout_marginStart="12dp"-->
-                    <!--                        android:src="@drawable/title_onlineservice_default_black"-->
-                    <!--                        android:gravity="center" />-->
-
-                    <!--                    <ImageView-->
-                    <!--                        android:layout_width="24dp"-->
-                    <!--                        android:layout_height="24dp"-->
-                    <!--                        android:tint="@color/text_primary"-->
-                    <!--                        android:adjustViewBounds="true"-->
-                    <!--                        android:layout_marginStart="12dp"-->
-                    <!--                        android:src="@drawable/title_menu_msg"-->
-                    <!--                        android:gravity="center" />-->
-                    <!--                </LinearLayout>-->
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_marginStart="16dp"
+                <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/rl_content"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="22dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:id="@+id/ivAvatar"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/mine_login_icon"
-
-                        />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    android:layout_height="match_parent">
+                    <View
+                        android:orientation="horizontal"
+                        android:id="@+id/top_guide_line"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/x1"
+                        android:layout_marginTop="@dimen/x21"
+                        app:layout_constraintTop_toTopOf="parent"/>
+                    <RelativeLayout
+                        android:id="@+id/rl_img_login"
+                        android:visibility="visible"
+                        android:layout_width="@dimen/x90"
+                        android:layout_height="@dimen/x90"
+                        android:layout_marginTop="@dimen/x10"
+                        android:layout_marginStart="@dimen/x30"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/top_guide_line">
+                        <ImageView
+                            android:id="@+id/img_login"
+                            android:focusable="true"
+                            android:clickable="true"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/mine_login_icon"
+                            android:contentDescription="个人信息"/>
+                        <ImageView
+                            android:id="@+id/img_login_bg"
+                            android:background="@drawable/mine_login_bg"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+                        <ImageView
+                            android:id="@+id/star_user"
+                            android:layout_width="@dimen/x32"
+                            android:layout_height="@dimen/x32"
+                            android:layout_alignParentBottom="true"
+                            android:contentDescription="@null"
+                            android:layout_alignParentEnd="true"/>
+                    </RelativeLayout>
+                    <com.example.myservicecenter.customView.CustomFontTextView
+                        android:textSize="@dimen/x48"
+                        android:textColor="@color/color_FF000000"
+                        android:id="@+id/tel_num_txt"
+                        android:focusable="true"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <LinearLayout
+                        android:includeFontPadding="false"
+                        android:importantForAccessibility="yes"
+                        android:layout_marginStart="@dimen/x18"
+                        android:letterSpacing="-0.05"
+                        app:layout_constraintLeft_toRightOf="@+id/rl_img_login"
+                        app:layout_constraintTop_toTopOf="@+id/top_guide_line"/>
+                    <RelativeLayout
+                        android:id="@+id/rl_change_login"
+                        android:background="@drawable/shape_corner_17_33000000"
+                        android:layout_width="@dimen/x48"
+                        android:layout_height="@dimen/x34"
+                        android:contentDescription="@null"
+                        android:layout_marginStart="@dimen/x12"
+                        app:layout_constraintBottom_toBottomOf="@+id/tel_num_txt"
+                        app:layout_constraintLeft_toRightOf="@+id/tel_num_txt"
+                        app:layout_constraintTop_toTopOf="@+id/tel_num_txt">
+                        <ImageView
+                            android:layout_width="@dimen/x22"
+                            android:layout_height="@dimen/x21"
+                            android:src="@drawable/mine_login_change_svg"
+                            android:layout_centerInParent="true"/>
+                    </RelativeLayout>
+                    <ImageView
+                        android:id="@+id/iv_birthday_gift"
+                        android:visibility="gone"
+                        android:layout_width="@dimen/x140"
+                        android:layout_height="@dimen/x50"
+                        android:layout_marginLeft="@dimen/x12"
+                        android:importantForAccessibility="no"
+                        app:layout_constraintBottom_toBottomOf="@+id/rl_change_login"
+                        app:layout_constraintLeft_toRightOf="@+id/rl_change_login"/>
+                    <TextView
+                        android:textSize="@dimen/x24"
+                        android:textColor="@color/color_FF000000"
+                        android:id="@+id/city_name_txt"
+                        android:focusable="true"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
+                        android:layout_below="@+id/tel_num_txt"
+                        android:importantForAccessibility="yes"
+                        android:layout_alignStart="@+id/tel_num_txt"
+                        app:layout_constraintBottom_toBottomOf="@+id/rl_img_login"
+                        app:layout_constraintLeft_toLeftOf="@+id/tel_num_txt"/>
+                    <ImageView
+                        android:id="@+id/member_img"
+                        android:layout_width="@dimen/x136"
+                        android:layout_height="@dimen/x30"
+                        android:layout_below="@+id/tel_num_txt"
+                        android:contentDescription="@null"
+                        android:layout_alignStart="@+id/tel_num_txt"
+                        app:layout_constraintLeft_toLeftOf="@+id/tel_num_txt"
+                        app:layout_constraintTop_toBottomOf="@+id/tel_num_txt"/>
+                    <LinearLayout
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:id="@+id/ll_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x36"
+                        android:layout_marginTop="@dimen/x12"
+                        android:layout_below="@+id/tel_num_txt"
+                        android:layout_alignStart="@+id/tel_num_txt"
+                        app:layout_constraintLeft_toLeftOf="@+id/tel_num_txt"
+                        app:layout_constraintTop_toBottomOf="@+id/tel_num_txt">
+                        <RelativeLayout
+                            android:id="@+id/rl_brand"
+                            android:visibility="gone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical">
-
+                            android:layout_marginRight="@dimen/x12"
+                            style="@style/relativeLayout_global_normal">
+                            <ImageView
+                                android:id="@+id/brand_img"
+                                android:contentDescription="@null"
+                                style="@style/imageview_global_normal"/>
                             <TextView
-                                android:id="@+id/tvHomePhone"
+                                android:id="@+id/tv_brand"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/home_phone_default"
-                                android:textColor="#101722"
-                                android:textSize="19dp"
-                                android:textStyle="bold" />
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="19dp"
-                                android:layout_marginStart="8dp"
-                                android:background="@drawable/bg_home_round_gray"
-                                android:gravity="center"
-                                android:paddingStart="6dp"
-                                android:paddingTop="4dp"
-                                android:paddingEnd="6dp"
-                                android:paddingBottom="4dp"
-                                android:src="@drawable/mine_login_change_svg" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvHomeRegion"
+                                style="@style/textview_global_normal"/>
+                        </RelativeLayout>
+                        <RelativeLayout
+                            android:id="@+id/rl_plus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/home_region_default"
-                            android:textColor="#5D6673"
-                            android:textSize="13dp" />
+                            android:visibility="gone"
+                            style="@style/relativeLayout_global_normal">
+                            <ImageView
+                                android:id="@+id/plus_img"
 
-                        <!--                    <com.google.android.material.button.MaterialButton-->
-                        <!--                        android:id="@+id/btnOpenDetail"-->
-                        <!--                        style="@style/Widget.Material3.Button.TextButton"-->
-                        <!--                        android:layout_width="wrap_content"-->
-                        <!--                        android:layout_height="34dp"-->
-                        <!--                        android:layout_marginTop="10dp"-->
-                        <!--                        android:background="@drawable/bg_blue_pill"-->
-                        <!--                        android:insetTop="0dp"-->
-                        <!--                        android:insetBottom="0dp"-->
-                        <!--                        android:minWidth="0dp"-->
-                        <!--                        android:paddingStart="14dp"-->
-                        <!--                        android:paddingEnd="14dp"-->
-                        <!--                        android:text="@string/home_open_detail_short"-->
-                        <!--                        android:textAllCaps="false"-->
-                        <!--                        android:textColor="#FFFFFF"-->
-                        <!--                        android:textSize="13dp"-->
-                        <!--                        app:cornerRadius="17dp" />-->
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/imageview_global_normal"/>
+                            <TextView
+                                android:id="@+id/tv_plus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/textview_global_normal"/>
+                        </RelativeLayout>
                     </LinearLayout>
-
                     <ImageView
-                        android:id="@+id/iv_mine_sales"
-                        android:layout_width="wrap_content"
-                        android:layout_height="58dp"
-                        android:layout_marginStart="10dp"
-                        android:adjustViewBounds="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:id="@+id/float_window_img_min"
+                        android:visibility="gone"
+                        android:layout_width="@dimen/x160"
+                        android:layout_height="@dimen/x50"
+                        android:layout_marginTop="@dimen/fx8"
+                        android:importantForAccessibility="no"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/top_guide_line"/>
+                    <ImageView
+                        android:id="@+id/float_window_img_bottom"
+                        android:visibility="gone"
+                        android:layout_width="@dimen/x160"
+                        android:layout_height="@dimen/x50"
+                        android:layout_marginTop="@dimen/x24"
+                        android:importantForAccessibility="no"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/float_window_img_min"/>
+                    <ImageView
+                        android:id="@+id/float_window_img"
+                        android:visibility="visible"
+                        android:layout_width="@dimen/x192"
+                        android:layout_height="@dimen/x130"
+                        android:layout_marginTop="@dimen/fx10"
+                        android:importantForAccessibility="no"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/top_guide_line"/>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:id="@+id/ll_login_card"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/x1"
+                        android:layout_marginTop="@dimen/x28"
+                        android:layout_marginRight="@dimen/x1"
+                        android:baselineAligned="false"
+                        android:layout_alignParentBottom="true"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/ll_type"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    </ImageView>
-                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/rl_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:elevation="1dp"
+                android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingTop="18dp"
                 android:paddingBottom="6dp">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                <com.example.myservicecenter.customView.BaseCodeView
+                    android:id="@+id/base_code_01"
+                    android:layout_width="0px"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvMineCoupon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/dincondensed_bold"
-                        android:text="5"
-                        android:textColor="#161D29"
-                        android:textSize="16dp"
-                         />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="@string/home_stat_coupon"
-                        android:fontFamily="@font/roboto_medium_numbers"
-
-
-                        android:textColor="#000000"
-                        android:textSize="12dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <com.example.myservicecenter.customView.BaseCodeView
+                    android:id="@+id/base_code_02"
+                    android:layout_width="0px"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvMineData"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="42.92GB"
-                        android:textColor="#161D29"
-                        android:textSize="16dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="@string/home_stat_data"
-                        android:textColor="#000000"
-                        android:textSize="12dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <com.example.myservicecenter.customView.BaseCodeView
+                    android:id="@+id/base_code_03"
+                    android:layout_width="0px"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvMineBalance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="724.48元"
-                        android:textColor="#161D29"
-                        android:textSize="16dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="@string/home_stat_balance"
-                        android:textColor="#000000"
-                        android:textSize="12dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <com.example.myservicecenter.customView.BaseCodeView
+                    android:id="@+id/base_code_04"
+                    android:layout_width="0px"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvMineBean"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1833豆"
-                        android:textColor="#161D29"
-                        android:textSize="16dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="@string/home_stat_ai_bean"
-                        android:textColor="#000000"
-                        android:textSize="12dp" />
-                </LinearLayout>
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
             <FrameLayout
                 android:id="@+id/fl_mine_mine_equity"
                 android:layout_width="match_parent"
                 android:layout_height="67dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/x30"
                 android:layout_marginTop="6dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_home_mine_quanyi"
@@ -300,7 +287,7 @@
                 android:id="@+id/ll_mine_combo"
                 android:layout_width="match_parent"
                 android:layout_height="90dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/x30"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/ic_home_mine_01"
