@@ -77,13 +77,10 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
             .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/c587d3a308314e34aa7885d8f37f8d9a.png?fmt=webp&width=288&height=80")
             .into(binding.ivMineServiceCenter)
 
-        Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8082574b7e0840088dea618a969af000.gif").into(binding.floatWindowImg)
-
-
+        Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/29a5ceb71fcf48daa2ccf2feb3d8b93d.gif").into(binding.floatWindowImg)
         renderMineComboItems()
         renderMineServiceCenterItems()
         bindServiceCenterScrollIndicator()
-
         applyHeaderInfo()
         applyStatsInfo()
     }
