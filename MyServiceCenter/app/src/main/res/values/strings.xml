@@ -127,14 +127,14 @@
     <string name="home_service_rights">权益中心</string>
     <string name="home_service_online">在线客服</string>
     <string name="home_device_title">我的设备</string>
-    <string name="home_device_more">查看更多 ></string>
+    <string name="home_device_more">查看更多 ›</string>
     <string name="home_device_badge_gt">GT</string>
     <string name="home_device_badge_trade">618</string>
     <string name="home_device_badge_phone">16</string>
     <string name="home_device_name_gt">真我GT8 Pro</string>
     <string name="home_device_price_trade">¥0.00起</string>
-    <string name="home_device_price_phone_a">¥7749起</string>
-    <string name="home_device_price_phone_b">¥5549起</string>
+    <string name="home_device_price_phone_a">¥8749起</string>
+    <string name="home_device_price_phone_b">¥7679起</string>
     <string name="warm_tip_template">温馨提示：\n1、以上信息是移动用户%1$s截至页面打开时间%2$s的查询结果。\n2、除特别说明，以上“国内”指中国大陆，不含港澳台地区。\n3、更多信息可详询10086。若您的诉求在10086未得理，可以致电10080客户服务监督热线反映。</string>
     <string name="mine_stats_settings_title">我的数据设置</string>
     <string name="mine_stats_settings_desc">自定义“我的”页面顶部展示的卡券、流量、余额与AI豆数值，设置后将持久化保存。</string>

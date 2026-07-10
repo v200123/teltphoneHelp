@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F4F7">
+   >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -92,7 +92,7 @@
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="12dp"
+
         android:adjustViewBounds="true"
         android:clickable="true"
         android:contentDescription="@string/home_ai_entry"

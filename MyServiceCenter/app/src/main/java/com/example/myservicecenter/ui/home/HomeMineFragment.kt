@@ -47,6 +47,16 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         private const val SERVICE_CENTER_VISIBLE_COLUMNS = 4
         private const val SERVICE_CENTER_ROW_COUNT = 2
         private const val SERVICE_CENTER_INDICATOR_MIN_WIDTH_DP = 16
+
+        // 设备区图片统一从这里配置；后续接接口时可直接替换为接口返回的 URL。
+        private const val CURRENT_DEVICE_IMAGE_URL =
+            "https://fdn2.gsmarena.com/vv/pics/realme/realme-gt7-pro-1.jpg"
+        private const val TRADE_IN_IMAGE_URL =
+            "https://placehold.co/240x240/EC4AA6/FFFFFF.png?text=%E4%BB%A5%E6%97%A7%0A%E6%8D%A2%E6%96%B0"
+        private const val DEVICE_PHONE_A_IMAGE_URL =
+            "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg"
+        private const val DEVICE_PHONE_B_IMAGE_URL =
+            "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,9 +90,36 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/29a5ceb71fcf48daa2ccf2feb3d8b93d.gif").into(binding.floatWindowImg)
         renderMineComboItems()
         renderMineServiceCenterItems()
+        renderHomeDeviceImages()
         bindServiceCenterScrollIndicator()
         applyHeaderInfo()
         applyStatsInfo()
+    }
+
+    private fun renderHomeDeviceImages() {
+        Glide.with(this)
+            .load(CURRENT_DEVICE_IMAGE_URL)
+            .placeholder(R.drawable.bg_home_device_phone_dark)
+            .error(R.drawable.bg_home_device_phone_dark)
+            .into(binding.ivHomeDeviceCurrent)
+
+        Glide.with(this)
+            .load(TRADE_IN_IMAGE_URL)
+            .placeholder(R.drawable.bg_home_device_trade)
+            .error(R.drawable.bg_home_device_trade)
+            .into(binding.ivHomeDeviceTrade)
+
+        Glide.with(this)
+            .load(DEVICE_PHONE_A_IMAGE_URL)
+            .placeholder(R.drawable.bg_home_device_phone_dark)
+            .error(R.drawable.bg_home_device_phone_dark)
+            .into(binding.ivHomeDevicePhoneA)
+
+        Glide.with(this)
+            .load(DEVICE_PHONE_B_IMAGE_URL)
+            .placeholder(R.drawable.bg_home_device_phone_orange)
+            .error(R.drawable.bg_home_device_phone_orange)
+            .into(binding.ivHomeDevicePhoneB)
     }
 
     private fun applyWindowInsets() {
