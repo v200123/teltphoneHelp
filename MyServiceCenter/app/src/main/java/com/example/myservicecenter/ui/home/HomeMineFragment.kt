@@ -1,7 +1,9 @@
 package com.example.myservicecenter.ui.home
 
 import android.content.Intent
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -11,6 +13,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.GridLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
@@ -30,6 +34,20 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
     private var _binding: FragmentHomeMineBinding? = null
     private val binding get() = _binding!!
 
+    private val selectCurrentDeviceImage = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        val context = context ?: return@registerForActivityResult
+        uri ?: return@registerForActivityResult
+        try {
+            context.contentResolver.takePersistableUriPermission(uri, FLAG_GRANT_READ_URI_PERMISSION)
+            AppPreferences.setHomeCurrentDeviceImageUri(context, uri)
+            renderCurrentDeviceImage()
+        } catch (_: SecurityException) {
+            Toast.makeText(context, "无法保存所选图片的访问权限，请重新选择", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private data class MineComboItem(
         val iconUrl: String = "",
         val title: String,
@@ -48,15 +66,6 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         private const val SERVICE_CENTER_ROW_COUNT = 2
         private const val SERVICE_CENTER_INDICATOR_MIN_WIDTH_DP = 16
 
-        // 设备区图片统一从这里配置；后续接接口时可直接替换为接口返回的 URL。
-        private const val CURRENT_DEVICE_IMAGE_URL =
-            "https://fdn2.gsmarena.com/vv/pics/realme/realme-gt7-pro-1.jpg"
-        private const val TRADE_IN_IMAGE_URL =
-            "https://placehold.co/240x240/EC4AA6/FFFFFF.png?text=%E4%BB%A5%E6%97%A7%0A%E6%8D%A2%E6%96%B0"
-        private const val DEVICE_PHONE_A_IMAGE_URL =
-            "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg"
-        private const val DEVICE_PHONE_B_IMAGE_URL =
-            "https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,6 +80,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         if (_binding != null) {
             applyHeaderInfo()
             applyStatsInfo()
+            renderCurrentDeviceImage()
         }
     }
 
@@ -86,43 +96,39 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         Glide.with(this)
             .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/c587d3a308314e34aa7885d8f37f8d9a.png?fmt=webp&width=288&height=80")
             .into(binding.ivMineServiceCenter)
-        Glide.with(this)
-            .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/c33ccbb49eba49d0b5a2aac871de5527.png?fmt=webp")
-            .into(binding.ivHomeDeviceTrade)
-
         Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/29a5ceb71fcf48daa2ccf2feb3d8b93d.gif").into(binding.floatWindowImg)
         renderMineComboItems()
         renderMineServiceCenterItems()
         renderHomeDeviceImages()
+        binding.ivHomeDeviceCurrent.setOnClickListener {
+            if (AppPreferences.getHomeCurrentDeviceImageUri(requireContext()) == null) {
+                Toast.makeText(requireContext(), R.string.home_device_select_toast, Toast.LENGTH_SHORT).show()
+            }
+            selectCurrentDeviceImage.launch(arrayOf("image/*"))
+        }
         bindServiceCenterScrollIndicator()
         applyHeaderInfo()
         applyStatsInfo()
     }
 
     private fun renderHomeDeviceImages() {
+        renderCurrentDeviceImage()
+    }
+
+    private fun renderCurrentDeviceImage() {
+        val context = context ?: return
+        val imageUri = AppPreferences.getHomeCurrentDeviceImageUri(context)
+        if (imageUri == null) {
+            Glide.with(this).clear(binding.ivHomeDeviceCurrent)
+            binding.ivHomeDeviceCurrent.setImageResource(R.drawable.bg_home_device_phone_dark)
+            return
+        }
+
         Glide.with(this)
-            .load(CURRENT_DEVICE_IMAGE_URL)
+            .load(imageUri)
             .placeholder(R.drawable.bg_home_device_phone_dark)
             .error(R.drawable.bg_home_device_phone_dark)
             .into(binding.ivHomeDeviceCurrent)
-
-        Glide.with(this)
-            .load(TRADE_IN_IMAGE_URL)
-            .placeholder(R.drawable.bg_home_device_trade)
-            .error(R.drawable.bg_home_device_trade)
-            .into(binding.ivHomeDeviceTrade)
-
-        Glide.with(this)
-            .load(DEVICE_PHONE_A_IMAGE_URL)
-            .placeholder(R.drawable.bg_home_device_phone_dark)
-            .error(R.drawable.bg_home_device_phone_dark)
-            .into(binding.ivHomeDevicePhoneA)
-
-        Glide.with(this)
-            .load(DEVICE_PHONE_B_IMAGE_URL)
-            .placeholder(R.drawable.bg_home_device_phone_orange)
-            .error(R.drawable.bg_home_device_phone_orange)
-            .into(binding.ivHomeDevicePhoneB)
     }
 
     private fun applyWindowInsets() {

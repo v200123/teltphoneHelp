@@ -1,6 +1,7 @@
 package com.example.myservicecenter
 
 import android.content.Context
+import android.net.Uri
 
 object AppPreferences {
     // Preference keys
@@ -21,6 +22,7 @@ object AppPreferences {
     private const val KEY_WEBVIEW_HOME_POINTS = "webview_home_points"
     private const val KEY_WEBVIEW_HOME_PENDING_RIGHTS = "webview_home_pending_rights"
     private const val KEY_WEBVIEW_FIXED_FEE_LIST_JSON = "webview_fixed_fee_list_json"
+    private const val KEY_HOME_CURRENT_DEVICE_IMAGE_URI = "home_current_device_image_uri"
 
     // Basic user info and custom display settings
     fun getOutgoingPackageInfo(context: Context): String {
@@ -231,6 +233,21 @@ object AppPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_WEBVIEW_FIXED_FEE_LIST_JSON, value.trim())
+            .apply()
+    }
+
+    /** “我的设备”卡片中用户选择的本地图片。使用可持久化的 document Uri 保存。 */
+    fun getHomeCurrentDeviceImageUri(context: Context): Uri? {
+        val rawUri = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_HOME_CURRENT_DEVICE_IMAGE_URI, null)
+            .orEmpty()
+        return rawUri.takeIf { it.isNotBlank() }?.let(Uri::parse)
+    }
+
+    fun setHomeCurrentDeviceImageUri(context: Context, uri: Uri) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_HOME_CURRENT_DEVICE_IMAGE_URI, uri.toString())
             .apply()
     }
 

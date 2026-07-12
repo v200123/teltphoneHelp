@@ -132,6 +132,8 @@
     <string name="home_device_badge_trade">618</string>
     <string name="home_device_badge_phone">16</string>
     <string name="home_device_name_gt">真我GT8 Pro</string>
+    <string name="home_device_select_hint">点击选择本地设备图片</string>
+    <string name="home_device_select_toast">请选择本地设备图片</string>
     <string name="home_device_price_trade">¥0.00起</string>
     <string name="home_device_price_phone_a">¥8749起</string>
     <string name="home_device_price_phone_b">¥7679起</string>
