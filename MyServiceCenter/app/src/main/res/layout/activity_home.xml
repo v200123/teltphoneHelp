@@ -95,8 +95,7 @@
         android:layout_width="@dimen/x196"
         android:layout_height="@dimen/x196"
         android:layout_gravity="bottom|center_horizontal"
-        android:adjustViewBounds="true"
-        android:clickable="true"
+
         android:contentDescription="@string/home_ai_entry"
         android:focusable="true"
         android:scaleType="fitXY"

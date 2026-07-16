@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    android:id="@+id/item_plus_tab_container"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/x88">
+    <TextView
+        android:textSize="@dimen/x34"
+        android:textColor="@color/white"
+        android:ellipsize="end"
+        android:id="@+id/tv_top_view_tab_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/space_end"
+        app:layout_constraintStart_toEndOf="@+id/space_start"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <Space
+        android:id="@+id/space_start"
+        android:layout_width="@dimen/x21"
+        android:layout_height="1px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_top_view_tab_item"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <Space
+        android:id="@+id/space_end"
+        android:layout_width="@dimen/x21"
+        android:layout_height="1px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_top_view_tab_item"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <ImageView
+        android:id="@+id/line_home_plus_tab"
+        android:visibility="invisible"
+        android:layout_width="@dimen/x15"
+        android:layout_height="@dimen/x16"
+        android:layout_marginTop="@dimen/fx16"
+        android:src="@mipmap/ic_home2_0_native_tab_indicator"
+        android:layout_marginStart="@dimen/fx8"
+        app:layout_constraintStart_toEndOf="@+id/tv_top_view_tab_item"
+        app:layout_constraintTop_toBottomOf="@+id/tv_top_view_tab_item"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

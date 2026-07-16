@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="HomeTopTabItemView">
+        <attr name="tabText" format="string" />
+        <attr name="tabTextColor" format="color" />
+        <attr name="tabIndicatorVisible" format="boolean" />
+        <attr name="tabSelected" format="boolean" />
+    </declare-styleable>
+</resources>
