@@ -2,15 +2,21 @@ package com.example.myservicecenter.customView;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import com.example.myservicecenter.R;
+
+import kotlin.Unit;
 
 /**
  * Reusable top-navigation text tab based on {@code tab_item_home2_0_text.xml}.
@@ -93,6 +99,14 @@ public class HomeTopTabItemView extends ConstraintLayout {
     public void setSelected(boolean selected) {
         super.setSelected(selected);
         titleView.setSelected(selected);
+        if(selected){
+            titleView.getPaint().setFakeBoldText(true);
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.x40));
+        }else{
+            titleView.getPaint().setFakeBoldText(false);
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.x34));
+            titleView.setTextColor(Color.parseColor("#333333"));
+        }
         indicatorView.setSelected(selected);
         setIndicatorVisible(selected);
     }

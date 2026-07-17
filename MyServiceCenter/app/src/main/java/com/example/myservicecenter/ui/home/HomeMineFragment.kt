@@ -3,6 +3,7 @@ package com.example.myservicecenter.ui.home
 import android.content.Intent
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.graphics.Typeface
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
@@ -11,6 +12,7 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -23,28 +25,39 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.myservicecenter.AppPreferences
 import com.example.myservicecenter.R
-import com.example.myservicecenter.SettingsActivity
 import com.example.myservicecenter.databinding.FragmentHomeMineBinding
 import com.example.myservicecenter.databinding.ItemHomeMineComboBinding
 import com.example.myservicecenter.databinding.ItemHomeMineServiceCenterBinding
 import com.example.myservicecenter.ui.main.MainActivity
-import kotlin.jvm.java
+import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 
 class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
     private var _binding: FragmentHomeMineBinding? = null
     private val binding get() = _binding!!
 
-    private val selectCurrentDeviceImage = registerForActivityResult(
+    private val selectCurrentDeviceMedia = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         val context = context ?: return@registerForActivityResult
         uri ?: return@registerForActivityResult
         try {
             context.contentResolver.takePersistableUriPermission(uri, FLAG_GRANT_READ_URI_PERMISSION)
-            AppPreferences.setHomeCurrentDeviceImageUri(context, uri)
-            renderCurrentDeviceImage()
+            val mimeType = context.contentResolver.getType(uri).orEmpty()
+            when {
+                mimeType.startsWith("image/") -> {
+                    AppPreferences.setHomeCurrentDeviceImageUri(context, uri)
+                    AppPreferences.setHomeCurrentDeviceMediaType(context, AppPreferences.HOME_DEVICE_MEDIA_TYPE_IMAGE)
+                    renderCurrentDeviceImage()
+                }
+                mimeType.startsWith("video/") -> {
+                    AppPreferences.setHomeCurrentDeviceVideoUri(context, uri)
+                    AppPreferences.setHomeCurrentDeviceMediaType(context, AppPreferences.HOME_DEVICE_MEDIA_TYPE_VIDEO)
+                    renderCurrentDeviceVideo()
+                }
+                else -> Toast.makeText(context, "请选择图片或视频文件", Toast.LENGTH_SHORT).show()
+            }
         } catch (_: SecurityException) {
-            Toast.makeText(context, "无法保存所选图片的访问权限，请重新选择", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "无法保存所选文件的访问权限，请重新选择", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -65,6 +78,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         private const val SERVICE_CENTER_VISIBLE_COLUMNS = 4
         private const val SERVICE_CENTER_ROW_COUNT = 2
         private const val SERVICE_CENTER_INDICATOR_MIN_WIDTH_DP = 16
+        private const val HOME_DEVICE_VIDEO_DEFAULT_HEIGHT_DP = 220
 
     }
 
@@ -75,12 +89,17 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         initViews()
     }
 
+    override fun onPause() {
+        _binding?.playerHomeDeviceCurrent?.onVideoPause()
+        super.onPause()
+    }
+
     override fun onResume() {
         super.onResume()
         if (_binding != null) {
             applyHeaderInfo()
             applyStatsInfo()
-            renderCurrentDeviceImage()
+            renderHomeDeviceMedia()
         }
     }
 
@@ -99,24 +118,39 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
         Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/29a5ceb71fcf48daa2ccf2feb3d8b93d.gif").into(binding.floatWindowImg)
         renderMineComboItems()
         renderMineServiceCenterItems()
-        renderHomeDeviceImages()
-        binding.ivHomeDeviceCurrent.setOnClickListener {
-            if (AppPreferences.getHomeCurrentDeviceImageUri(requireContext()) == null) {
-                Toast.makeText(requireContext(), R.string.home_device_select_toast, Toast.LENGTH_SHORT).show()
+        renderHomeDeviceMedia()
+        binding.viewHomeDevicePickerOverlay.setOnClickListener {
+            val context = requireContext()
+            val hasImage = AppPreferences.getHomeCurrentDeviceImageUri(context) != null
+            val hasVideo = AppPreferences.getHomeCurrentDeviceVideoUri(context) != null
+            if (!hasImage && !hasVideo) {
+                Toast.makeText(context, R.string.home_device_select_toast, Toast.LENGTH_SHORT).show()
             }
-            selectCurrentDeviceImage.launch(arrayOf("image/*"))
+            selectCurrentDeviceMedia.launch(arrayOf("image/*", "video/*"))
         }
         bindServiceCenterScrollIndicator()
         applyHeaderInfo()
         applyStatsInfo()
     }
 
-    private fun renderHomeDeviceImages() {
-        renderCurrentDeviceImage()
+    private fun renderHomeDeviceMedia() {
+        val context = context ?: return
+        if (AppPreferences.getHomeCurrentDeviceMediaType(context) == AppPreferences.HOME_DEVICE_MEDIA_TYPE_VIDEO) {
+            renderCurrentDeviceVideo()
+        } else {
+            renderCurrentDeviceImage()
+        }
     }
 
     private fun renderCurrentDeviceImage() {
         val context = context ?: return
+        binding.playerHomeDeviceCurrent.onVideoReset()
+        binding.playerHomeDeviceCurrent.visibility = View.GONE
+        binding.ivHomeDeviceCurrent.visibility = View.VISIBLE
+        binding.flHomeDeviceCurrent.layoutParams = binding.flHomeDeviceCurrent.layoutParams.apply {
+            height = ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+
         val imageUri = AppPreferences.getHomeCurrentDeviceImageUri(context)
         if (imageUri == null) {
             Glide.with(this).clear(binding.ivHomeDeviceCurrent)
@@ -129,6 +163,83 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
             .placeholder(R.drawable.bg_home_device_phone_dark)
             .error(R.drawable.bg_home_device_phone_dark)
             .into(binding.ivHomeDeviceCurrent)
+    }
+
+    private fun renderCurrentDeviceVideo() {
+        val context = context ?: return
+        val videoUri = AppPreferences.getHomeCurrentDeviceVideoUri(context)
+        if (videoUri == null) {
+            renderCurrentDeviceImage()
+            return
+        }
+
+        Glide.with(this).clear(binding.ivHomeDeviceCurrent)
+        binding.ivHomeDeviceCurrent.visibility = View.GONE
+        binding.playerHomeDeviceCurrent.visibility = View.VISIBLE
+        applyHomeDeviceVideoSize(videoUri)
+
+        try {
+            binding.playerHomeDeviceCurrent.onVideoReset()
+            GSYVideoOptionBuilder()
+                .setUrl(videoUri.toString())
+                .setVideoTitle("")
+                .setCacheWithPlay(true)
+                .setLooping(true)
+                .setIsTouchWiget(false)
+                .setAutoFullWithSize(false)
+                .setShowFullAnimation(false)
+                .build(binding.playerHomeDeviceCurrent)
+            binding.playerHomeDeviceCurrent.startPlayLogic()
+        } catch (_: Exception) {
+            Toast.makeText(context, "视频加载失败", Toast.LENGTH_SHORT).show()
+            renderCurrentDeviceImage()
+        }
+    }
+
+    private fun applyHomeDeviceVideoSize(videoUri: Uri) {
+        val defaultHeight = dpToPx(HOME_DEVICE_VIDEO_DEFAULT_HEIGHT_DP)
+        binding.flHomeDeviceCurrent.layoutParams = binding.flHomeDeviceCurrent.layoutParams.apply {
+            height = defaultHeight
+        }
+        binding.flHomeDeviceCurrent.post {
+            val binding = _binding ?: return@post
+            val containerWidth = binding.flHomeDeviceCurrent.width.takeIf { it > 0 }
+                ?: resources.displayMetrics.widthPixels
+            val videoSize = readVideoSize(videoUri)
+            val targetHeight = if (videoSize != null) {
+                (containerWidth.toFloat() * videoSize.second / videoSize.first).toInt()
+                    .coerceAtLeast(defaultHeight / 2)
+            } else {
+                defaultHeight
+            }
+            binding.flHomeDeviceCurrent.layoutParams = binding.flHomeDeviceCurrent.layoutParams.apply {
+                height = targetHeight
+            }
+        }
+    }
+
+    private fun readVideoSize(videoUri: Uri): Pair<Int, Int>? {
+        val context = context ?: return null
+        return try {
+            val retriever = MediaMetadataRetriever()
+            try {
+                retriever.setDataSource(context, videoUri)
+                val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+                val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+                val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0
+                if (width <= 0 || height <= 0) {
+                    null
+                } else if (rotation == 90 || rotation == 270) {
+                    height to width
+                } else {
+                    width to height
+                }
+            } finally {
+                retriever.release()
+            }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun applyWindowInsets() {
@@ -456,6 +567,7 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
     }
 
     override fun onDestroyView() {
+        _binding?.playerHomeDeviceCurrent?.onVideoReset()
         super.onDestroyView()
         _binding = null
     }

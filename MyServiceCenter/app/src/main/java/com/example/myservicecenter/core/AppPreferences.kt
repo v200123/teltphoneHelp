@@ -23,6 +23,11 @@ object AppPreferences {
     private const val KEY_WEBVIEW_HOME_PENDING_RIGHTS = "webview_home_pending_rights"
     private const val KEY_WEBVIEW_FIXED_FEE_LIST_JSON = "webview_fixed_fee_list_json"
     private const val KEY_HOME_CURRENT_DEVICE_IMAGE_URI = "home_current_device_image_uri"
+    private const val KEY_HOME_CURRENT_DEVICE_VIDEO_URI = "home_current_device_video_uri"
+    private const val KEY_HOME_CURRENT_DEVICE_MEDIA_TYPE = "home_current_device_media_type"
+
+    const val HOME_DEVICE_MEDIA_TYPE_IMAGE = "image"
+    const val HOME_DEVICE_MEDIA_TYPE_VIDEO = "video"
 
     // Basic user info and custom display settings
     fun getOutgoingPackageInfo(context: Context): String {
@@ -248,6 +253,40 @@ object AppPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_HOME_CURRENT_DEVICE_IMAGE_URI, uri.toString())
+            .apply()
+    }
+
+    /** “我的设备”卡片当前展示的媒体类型。 */
+    fun getHomeCurrentDeviceMediaType(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_HOME_CURRENT_DEVICE_MEDIA_TYPE, HOME_DEVICE_MEDIA_TYPE_IMAGE)
+            .orEmpty()
+            .ifBlank { HOME_DEVICE_MEDIA_TYPE_IMAGE }
+    }
+
+    fun setHomeCurrentDeviceMediaType(context: Context, type: String) {
+        val normalized = when (type) {
+            HOME_DEVICE_MEDIA_TYPE_VIDEO -> HOME_DEVICE_MEDIA_TYPE_VIDEO
+            else -> HOME_DEVICE_MEDIA_TYPE_IMAGE
+        }
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_HOME_CURRENT_DEVICE_MEDIA_TYPE, normalized)
+            .apply()
+    }
+
+    /** “我的设备”卡片中用户选择的本地视频。使用可持久化的 document Uri 保存。 */
+    fun getHomeCurrentDeviceVideoUri(context: Context): Uri? {
+        val rawUri = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_HOME_CURRENT_DEVICE_VIDEO_URI, null)
+            .orEmpty()
+        return rawUri.takeIf { it.isNotBlank() }?.let(Uri::parse)
+    }
+
+    fun setHomeCurrentDeviceVideoUri(context: Context, uri: Uri) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_HOME_CURRENT_DEVICE_VIDEO_URI, uri.toString())
             .apply()
     }
 

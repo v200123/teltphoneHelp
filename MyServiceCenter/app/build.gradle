@@ -49,4 +49,7 @@ dependencies {
     implementation 'io.github.cymchad:BaseRecyclerViewAdapterHelper:3.0.14'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'io.github.carguo:gsyvideoplayer-java:12.0.0'
+    implementation 'io.github.carguo:gsyvideoplayer-arm64:12.0.0'
+    implementation 'io.github.carguo:gsyvideoplayer-x64:12.0.0'
 }

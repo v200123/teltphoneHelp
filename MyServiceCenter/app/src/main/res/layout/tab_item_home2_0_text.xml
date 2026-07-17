@@ -6,7 +6,7 @@
     android:layout_height="@dimen/x88">
     <TextView
         android:textSize="@dimen/x34"
-        android:textColor="@color/white"
+        android:textColor="#007eff"
         android:ellipsize="end"
         android:id="@+id/tv_top_view_tab_item"
         android:layout_width="wrap_content"
@@ -37,7 +37,7 @@
         android:layout_width="@dimen/x15"
         android:layout_height="@dimen/x16"
         android:layout_marginTop="@dimen/fx16"
-        android:src="@mipmap/ic_home2_0_native_tab_indicator"
+        android:src="@drawable/ic_home2_0_native_tab_indicator"
         android:layout_marginStart="@dimen/fx8"
         app:layout_constraintStart_toEndOf="@+id/tv_top_view_tab_item"
         app:layout_constraintTop_toBottomOf="@+id/tv_top_view_tab_item"/>
