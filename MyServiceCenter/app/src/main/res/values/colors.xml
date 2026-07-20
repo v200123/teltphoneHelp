@@ -36,6 +36,7 @@
     <color name="color_33000000">#33000000</color>
     <color name="transparent">#07000000</color>
     <color name="color_DDDDDD">#dddddd</color>
+    <color name="color_FFFFFF">#ffffff</color>
 
 
 </resources>
