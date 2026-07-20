@@ -58,6 +58,8 @@
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="14dp"
+        android:layout_marginStart="@dimen/x18"
+        android:layout_marginEnd="@dimen/x18"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout">
@@ -77,11 +79,12 @@
             android:maxLines="1"
             android:text="随心选会员家庭版"
             android:textColor="#30343A"
-            android:textSize="22sp" />
+            android:textSize="@dimen/x28" />
 
         <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:id="@+id/iv_top_bar_search"
+            android:layout_width="@dimen/x28"
+            android:layout_height="@dimen/x28"
             android:layout_marginEnd="14dp"
             android:contentDescription="扫码"
             android:src="@drawable/ic_home_reference_scan" />
