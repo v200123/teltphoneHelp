@@ -23,9 +23,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         _binding = FragmentHomeBinding.bind(view)
 
         Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/7efac0c5395a41fc811856473284b7c0.png?fmt=webp").into(_binding!!.ivShowTopGif);
-        Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/a752f551f6f34cb0a55d15bce93e5fc7.png?fmt=webp").into(_binding!!.ivTopBarSearch);
-   }
+        Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/a752f551f6f34cb0a55d15bce93e5fc7.png?fmt=webp").into(_binding!!.searchViewScan);
+        initTopBar()
 
+    }
+    private fun initTopBar(){
+        Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8c74e600bbc440148a6b6a56f2fb68e5.gif").into(_binding!!.rlContainerTopInfoRightOtherBtn.iconView);
+        _binding!!.rlContainerTopInfoRightOtherBtn.apply { this.text = "签到有礼" }
+        _binding!!.rlContainerTopInfoRightOtherBtn01.apply { this.text = "消息"
+        this.setUnreadCount("80")
+
+        }
+
+
+
+    }
 
     override fun onResume() {
         super.onResume()
