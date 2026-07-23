@@ -207,8 +207,673 @@
             </RelativeLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+    
+<!--
+加入数据布局
+-->
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/x32"
+        app:layout_constraintTop_toBottomOf="@+id/cl_top_info">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/code_table_bg"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x440"
+            android:background="@drawable/img_code_table_bg"
+            android:orientation="vertical"
+            >
+
+            <FrameLayout
+                android:id="@+id/bg_light_scan_lottie"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/iv_gsm_level"
+                        android:layout_width="@dimen/x132"
+                        android:layout_height="@dimen/x42"
+                        android:layout_marginLeft="@dimen/x30"
+                        android:layout_marginTop="@dimen/x22"
+                        android:layout_marginBottom="@dimen/x13"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/cl_ad_point_new"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/x64"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:id="@+id/iv_ad_point_bg_new"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="fitXY" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/cl_ad_point_left"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/x64"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@+id/v_code_table_ad_split"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <androidx.appcompat.widget.AppCompatTextView
+                                    android:id="@+id/tv_ad_point_text_left"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/x22"
+                                    android:layout_marginTop="@dimen/x2"
+                                    android:layout_marginEnd="@dimen/x12"
+                                    android:singleLine="true"
+                                    android:textColor="@color/color_333333"
+                                    android:textSize="@dimen/x26"
+                                    android:textStyle="bold"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toStartOf="@+id/iv_ad_point_icon_left"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <View
+                                    android:id="@+id/v_ad_point_unread_left"
+                                    android:layout_width="@dimen/x12"
+                                    android:layout_height="@dimen/x12"
+                                    android:layout_marginTop="@dimen/x13"
+                                    android:background="@drawable/bg_code_table_ad_unread"
+                                    app:layout_constraintStart_toEndOf="@+id/tv_ad_point_text_left"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:id="@+id/iv_ad_point_icon_left"
+                                    android:layout_width="@dimen/x8"
+                                    android:layout_height="@dimen/x10"
+                                    android:layout_marginStart="@dimen/x3"
+                                    android:layout_marginEnd="@dimen/x18"
+                                    android:adjustViewBounds="true"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintRight_toRightOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                            <TextView
+                                android:id="@+id/v_code_table_ad_split"
+                                android:layout_width="@dimen/x6"
+                                android:layout_height="@dimen/x36"
+                                android:gravity="center"
+                                android:text="|"
+                                android:textSize="@dimen/x26"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/cl_ad_point_right"
+                                android:layout_width="wrap_content"
+                                android:layout_height="@dimen/x64"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/v_code_table_ad_split"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <androidx.appcompat.widget.AppCompatTextView
+                                    android:id="@+id/tv_ad_point_text_right"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/x22"
+                                    android:layout_marginTop="@dimen/x2"
+                                    android:layout_marginEnd="@dimen/x12"
+                                    android:singleLine="true"
+                                    android:textColor="@color/color_333333"
+                                    android:textSize="@dimen/x26"
+                                    android:textStyle="bold"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toStartOf="@+id/iv_ad_point_icon_right"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:id="@+id/iv_ad_point_icon_right"
+                                    android:layout_width="@dimen/x8"
+                                    android:layout_height="@dimen/x10"
+                                    android:layout_marginStart="@dimen/x3"
+                                    android:layout_marginEnd="@dimen/x18"
+                                    android:adjustViewBounds="true"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintRight_toRightOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/cl_ad_point"
+                        android:layout_width="@dimen/x146"
+                        android:layout_height="@dimen/x64"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:id="@+id/iv_ad_point_bg"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:adjustViewBounds="true" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tv_ad_point_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/x22"
+                            android:layout_marginTop="@dimen/x2"
+                            android:layout_marginEnd="@dimen/x12"
+                            android:singleLine="true"
+                            android:textColor="@color/color_333333"
+                            android:textSize="@dimen/x26"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintRight_toLeftOf="@+id/iv_ad_point_icon"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/iv_ad_point_icon"
+                            android:layout_width="@dimen/x8"
+                            android:layout_height="@dimen/x10"
+                            android:layout_marginStart="@dimen/x3"
+                            android:layout_marginEnd="@dimen/x18"
+                            android:adjustViewBounds="true"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <LinearLayout
+                    android:id="@+id/codetable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/x18"
+                    android:layout_marginLeft="@dimen/x18"
+                    android:layout_marginTop="@dimen/x15"
+                    android:layout_marginRight="@dimen/x18"
+                    android:clipChildren="false"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.example.myservicecenter.customView.NewCodeTableItemView
+                            android:id="@+id/new_code_table_point0"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clipChildren="false"
+                            android:clipToPadding="false" />
+
+                        <TextView
+                            android:id="@+id/new_code_table_btn_text0"
+                            android:layout_width="@dimen/x122"
+                            android:layout_height="@dimen/x54"
+                            android:layout_marginTop="@dimen/x14"
+                            android:background="@drawable/btn_code_table_bg"
+                            android:gravity="center"
+                            android:maxLength="4"
+                            android:singleLine="true"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/x24"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_title" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.example.myservicecenter.customView.NewCodeTableItemView
+                            android:id="@+id/new_code_table_point1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clipChildren="false"
+                            android:clipToPadding="false" />
+
+                        <TextView
+                            android:id="@+id/new_code_table_btn_text1"
+                            android:layout_width="@dimen/x122"
+                            android:layout_height="@dimen/x54"
+                            android:layout_marginTop="@dimen/x14"
+                            android:background="@drawable/btn_code_table_bg"
+                            android:gravity="center"
+                            android:maxLength="4"
+                            android:singleLine="true"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/x24"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_title" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.example.myservicecenter.customView.NewCodeTableItemView
+                            android:id="@+id/new_code_table_point2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clipChildren="false"
+                            android:clipToPadding="false" />
+
+                        <TextView
+                            android:id="@+id/new_code_table_btn_text2"
+                            android:layout_width="@dimen/x122"
+                            android:layout_height="@dimen/x54"
+                            android:layout_marginTop="@dimen/x14"
+                            android:background="@drawable/btn_code_table_bg"
+                            android:gravity="center"
+                            android:maxLength="4"
+                            android:singleLine="true"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/x24"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_title" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.example.myservicecenter.customView.NewCodeTableItemView
+                            android:id="@+id/new_code_table_point3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clipChildren="false"
+                            android:clipToPadding="false" />
+
+                        <TextView
+                            android:id="@+id/new_code_table_btn_text3"
+                            android:layout_width="@dimen/x122"
+                            android:layout_height="@dimen/x54"
+                            android:layout_marginTop="@dimen/x14"
+                            android:background="@drawable/btn_code_table_bg"
+                            android:gravity="center"
+                            android:maxLength="4"
+                            android:singleLine="true"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/x24"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_title" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/iv_code_view_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/x28"
+                    android:layout_marginBottom="@dimen/x26"
+                    android:src="@mipmap/img_code_view_line"
+                    android:visibility="invisible" />
+
+                <LinearLayout
+                    android:id="@+id/codetable2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/x18"
+                    android:layout_marginLeft="@dimen/x18"
+                    android:layout_marginRight="@dimen/x18"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.example.myservicecenter.customView.NewCodeTableItemView
+                        android:id="@+id/new_code_table_point4"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clipChildren="false"
+                        android:clipToPadding="false" />
+
+                    <com.example.myservicecenter.customView.NewCodeTableItemView
+                        android:id="@+id/new_code_table_point5"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clipChildren="false"
+                        android:clipToPadding="false" />
+
+                    <com.example.myservicecenter.customView.NewCodeTableItemView
+                        android:id="@+id/new_code_table_point6"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clipChildren="false"
+                        android:clipToPadding="false" />
+
+                    <com.example.myservicecenter.customView.NewCodeTableItemView
+                        android:id="@+id/new_code_table_point7"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clipChildren="false"
+                        android:clipToPadding="false" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_unlogin"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x430"
+            android:background="@drawable/img_code_table_bg"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x75"
+                android:layout_marginHorizontal="@dimen/x30"
+                android:layout_marginLeft="@dimen/x30"
+                android:layout_marginTop="@dimen/x20"
+                android:layout_marginRight="@dimen/x30"
+                android:background="@drawable/bg_corner_16_soild_white_35alpha">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/x24"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/text_login_lookup_hf_records"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/x24" />
+
+                <TextView
+                    android:layout_width="@dimen/x122"
+                    android:layout_height="@dimen/x54"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/x12"
+                    android:background="@drawable/btn_code_table_login"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/str_app_widget_login_now"
+                    android:textColor="@color/color_090E30"
+                    android:textSize="@dimen/x22" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/x18"
+                android:layout_marginLeft="@dimen/x18"
+                android:layout_marginRight="@dimen/x18"
+                android:clipChildren="false"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x44"
+                        android:layout_marginTop="@dimen/x2"
+                        android:ellipsize="marquee"
+                        android:fontFamily="@font/dincondensed_bold"
+                        android:maxEms="5"
+                        android:singleLine="true"
+                        android:text="--"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/x44"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@+id/new_code_table_item_unit"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x33"
+                        android:layout_marginTop="@dimen/x15"
+                        android:layout_marginBottom="@dimen/x20"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="@string/text_domestic_general_flow"
+                        android:textColor="@color/color_666666"
+                        android:textSize="@dimen/x24"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_value" />
+
+                    <TextView
+                        android:layout_width="@dimen/x122"
+                        android:layout_height="@dimen/x54"
+                        android:background="@drawable/btn_code_table_bg"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="@string/charging_flow"
+                        android:textColor="@color/color_80FFFFFF"
+                        android:textSize="@dimen/x24"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_title" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x44"
+                        android:layout_marginTop="@dimen/x2"
+                        android:ellipsize="marquee"
+                        android:fontFamily="@font/dincondensed_bold"
+                        android:maxEms="5"
+                        android:singleLine="true"
+                        android:text="--"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/x44"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@+id/new_code_table_item_unit"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x33"
+                        android:layout_marginTop="@dimen/x15"
+                        android:layout_marginBottom="@dimen/x20"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="@string/cur_fee"
+                        android:textColor="@color/color_666666"
+                        android:textSize="@dimen/x24"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_value" />
+
+                    <TextView
+                        android:layout_width="@dimen/x122"
+                        android:layout_height="@dimen/x54"
+                        android:background="@drawable/btn_code_table_bg"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="@string/text_charging_call"
+                        android:textColor="@color/color_80FFFFFF"
+                        android:textSize="@dimen/x24"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_title" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x44"
+                        android:layout_marginTop="@dimen/x2"
+                        android:ellipsize="marquee"
+                        android:fontFamily="@font/dincondensed_bold"
+                        android:maxEms="5"
+                        android:singleLine="true"
+                        android:text="--"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/x44"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@+id/new_code_table_item_unit"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x33"
+                        android:layout_marginTop="@dimen/x15"
+                        android:layout_marginBottom="@dimen/x20"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="@string/text_domestic_general_call"
+                        android:textColor="@color/color_666666"
+                        android:textSize="@dimen/x24"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_value" />
+
+                    <TextView
+                        android:layout_width="@dimen/x122"
+                        android:layout_height="@dimen/x54"
+                        android:background="@drawable/btn_code_table_bg"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="@string/text_ban_taocan"
+                        android:textColor="@color/color_80FFFFFF"
+                        android:textSize="@dimen/x24"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_title" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x44"
+                        android:layout_marginTop="@dimen/x2"
+                        android:ellipsize="marquee"
+                        android:fontFamily="@font/dincondensed_bold"
+                        android:maxEms="5"
+                        android:singleLine="true"
+                        android:text="--"
+                        android:textColor="@color/color_333333"
+                        android:textSize="@dimen/x44"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@+id/new_code_table_item_unit"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/x33"
+                        android:layout_marginTop="@dimen/x15"
+                        android:layout_marginBottom="@dimen/x20"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="@string/ai_bean"
+                        android:textColor="@color/color_666666"
+                        android:textSize="@dimen/x24"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_value" />
+
+                    <TextView
+                        android:layout_width="@dimen/x122"
+                        android:layout_height="@dimen/x54"
+                        android:background="@drawable/btn_code_table_bg"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="@string/text_goto_use"
+                        android:textColor="@color/color_80FFFFFF"
+                        android:textSize="@dimen/x24"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/new_code_table_item_title" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+<!--    -->
     <ImageView
         android:id="@+id/iv_show_top_gif"
         android:layout_width="wrap_content"

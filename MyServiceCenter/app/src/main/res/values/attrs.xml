@@ -6,4 +6,12 @@
         <attr name="tabIndicatorVisible" format="boolean" />
         <attr name="tabSelected" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="NewCodeTableItemView">
+        <attr name="codeTableTipText" format="string" />
+        <attr name="codeTableTipVisible" format="boolean" />
+        <attr name="codeTableValueText" format="string" />
+        <attr name="codeTableUnitText" format="string" />
+        <attr name="codeTableTitleText" format="string" />
+    </declare-styleable>
 </resources>

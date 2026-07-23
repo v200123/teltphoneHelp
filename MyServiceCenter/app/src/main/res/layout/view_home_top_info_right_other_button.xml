@@ -31,6 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/color_333333"
+            android:textStyle="bold"
             android:textSize="@dimen/x26"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/home2_0_top_info_right_item_left_img"

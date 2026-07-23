@@ -32,7 +32,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         _binding!!.rlContainerTopInfoRightOtherBtn.apply { this.text = "签到有礼" }
         _binding!!.rlContainerTopInfoRightOtherBtn01.apply { this.text = "消息"
         this.setUnreadCount("80")
-
+        this.iconView.visibility = View.GONE
         }
 
 
