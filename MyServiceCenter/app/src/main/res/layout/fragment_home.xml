@@ -242,6 +242,7 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
+                        android:src="@drawable/share_icon_china_mobile"
                         android:id="@+id/iv_gsm_level"
                         android:layout_width="@dimen/x132"
                         android:layout_height="@dimen/x42"
