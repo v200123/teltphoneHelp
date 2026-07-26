@@ -26,9 +26,15 @@ object AppPreferences {
     private const val KEY_HOME_CURRENT_DEVICE_VIDEO_URI = "home_current_device_video_uri"
     private const val KEY_HOME_CURRENT_DEVICE_MEDIA_TYPE = "home_current_device_media_type"
     private const val KEY_CODE_TABLE_ITEM_PREFIX = "code_table_item_"
+    private const val KEY_CODE_TABLE_BOTTOM_IMAGE_URI = "code_table_bottom_image_uri"
+    private const val KEY_CODE_TABLE_BOTTOM_VIDEO_URI = "code_table_bottom_video_uri"
+    private const val KEY_CODE_TABLE_BOTTOM_MEDIA_TYPE = "code_table_bottom_media_type"
+    private const val KEY_HOME_SEARCH_TEXT = "home_search_text"
 
     const val HOME_DEVICE_MEDIA_TYPE_IMAGE = "image"
     const val HOME_DEVICE_MEDIA_TYPE_VIDEO = "video"
+    const val CODE_TABLE_BOTTOM_MEDIA_TYPE_IMAGE = "image"
+    const val CODE_TABLE_BOTTOM_MEDIA_TYPE_VIDEO = "video"
 
     data class CodeTableItemConfig(
         val tip: String = "",
@@ -100,6 +106,55 @@ object AppPreferences {
             .remove("${prefix}_unit")
             .remove("${prefix}_title")
             .remove("${prefix}_button")
+            .apply()
+    }
+
+    fun getCodeTableBottomImageUri(context: Context): Uri? {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_CODE_TABLE_BOTTOM_IMAGE_URI, null)
+            .orEmpty()
+            .takeIf { it.isNotBlank() }
+            ?.let(Uri::parse)
+    }
+
+    fun setCodeTableBottomImageUri(context: Context, uri: Uri) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putString(KEY_CODE_TABLE_BOTTOM_IMAGE_URI, uri.toString())
+            .apply()
+    }
+
+    fun getCodeTableBottomVideoUri(context: Context): Uri? =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_CODE_TABLE_BOTTOM_VIDEO_URI, null)
+            .orEmpty().takeIf { it.isNotBlank() }?.let(Uri::parse)
+
+    fun setCodeTableBottomVideoUri(context: Context, uri: Uri) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putString(KEY_CODE_TABLE_BOTTOM_VIDEO_URI, uri.toString())
+            .putString(KEY_CODE_TABLE_BOTTOM_MEDIA_TYPE, CODE_TABLE_BOTTOM_MEDIA_TYPE_VIDEO)
+            .apply()
+    }
+
+    fun setCodeTableBottomImageMedia(context: Context, uri: Uri) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putString(KEY_CODE_TABLE_BOTTOM_IMAGE_URI, uri.toString())
+            .putString(KEY_CODE_TABLE_BOTTOM_MEDIA_TYPE, CODE_TABLE_BOTTOM_MEDIA_TYPE_IMAGE)
+            .apply()
+    }
+
+    fun getCodeTableBottomMediaType(context: Context): String =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_CODE_TABLE_BOTTOM_MEDIA_TYPE, CODE_TABLE_BOTTOM_MEDIA_TYPE_IMAGE)
+            .orEmpty()
+
+    fun getHomeSearchText(context: Context): String =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_HOME_SEARCH_TEXT, "")
+            .orEmpty()
+
+    fun setHomeSearchText(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putString(KEY_HOME_SEARCH_TEXT, value.trim())
             .apply()
     }
 

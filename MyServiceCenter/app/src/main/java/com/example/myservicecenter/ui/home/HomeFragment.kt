@@ -1,6 +1,8 @@
 package com.example.myservicecenter.ui.home
 
 import android.content.Intent
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -9,11 +11,16 @@ import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.Target
+import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.example.myservicecenter.AppPreferences
 import com.example.myservicecenter.R
 import com.example.myservicecenter.SettingsActivity
@@ -24,6 +31,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
+    private val selectCodeTableBottomImage = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        val context = context ?: return@registerForActivityResult
+        uri ?: return@registerForActivityResult
+        try {
+            context.contentResolver.takePersistableUriPermission(uri, FLAG_GRANT_READ_URI_PERMISSION)
+            if (context.contentResolver.getType(uri).orEmpty().startsWith("video/")) {
+                AppPreferences.setCodeTableBottomVideoUri(context, uri)
+            } else {
+                AppPreferences.setCodeTableBottomImageMedia(context, uri)
+            }
+            renderCodeTableBottomImage()
+        } catch (_: SecurityException) {
+            Toast.makeText(context, "无法保存所选图片的访问权限，请重新选择", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeBinding.bind(view)
@@ -33,6 +58,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         initTopBar()
         applyCodeTableConfigs()
         bindCodeTableButtons()
+        bindCodeTableBottomImage()
+        bindSearchText()
+        positionCodeTableMediaOverlay()
 
     }
     private fun initTopBar(){
@@ -49,7 +77,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onResume() {
         super.onResume()
-        if (_binding != null) applyCodeTableConfigs()
+        if (_binding != null) {
+            applyCodeTableConfigs()
+            renderCodeTableBottomImage()
+            applySearchText()
+            positionCodeTableMediaOverlay()
+        }
     }
 
     private fun applyCodeTableConfigs() {
@@ -96,6 +129,118 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         ).forEachIndexed { index, button ->
             button.setOnClickListener { showCodeTableEditDialog(index) }
         }
+    }
+
+    private fun bindSearchText() {
+        applySearchText()
+        binding.searchViewVlt.setOnClickListener {
+            val context = requireContext()
+            val input = EditText(context).apply {
+                hint = "请输入搜索栏文案"
+                setText(AppPreferences.getHomeSearchText(context))
+                setSelectAllOnFocus(true)
+                maxLines = 1
+                setPadding(dp(16), 0, dp(16), 0)
+                setBackgroundResource(R.drawable.bg_search_input)
+            }
+            AlertDialog.Builder(context)
+                .setTitle("设置搜索栏文案")
+                .setView(input)
+                .setNegativeButton("取消", null)
+                .setPositiveButton("保存") { _, _ ->
+                    AppPreferences.setHomeSearchText(context, input.text.toString())
+                    applySearchText()
+                }
+                .show()
+        }
+    }
+
+    private fun applySearchText() {
+        binding.searchViewVlt.text = AppPreferences.getHomeSearchText(requireContext())
+    }
+
+    private fun bindCodeTableBottomImage() {
+        binding.codeTableBottomContainer.setOnClickListener {
+            selectCodeTableBottomImage.launch(arrayOf("image/*", "video/*"))
+        }
+        binding.ivCodeTableBottomImage.setOnClickListener {
+            selectCodeTableBottomImage.launch(arrayOf("image/*", "video/*"))
+        }
+        renderCodeTableBottomImage()
+    }
+
+    /** Places the media area over the fixed CodeTable card, starting at the divider position. */
+    private fun positionCodeTableMediaOverlay() {
+        binding.root.doOnLayout {
+            binding.codetable.doOnLayout {
+                val rootLocation = IntArray(2)
+                val tableLocation = IntArray(2)
+                binding.root.getLocationOnScreen(rootLocation)
+                binding.codetable.getLocationOnScreen(tableLocation)
+                val dividerTop = tableLocation[1] - rootLocation[1] + binding.codetable.height
+                (binding.codeTableBottomContainer.layoutParams as ConstraintLayout.LayoutParams).apply {
+                    topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                    topMargin = dividerTop
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.x120) +
+                        (ViewCompat.getRootWindowInsets(binding.root)
+                            ?.getInsets(WindowInsetsCompat.Type.systemBars())
+                            ?.bottom ?: 0)
+                    binding.codeTableBottomContainer.layoutParams = this
+                }
+                binding.codeTableBottomContainer.bringToFront()
+                binding.ivCodeViewLine.visibility = View.VISIBLE
+                binding.ivCodeViewLine.bringToFront()
+            }
+        }
+    }
+
+    private fun renderCodeTableBottomImage() {
+        val context = context ?: return
+        if (AppPreferences.getCodeTableBottomMediaType(context) == AppPreferences.CODE_TABLE_BOTTOM_MEDIA_TYPE_VIDEO) {
+            AppPreferences.getCodeTableBottomVideoUri(context)?.let { videoUri ->
+                Glide.with(this).clear(binding.ivCodeTableBottomImage)
+                binding.ivCodeTableBottomImage.visibility = View.GONE
+                binding.playerCodeTableBottom.visibility = View.VISIBLE
+                binding.playerCodeTableBottom.onVideoReset()
+                GSYVideoOptionBuilder()
+                    .setUrl(videoUri.toString())
+                    .setVideoTitle("")
+                    .setLooping(true)
+                    .setIsTouchWiget(false)
+                    .setAutoFullWithSize(false)
+                    .setShowFullAnimation(false)
+                    .build(binding.playerCodeTableBottom)
+                binding.playerCodeTableBottom.startPlayLogic()
+                return
+            }
+        }
+        val imageUri = AppPreferences.getCodeTableBottomImageUri(context)
+        if (imageUri == null) {
+            Glide.with(this).clear(binding.ivCodeTableBottomImage)
+            binding.ivCodeTableBottomImage.visibility = View.GONE
+            binding.playerCodeTableBottom.onVideoReset()
+            binding.playerCodeTableBottom.visibility = View.GONE
+            return
+        }
+        binding.playerCodeTableBottom.onVideoReset()
+        binding.playerCodeTableBottom.visibility = View.GONE
+        binding.ivCodeTableBottomImage.visibility = View.VISIBLE
+        Glide.with(this)
+            .load(imageUri)
+            .override(Target.SIZE_ORIGINAL)
+            .dontTransform()
+            .into(binding.ivCodeTableBottomImage)
+    }
+
+    override fun onPause() {
+        binding.playerCodeTableBottom.onVideoPause()
+        super.onPause()
+    }
+
+    override fun onDestroyView() {
+        _binding?.playerCodeTableBottom?.onVideoReset()
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun showCodeTableEditDialog(index: Int) {

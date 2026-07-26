@@ -7,7 +7,7 @@
     android:id="@+id/homeScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_DDDDDD"
+    android:background="@drawable/common_page_bg"
     android:orientation="vertical">
 
     <LinearLayout
@@ -73,6 +73,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
         <TextView
+            android:gravity="center_vertical"
             android:id="@+id/search_view_vlt"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -212,10 +213,10 @@
 -->
 
     <FrameLayout
+        android:id="@+id/code_table_section"
         android:layout_width="0px"
         android:layout_marginTop="@dimen/x10"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/x32"
         app:layout_constraintEnd_toEndOf="@+id/cl_top_info"
         app:layout_constraintStart_toStartOf="@+id/cl_top_info"
         app:layout_constraintTop_toBottomOf="@+id/cl_top_info">
@@ -234,7 +235,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -565,62 +566,86 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/iv_code_view_line"
+                <FrameLayout
+                    android:id="@+id/legacyCodeTableBottomContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/x28"
-                    android:layout_marginBottom="@dimen/x26"
-                    android:src="@mipmap/img_code_view_line"
-                    android:visibility="invisible" />
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="#F5F6F8"
+                    android:visibility="gone">
 
-                <LinearLayout
-                    android:id="@+id/codetable2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/x18"
-                    android:layout_marginLeft="@dimen/x18"
-                    android:layout_marginRight="@dimen/x18"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    <LinearLayout
+                        android:id="@+id/code_table_bottom_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
-                    <com.example.myservicecenter.customView.NewCodeTableItemView
-                        android:id="@+id/new_code_table_point4"
-                        android:layout_width="0dp"
+                        <ImageView
+                            android:id="@+id/iv_legacy_code_view_line"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="@dimen/x28"
+                            android:layout_marginBottom="@dimen/x26"
+                            android:src="@mipmap/img_code_view_line"
+                            android:visibility="invisible" />
+
+                        <LinearLayout
+                            android:id="@+id/codetable2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/x18"
+                            android:layout_marginLeft="@dimen/x18"
+                            android:layout_marginRight="@dimen/x18"
+                            android:clipChildren="false"
+                            android:clipToPadding="false"
+                            android:gravity="center_horizontal"
+                            android:orientation="horizontal"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <com.example.myservicecenter.customView.NewCodeTableItemView
+                                android:id="@+id/new_code_table_point4"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:clipChildren="false"
+                                android:clipToPadding="false" />
+
+                            <com.example.myservicecenter.customView.NewCodeTableItemView
+                                android:id="@+id/new_code_table_point5"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:clipChildren="false"
+                                android:clipToPadding="false" />
+
+                            <com.example.myservicecenter.customView.NewCodeTableItemView
+                                android:id="@+id/new_code_table_point6"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:clipChildren="false"
+                                android:clipToPadding="false" />
+
+                            <com.example.myservicecenter.customView.NewCodeTableItemView
+                                android:id="@+id/new_code_table_point7"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:clipChildren="false"
+                                android:clipToPadding="false" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/iv_legacy_code_table_bottom_image"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:clipChildren="false"
-                        android:clipToPadding="false" />
-
-                    <com.example.myservicecenter.customView.NewCodeTableItemView
-                        android:id="@+id/new_code_table_point5"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:clipChildren="false"
-                        android:clipToPadding="false" />
-
-                    <com.example.myservicecenter.customView.NewCodeTableItemView
-                        android:id="@+id/new_code_table_point6"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:clipChildren="false"
-                        android:clipToPadding="false" />
-
-                    <com.example.myservicecenter.customView.NewCodeTableItemView
-                        android:id="@+id/new_code_table_point7"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:clipChildren="false"
-                        android:clipToPadding="false" />
-                </LinearLayout>
+                        android:contentDescription=""
+                        android:scaleType="center"
+                        android:visibility="gone" />
+                </FrameLayout>
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -883,6 +908,41 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/codeTableBottomContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_code_view_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/img_code_view_line"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/iv_code_table_bottom_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription=""
+            android:scaleType="fitCenter"
+            android:visibility="gone" />
+
+        <com.example.myservicecenter.ui.widget.NoControlVideoPlayer
+            android:id="@+id/player_code_table_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
     </FrameLayout>
 
 <!--    -->
