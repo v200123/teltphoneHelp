@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.myservicecenter.AppPreferences
 import com.example.myservicecenter.R
+import com.example.myservicecenter.SettingsActivity
 import com.example.myservicecenter.databinding.FragmentHomeMineBinding
 import com.example.myservicecenter.databinding.ItemHomeMineComboBinding
 import com.example.myservicecenter.databinding.ItemHomeMineServiceCenterBinding
@@ -104,10 +105,9 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
     }
 
     private fun initViews() {
-//        binding.ivMineSettings.setOnClickListener {
-//            startActivity(Intent(requireContext(), SettingsActivity::class.java))
-//        }
-//
+        binding.btnMineCustomSettings.setOnClickListener {
+            startActivity(Intent(requireContext(), SettingsActivity::class.java))
+        }
 //        Glide.with(this)
 //            .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/d97e0049625e4cfabfcd6c46a3cd8bb0.png?fmt=webp&width=353&height=115")
 //            .into(binding.ivMineChangeVersion)

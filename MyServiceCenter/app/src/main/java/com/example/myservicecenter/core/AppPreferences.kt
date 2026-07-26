@@ -25,9 +25,83 @@ object AppPreferences {
     private const val KEY_HOME_CURRENT_DEVICE_IMAGE_URI = "home_current_device_image_uri"
     private const val KEY_HOME_CURRENT_DEVICE_VIDEO_URI = "home_current_device_video_uri"
     private const val KEY_HOME_CURRENT_DEVICE_MEDIA_TYPE = "home_current_device_media_type"
+    private const val KEY_CODE_TABLE_ITEM_PREFIX = "code_table_item_"
 
     const val HOME_DEVICE_MEDIA_TYPE_IMAGE = "image"
     const val HOME_DEVICE_MEDIA_TYPE_VIDEO = "video"
+
+    data class CodeTableItemConfig(
+        val tip: String = "",
+        val tipVisible: Boolean = false,
+        val value: String = "",
+        val unit: String = "",
+        val title: String = "",
+        val buttonText: String = ""
+    )
+
+    fun getCodeTableItemConfig(context: Context, index: Int): CodeTableItemConfig {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val defaultButtonText = when (index) {
+            0 -> "充流量"
+            1 -> "充话费"
+            2 -> "办套餐"
+            3 -> "去使用"
+            else -> ""
+        }
+        val default = if (index == 3) CodeTableItemConfig(
+            tip = "sdfsdf", tipVisible = true, value = "20", unit = "GB", title = "5G",
+            buttonText = defaultButtonText
+        ) else {
+            CodeTableItemConfig(buttonText = defaultButtonText)
+        }
+        val prefix = "$KEY_CODE_TABLE_ITEM_PREFIX$index"
+        return CodeTableItemConfig(
+            tip = prefs.getString("${prefix}_tip", default.tip).orEmpty(),
+            tipVisible = prefs.getBoolean("${prefix}_tip_visible", default.tipVisible),
+            value = prefs.getString("${prefix}_value", default.value).orEmpty(),
+            unit = prefs.getString("${prefix}_unit", default.unit).orEmpty(),
+            title = prefs.getString("${prefix}_title", default.title).orEmpty(),
+            buttonText = prefs.getString("${prefix}_button", default.buttonText).orEmpty()
+        )
+    }
+
+    fun setCodeTableItemConfig(context: Context, index: Int, config: CodeTableItemConfig) {
+        val prefix = "$KEY_CODE_TABLE_ITEM_PREFIX$index"
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putString("${prefix}_tip", config.tip.trim())
+            .putBoolean("${prefix}_tip_visible", config.tipVisible)
+            .putString("${prefix}_value", config.value.trim())
+            .putString("${prefix}_unit", config.unit.trim())
+            .putString("${prefix}_title", config.title.trim())
+            .putString("${prefix}_button", config.buttonText.trim())
+            .apply()
+    }
+
+    fun resetCodeTableItemConfigs(context: Context) {
+        val editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        repeat(8) { index ->
+            val prefix = "$KEY_CODE_TABLE_ITEM_PREFIX$index"
+            editor.remove("${prefix}_tip")
+                .remove("${prefix}_tip_visible")
+                .remove("${prefix}_value")
+                .remove("${prefix}_unit")
+                .remove("${prefix}_title")
+                .remove("${prefix}_button")
+        }
+        editor.apply()
+    }
+
+    fun resetCodeTableItemConfig(context: Context, index: Int) {
+        val prefix = "$KEY_CODE_TABLE_ITEM_PREFIX$index"
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .remove("${prefix}_tip")
+            .remove("${prefix}_tip_visible")
+            .remove("${prefix}_value")
+            .remove("${prefix}_unit")
+            .remove("${prefix}_title")
+            .remove("${prefix}_button")
+            .apply()
+    }
 
     // Basic user info and custom display settings
     fun getOutgoingPackageInfo(context: Context): String {
