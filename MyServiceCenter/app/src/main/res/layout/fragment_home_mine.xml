@@ -33,26 +33,13 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/btnMineCustomSettings"
                     android:layout_width="match_parent"
                     android:layout_height="43dp"
                     android:background="@drawable/ic_home_mine_top"
                     android:gravity="center_vertical|end"
+                    android:orientation="horizontal"
                     android:paddingEnd="16dp">
-
-                    <TextView
-                        android:id="@+id/btnMineCustomSettings"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:text="自定义设置"
-                        android:textColor="#1D62D6"
-                        android:textSize="14dp"
-                        android:textStyle="bold" />
 
                 </LinearLayout>
 
@@ -119,23 +106,25 @@
                         app:layout_constraintTop_toTopOf="@+id/top_guide_line" />
 
                     <RelativeLayout
-                        android:id="@+id/rl_change_login"
+
                         android:layout_width="@dimen/x48"
                         android:layout_height="@dimen/x34"
                         android:layout_marginStart="@dimen/x12"
-                        android:background="@drawable/shape_corner_17_33000000"
                         android:contentDescription="@null"
                         app:layout_constraintBottom_toBottomOf="@+id/tel_num_txt"
                         app:layout_constraintLeft_toRightOf="@+id/tel_num_txt"
                         app:layout_constraintTop_toTopOf="@+id/tel_num_txt">
-
-                        <ImageView
-                            android:layout_width="@dimen/x22"
-                            android:layout_height="@dimen/x21"
-                            android:layout_centerInParent="true"
-                            android:src="@drawable/mine_login_change_svg" />
                     </RelativeLayout>
-
+                    <ImageView
+                        android:id="@+id/rl_change_login"
+                        app:layout_constraintBottom_toBottomOf="@+id/tel_num_txt"
+                        app:layout_constraintLeft_toRightOf="@+id/tel_num_txt"
+                        app:layout_constraintTop_toTopOf="@+id/tel_num_txt"
+                        android:layout_marginStart="@dimen/x12"
+                        android:layout_width="@dimen/x44"
+                        android:layout_height="@dimen/x44"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/mine_login_change" />
                     <ImageView
                         android:id="@+id/iv_birthday_gift"
                         android:layout_width="@dimen/x140"

@@ -53,75 +53,82 @@
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_marginTop="@dimen/x8"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/search_view_cl"
-        android:background="@drawable/bg_top_view_search"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/x72"
         android:layout_marginStart="@dimen/x24"
         android:layout_marginEnd="@dimen/x24"
+        android:id="@+id/search_view_cl"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x72"
+        android:layout_marginTop="@dimen/x8"
+        android:background="@drawable/bg_top_view_search"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
         <ImageView
             android:id="@+id/search_view_icon"
             android:layout_width="@dimen/x34"
             android:layout_height="@dimen/x34"
-            android:src="@mipmap/icon_app_top_view_search"
             android:layout_marginStart="@dimen/x21"
+            android:src="@mipmap/icon_app_top_view_search"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
-            android:gravity="center_vertical"
             android:id="@+id/search_view_vlt"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="@dimen/x10"
             android:layout_marginEnd="@dimen/x10"
+            android:gravity="center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintLeft_toRightOf="@+id/search_view_icon"
             app:layout_constraintRight_toLeftOf="@+id/search_view_operation"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
         <LinearLayout
-            android:gravity="center"
             android:id="@+id/search_view_operation"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <ImageView
                 android:id="@+id/search_view_scan"
                 android:layout_width="@dimen/x39"
                 android:layout_height="@dimen/x39"
-                android:layout_marginEnd="@dimen/x24"/>
+                android:layout_marginEnd="@dimen/x24" />
+
             <View
                 android:id="@+id/search_view_split"
-                android:background="#cdcdcd"
-
                 android:layout_width="@dimen/dp_1"
                 android:layout_height="@dimen/x28"
-                android:layout_marginEnd="@dimen/x24"/>
+                android:layout_marginEnd="@dimen/x24"
+                android:background="#cdcdcd" />
+
             <TextView
-                android:textSize="@dimen/x28"
-                android:textColor="#007eff"
                 android:id="@+id/search_view_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/x28"
                 android:text="搜索"
-                android:layout_marginEnd="@dimen/x28"/>
+                android:textColor="#007eff"
+                android:textSize="@dimen/x28" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_marginTop="@dimen/x8"
+        android:layout_marginStart="@dimen/x18"
+        android:layout_marginEnd="@dimen/x18"
         android:id="@+id/cl_top_info"
         android:layout_width="0px"
         android:layout_height="@dimen/x66"
-        app:layout_constraintEnd_toEndOf="@+id/search_view_cl"
-        app:layout_constraintStart_toStartOf="@+id/search_view_cl"
+        android:layout_marginTop="@dimen/x8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_view_cl">
 
         <FrameLayout
@@ -142,11 +149,11 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:text="晚上好，"
                     android:id="@+id/tv_info_greetings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/x6"
+                    android:text="晚上好，"
                     android:textColor="@color/color_333333"
                     android:textSize="@dimen/x26"
                     android:textStyle="bold" />
@@ -156,12 +163,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="135***3423"
                     android:importantForAccessibility="no"
+                    android:text="135***3423"
                     android:textColor="@color/color_333333"
                     android:textSize="@dimen/x32"
-                    android:textStyle="bold"
-                    />
+                    android:textStyle="bold" />
 
                 <ImageView
                     android:id="@+id/iv_info_switch"
@@ -186,23 +192,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/x66"
                 android:layout_marginStart="@dimen/x6" />
+
             <com.example.myservicecenter.customView.HomeTopInfoRightOtherButtonView
                 android:id="@+id/rl_container_top_info_right_other_btn_01"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/x66"
                 android:layout_marginStart="@dimen/x6" />
+
             <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_gravity="center_vertical"
                 android:id="@+id/rl_container_top_info_right_btn"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/x66">
+                android:layout_height="@dimen/x66"
+                android:layout_gravity="center_vertical">
+
                 <ImageView
-                    android:src="@drawable/base_module_title_more_default_white"
                     android:id="@+id/iv_item_top_info_right_btn"
-                    android:visibility="visible"
                     android:layout_width="@dimen/x48"
                     android:layout_height="@dimen/x48"
                     android:layout_centerVertical="true"
+                    android:src="@drawable/base_module_title_more_default_white"
+                    android:visibility="visible"
                     app:tint="@color/color_FF000000" />
             </RelativeLayout>
         </LinearLayout>
@@ -914,6 +923,7 @@
         android:id="@+id/codeTableBottomContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="gone"
         android:background="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
