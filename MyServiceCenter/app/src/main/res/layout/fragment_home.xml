@@ -7,7 +7,7 @@
     android:id="@+id/homeScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/common_page_bg"
+    android:background="@drawable/bg_home_reference_page"
     android:orientation="vertical">
 
     <LinearLayout
@@ -210,7 +210,7 @@
                     android:layout_width="@dimen/x48"
                     android:layout_height="@dimen/x48"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/base_module_title_more_default_white"
+                    android:src="@drawable/icon_app_info_right_more"
                     android:visibility="visible"
                     app:tint="@color/color_FF000000" />
             </RelativeLayout>
@@ -267,6 +267,7 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/cl_ad_point_new"
+                        android:visibility="gone"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/x64"
                         app:layout_constraintRight_toRightOf="parent"
@@ -284,6 +285,7 @@
                             android:gravity="center_vertical">
 
                             <androidx.constraintlayout.widget.ConstraintLayout
+                                android:visibility="gone"
                                 android:id="@+id/cl_ad_point_left"
                                 android:layout_width="wrap_content"
                                 android:layout_height="@dimen/x64"
@@ -388,9 +390,7 @@
                         android:id="@+id/cl_ad_point"
                         android:layout_width="@dimen/x146"
                         android:layout_height="@dimen/x64"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
@@ -398,7 +398,8 @@
                             android:id="@+id/iv_ad_point_bg"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:adjustViewBounds="true" />
+                            android:adjustViewBounds="true"
+                            />
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/tv_ad_point_text"
@@ -408,9 +409,9 @@
                             android:layout_marginTop="@dimen/x2"
                             android:layout_marginEnd="@dimen/x12"
                             android:singleLine="true"
+                            android:text="一键查"
                             android:textColor="@color/color_333333"
                             android:textSize="@dimen/x26"
-                            android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toLeftOf="@+id/iv_ad_point_icon"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -422,6 +423,8 @@
                             android:layout_marginStart="@dimen/x3"
                             android:layout_marginEnd="@dimen/x18"
                             android:adjustViewBounds="true"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_home_reference_arrow"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />

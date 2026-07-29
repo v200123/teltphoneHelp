@@ -55,6 +55,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/7efac0c5395a41fc811856473284b7c0.png?fmt=webp").into(_binding!!.ivShowTopGif);
         Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/a752f551f6f34cb0a55d15bce93e5fc7.png?fmt=webp").into(_binding!!.searchViewScan);
+        Glide.with(this).load("https://res.app.coc.10086.cn/group2/M00/09/EA/CtFOW2kpCRmADcMlAABghzIox8c942.png?fmt=webp").into(_binding!!.ivAdPointBg);
+        Glide.with(this).load("https://res.app.coc.10086.cn/group1/M00/09/EA/CtFOBmkpCReAEmvqAAABTBkx0cQ779.png?fmt=webp").into(_binding!!.ivAdPointIcon);
         initTopBar()
         _binding!!.codeTableBottomContainer.visibility = View.VISIBLE
         applyCodeTableConfigs()
