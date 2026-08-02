@@ -99,6 +99,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     List<CallRecord> filterData;
     String currentPrefix = ""; // 当前筛选前缀
     String lastQueriedLocationNumber = "";
+    private static final int REQUEST_HISTORY_DETAIL = 1001;
+    private boolean preserveListStateOnNextResume = false;
     MediaPlayer mediaPlayer;
     SoundPool soundPool ;
     int soundId;
@@ -122,6 +124,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 .setMaxStreams(5) // 最大同时播放数
                 .build();
         soundId = soundPool.load(this, R.raw.bohao, 1);
+        if (preserveListStateOnNextResume) {
+            preserveListStateOnNextResume = false;
+            return;
+        }
         hideNumber(true);
         new Thread(new Runnable() {
             @Override
@@ -161,6 +167,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }).start();
 
         getData();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_HISTORY_DETAIL && resultCode == RESULT_OK) {
+            preserveListStateOnNextResume = true;
+        }
     }
 
     @Override
@@ -381,6 +395,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
 
         CallActivity.start(this, number);
+    }
+
+    public void openHistoryDetail(String phoneNumber) {
+        Intent intent = new Intent(this, HistoryActivity.class);
+        intent.putExtra("phoneNumber", phoneNumber);
+        startActivityForResult(intent, REQUEST_HISTORY_DETAIL);
     }
 
     //隐藏号码显示

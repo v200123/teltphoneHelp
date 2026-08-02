@@ -209,7 +209,7 @@ class SmsDetailManageActivity : AppCompatActivity() {
     private fun confirmDelete(record: SmsDetailRecordEntity) {
         AlertDialog.Builder(this)
             .setTitle("删除记录")
-            .setMessage("确定删除 ${record.phoneNumber} 的这条短/彩信详单吗？")
+            .setMessage("确定删除 ${PhoneDisplayManager.display(this, record.phoneNumber)} 的这条短/彩信详单吗？")
             .setNegativeButton("取消", null)
             .setPositiveButton("删除") { _, _ ->
                 lifecycleScope.launch(Dispatchers.IO) {
@@ -394,7 +394,7 @@ class SmsDetailManageActivity : AppCompatActivity() {
                 onEdit: (SmsDetailRecordEntity) -> Unit,
                 onDelete: (SmsDetailRecordEntity) -> Unit
             ) {
-                binding.tvTitle.text = "${record.direction} ${record.phoneNumber}"
+                binding.tvTitle.text = "${record.direction} ${PhoneDisplayManager.display(itemView.context, record.phoneNumber)}"
                 binding.tvType.text = record.messageType
                 binding.tvTime.text = "${record.location}    ${DISPLAY_TIME_FORMAT.format(Date(record.timestampMillis))}"
                 binding.tvPackage.text = "套餐名称：${record.packageName}"

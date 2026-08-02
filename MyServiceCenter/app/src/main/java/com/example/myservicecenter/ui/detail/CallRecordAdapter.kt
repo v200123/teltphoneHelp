@@ -68,7 +68,7 @@ class CallRecordAdapter : BaseQuickAdapter<CallRecord, BaseViewHolder>(R.layout.
             if (isIncoming) context.getString(R.string.record_voice_hd_incoming)
             else context.getString(R.string.record_voice_hd_outgoing)
         )
-        holder.setText(R.id.tv_phone, item.phoneNumber ?: "--")
+        holder.setText(R.id.tv_phone, PhoneDisplayManager.display(context, item.phoneNumber.orEmpty()))
         holder.setText(
             R.id.tv_time,
             if (item.startTime > 0) dateFormat.format(Date(item.startTime)) else "--"

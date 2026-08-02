@@ -1,5 +1,6 @@
 package com.example.myservicecenter.ui.main
 
+import com.example.myservicecenter.PhoneDisplayManager
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
@@ -125,7 +126,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildDetailPageUrl(): String {
-        val phoneNumber = AppPreferences.getCustomPhoneNumber(this).trim()
+        val phoneNumber = PhoneDisplayManager.managedPhone(this)
         val displayName = AppPreferences.getCustomDisplayName(this).trim()
         val badgeLevel = AppPreferences.getCustomStarLevel(this).toString()
         return DETAIL_PAGE_URL.toUri()
@@ -156,7 +157,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun syncBasicInfoToPage() {
-        val customPhone = AppPreferences.getCustomPhoneNumber(this).trim()
+        val customPhone = PhoneDisplayManager.managedPhone(this)
         val displayName = AppPreferences.getCustomDisplayName(this).trim()
         val badgeLevel = AppPreferences.getCustomStarLevel(this)
         val openedAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
@@ -288,7 +289,7 @@ class MainActivity : AppCompatActivity() {
         val phoneInput = EditText(this).apply {
             hint = "请输入手机号"
             inputType = InputType.TYPE_CLASS_PHONE
-            setText(AppPreferences.getCustomPhoneNumber(this@MainActivity))
+            setText(PhoneDisplayManager.managedPhone(this@MainActivity))
             maxLines = 1
         }
         val nameInput = EditText(this).apply {
@@ -336,7 +337,7 @@ class MainActivity : AppCompatActivity() {
                 val phone = phoneInput.text?.toString().orEmpty().trim()
                 val name = nameInput.text?.toString().orEmpty().trim()
                 val starLevel = starInput.text?.toString()?.toIntOrNull()?.coerceIn(1, 5) ?: 3
-                AppPreferences.setCustomPhoneNumber(this, phone)
+                PhoneDisplayManager.updateManagedPhone(this, phone)
                 AppPreferences.setCustomDisplayName(this, name)
                 AppPreferences.setCustomStarLevel(this, starLevel)
                 syncPersistedPageState()

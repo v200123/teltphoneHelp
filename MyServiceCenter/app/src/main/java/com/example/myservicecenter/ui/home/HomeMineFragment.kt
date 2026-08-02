@@ -1,5 +1,6 @@
 package com.example.myservicecenter.ui.home
 
+import com.example.myservicecenter.PhoneDisplayManager
 import android.content.Intent
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.graphics.Typeface
@@ -489,13 +490,11 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
 
     private fun applyHeaderInfo() {
         val context = requireContext()
-        val rawPhoneNumber = AppPreferences.getCustomPhoneNumber(context).trim()
         val region = AppPreferences.getCustomSelfRegion(context).trim()
-        binding.telNumTxt.text = if (rawPhoneNumber.isNotEmpty()) {
-            maskPhoneNumber(rawPhoneNumber)
-        } else {
+        binding.telNumTxt.text = PhoneDisplayManager.display(
+            context,
             getString(R.string.home_phone_default)
-        }
+        )
         binding.cityNameTxt.text = region.ifEmpty { getString(R.string.home_region_default) }
     }
 
@@ -551,15 +550,6 @@ class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         text = spannable
-    }
-
-    private fun maskPhoneNumber(phoneNumber: String): String {
-        if (phoneNumber.length < 7) return phoneNumber
-        return buildString {
-            append(phoneNumber.take(3))
-            append("****")
-            append(phoneNumber.takeLast(4))
-        }
     }
 
     private fun dpToPx(valueDp: Int): Int {

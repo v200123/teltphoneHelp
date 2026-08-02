@@ -1,9 +1,12 @@
 package com.u2tzjtne.telephonehelper.ui.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -29,6 +32,7 @@ import io.reactivex.schedulers.Schedulers;
  * @author u2tzjtne
  */
 public class HistoryActivity extends BaseActivity implements View.OnClickListener {
+    private static final String TAG = "HistoryActivity";
 
 
     TextView tvNumber;
@@ -40,8 +44,13 @@ public class HistoryActivity extends BaseActivity implements View.OnClickListene
     RecyclerView rvCallRecord;
 
     private String number;
+    private List<CallRecord> currentRecords;
 
     public static void start(Context context, String phoneNumber) {
+        if (context instanceof MainActivity) {
+            ((MainActivity) context).openHistoryDetail(phoneNumber);
+            return;
+        }
         Intent intent = new Intent(context, HistoryActivity.class);
         intent.putExtra("phoneNumber", phoneNumber);
         context.startActivity(intent);
@@ -71,13 +80,13 @@ public class HistoryActivity extends BaseActivity implements View.OnClickListene
         PhoneNumberUtils.getProvince(number, new getLocalCallback() {
             @Override
             public void result(PhoneLocalBean bean) {
-                String attribution ;
-                String operator ;
-                if(!bean.getProvince().equals(bean.getCity()) )
-                    attribution = bean.getProvince() + bean.getCity();
-                else  attribution = bean.getProvince();
-                operator = bean.getCarrier();
+                String attribution;
+                String operator = safeText(bean.getCarrier());
+                if (!safeText(bean.getProvince()).equals(safeText(bean.getCity())))
+                    attribution = safeText(bean.getProvince()) + safeText(bean.getCity());
+                else attribution = safeText(bean.getProvince());
                 tvAttribution.setText(attribution + " " + operator);
+                saveResolvedLocationIfNeeded(attribution, operator);
 
             }
         });
@@ -98,6 +107,7 @@ public class HistoryActivity extends BaseActivity implements View.OnClickListene
     }
 
     private void setData(List<CallRecord> data) {
+        currentRecords = data;
         CallHistoryAdapter adapter = new CallHistoryAdapter(data);
         rvCallRecord.setAdapter(adapter);
         adapter.setOnItemClickListener((adapter1, view, position) -> {
@@ -139,5 +149,56 @@ public class HistoryActivity extends BaseActivity implements View.OnClickListene
             default:
                 break;
         }
+    }
+
+    @Override
+    public void finish() {
+        setResult(Activity.RESULT_OK);
+        super.finish();
+    }
+
+    private void saveResolvedLocationIfNeeded(String attribution, String operator) {
+        String safeAttribution = safeText(attribution).trim();
+        String safeOperator = safeText(operator).trim();
+        if (!isResolvedLocationValue(safeAttribution) && !isResolvedLocationValue(safeOperator)) {
+            return;
+        }
+        if (currentRecords == null || currentRecords.isEmpty()) {
+            return;
+        }
+        AppDatabase.getInstance().callRecordModel()
+                .getByNumberMuti(number)
+                .subscribeOn(Schedulers.io())
+                .subscribe(records -> {
+                    boolean updated = false;
+                    for (CallRecord record : records) {
+                        String recordAttribution = safeText(record.attribution).trim();
+                        String recordOperator = safeText(record.operator).trim();
+                        boolean needsAttribution = !isResolvedLocationValue(recordAttribution) && isResolvedLocationValue(safeAttribution);
+                        boolean needsOperator = !isResolvedLocationValue(recordOperator) && isResolvedLocationValue(safeOperator);
+                        if (!needsAttribution && !needsOperator) {
+                            continue;
+                        }
+                        if (needsAttribution) {
+                            record.attribution = safeAttribution;
+                        }
+                        if (needsOperator) {
+                            record.operator = safeOperator;
+                        }
+                        AppDatabase.getInstance().callRecordModel().update(record).blockingAwait();
+                        updated = true;
+                    }
+                    if (updated) {
+                        Log.d(TAG, "已补写归属地到通话记录: " + number);
+                    }
+                }, error -> Log.w(TAG, "补写归属地失败: " + error.getMessage()));
+    }
+
+    private boolean isResolvedLocationValue(String value) {
+        return !TextUtils.isEmpty(value) && !"null".equalsIgnoreCase(value) && !"未知".equals(value);
+    }
+
+    private String safeText(String value) {
+        return value == null ? "" : value;
     }
 }

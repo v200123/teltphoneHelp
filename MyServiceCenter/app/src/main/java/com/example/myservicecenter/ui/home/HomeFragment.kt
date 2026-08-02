@@ -22,12 +22,17 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.example.myservicecenter.AppPreferences
+import com.example.myservicecenter.PhoneDisplayManager
 import com.example.myservicecenter.R
 import com.example.myservicecenter.SettingsActivity
 import com.example.myservicecenter.databinding.FragmentHomeBinding
 import java.util.Calendar
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
+    companion object {
+        private const val DEFAULT_HOME_PHONE_DISPLAY = "135***3423"
+    }
+
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -58,6 +63,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         Glide.with(this).load("https://res.app.coc.10086.cn/group2/M00/09/EA/CtFOW2kpCRmADcMlAABghzIox8c942.png?fmt=webp").into(_binding!!.ivAdPointBg);
         Glide.with(this).load("https://res.app.coc.10086.cn/group1/M00/09/EA/CtFOBmkpCReAEmvqAAABTBkx0cQ779.png?fmt=webp").into(_binding!!.ivAdPointIcon);
         initTopBar()
+        applyManagedPhone()
         _binding!!.codeTableBottomContainer.visibility = View.VISIBLE
         applyCodeTableConfigs()
         bindCodeTableButtons()
@@ -78,10 +84,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     }
 
+    /** 首页顶部账号与设置页的“号码信息自定义”保持同一数据源。 */
+    private fun applyManagedPhone() {
+        val context = context ?: return
+        val managedPhone = PhoneDisplayManager.managedPhone(context)
+        binding.tvInfoAccount.text = if (managedPhone.isBlank()) {
+            DEFAULT_HOME_PHONE_DISPLAY
+        } else {
+            PhoneDisplayManager.display(context)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (_binding != null) {
             applyCodeTableConfigs()
+            applyManagedPhone()
             renderCodeTableBottomImage()
             applySearchText()
             positionCodeTableMediaOverlay()
