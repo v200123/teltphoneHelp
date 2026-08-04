@@ -1,16 +1,15 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.core
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.net.http.SslError
 import android.util.Log
 import android.view.View
-import android.webkit.GeolocationPermissions
-import android.webkit.JsResult
-import android.webkit.PermissionRequest
 import android.webkit.ConsoleMessage
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.SslErrorHandler
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
@@ -60,7 +59,7 @@ object CommonWebViewSupport {
                 super.onReceivedTitle(view, title)
             }
 
-            override fun onReceivedIcon(view: WebView?, icon: android.graphics.Bitmap?) {
+            override fun onReceivedIcon(view: WebView?, icon: Bitmap?) {
                 Log.d(logTag, "onReceivedIcon url=${view?.url} iconNull=${icon == null}")
                 super.onReceivedIcon(view, icon)
             }
@@ -86,7 +85,7 @@ object CommonWebViewSupport {
                 return shouldOverrideUrlLoading?.invoke(view, request) ?: false
             }
 
-            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 Log.d(logTag, "onPageStarted url=$url")
                 super.onPageStarted(view, url, favicon)
             }
@@ -122,7 +121,7 @@ object CommonWebViewSupport {
             override fun onReceivedError(
                 view: WebView?,
                 request: WebResourceRequest?,
-                error: android.webkit.WebResourceError?
+                error: WebResourceError?
             ) {
                 Log.e(
                     logTag,

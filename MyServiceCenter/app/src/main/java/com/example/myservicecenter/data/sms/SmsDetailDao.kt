@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.data.sms
 
 import androidx.room.Dao
 import androidx.room.Delete

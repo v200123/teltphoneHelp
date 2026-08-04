@@ -1,6 +1,5 @@
 package com.example.myservicecenter.ui.home
 
-import android.content.Intent
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.net.Uri
 import android.os.Bundle
@@ -16,18 +15,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
-import androidx.core.view.updatePadding
+
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
-import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
-import com.example.myservicecenter.AppPreferences
 import com.example.myservicecenter.PhoneDisplayManager
 import com.example.myservicecenter.R
-import com.example.myservicecenter.SettingsActivity
+import com.example.myservicecenter.core.AppPreferences
+import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.example.myservicecenter.databinding.FragmentHomeBinding
-import java.util.Calendar
-
 class HomeFragment : Fragment(R.layout.fragment_home) {
     companion object {
         private const val DEFAULT_HOME_PHONE_DISPLAY = "135***3423"

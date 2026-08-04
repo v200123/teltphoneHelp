@@ -68,15 +68,16 @@ class HomeActivity : AppCompatActivity() {
                 }
             }
         })
-        binding.tabHome.setOnClickListener { selectTab(0) }
-        binding.tabVideo.setOnClickListener { selectTab(1) }
-        binding.tabEquity.setOnClickListener { selectTab(2) }
-        binding.tabMine.setOnClickListener { selectTab(3) }
-        binding.centerAiButton.setOnClickListener {
-            Toast.makeText(this, getString(R.string.home_ai_entry_tip), Toast.LENGTH_SHORT).show()
-        }
+        binding.customTabIcon01.setOnClickListener { selectTab(0) }
+//        binding.tabVideo.setOnClickListener { selectTab(1) }
+//        binding.tabEquity.setOnClickListener { selectTab(2) }
+        binding.customTabIcon05.setOnClickListener { selectTab(3) }
         Glide.with(this).load("https://img.app.coc.10086.cn/group1/M00/07/79/CtFOBmg3w5aAIvSXAAxdjPeIATU58.webp")
-            .into(binding.centerAiButton)
+            .into(binding.customTabIcon03)
+        Glide.with(this).load("https://res.app.coc.10086.cn/group1/M00/0E/ED/CtFOGGpd8SmAKv5yAAAVQaFRXRs646.png?fmt=webp")
+            .into(binding.customTabIcon02)
+        Glide.with(this).load("https://res.app.coc.10086.cn/group2/M00/08/F2/CtFOW2jSn9SAQAW_AAAcM6BzEvY854.png?fmt=webp")
+            .into(binding.customTabIcon04)
         selectTab(0, false)
     }
     private fun selectTab(index: Int, smoothScroll: Boolean = true) {
@@ -91,25 +92,14 @@ class HomeActivity : AppCompatActivity() {
             selected = selectedTabIndex == 0,
             iconSelected = R.drawable.tab_home_select_v2,
             iconUnselected = R.drawable.tab_home_unselect_v2,
-            iconView = binding.tabHome
+            iconView = binding.customTabIcon01
         )
-        updateSingleTab(
-            selected = selectedTabIndex == 1,
-            iconSelected = R.drawable.tab_discovery_select_v2,
-            iconUnselected = R.drawable.tab_discovery_unselect_v2,
-            iconView = binding.tabVideo
-        )
-        updateSingleTab(
-            selected = selectedTabIndex == 2,
-            iconSelected = R.drawable.tab_equity_select_v2,
-            iconUnselected = R.drawable.tab_equity_default_v2,
-            iconView = binding.tabEquity
-        )
+
         updateSingleTab(
             selected = selectedTabIndex == 3,
             iconSelected = R.drawable.tab_mine_select_v2,
             iconUnselected = R.drawable.tab_mine_unselect_v2,
-            iconView = binding.tabMine
+            iconView = binding.customTabIcon05
         )
     }
     private fun updateSingleTab(
@@ -126,22 +116,22 @@ class HomeActivity : AppCompatActivity() {
         val pagerEnd = binding.viewPagerHome.paddingEnd
         val pagerBottom = binding.viewPagerHome.paddingBottom
 
-        val bottomTabBarMarginBottom =
-            (binding.bottomTabBar.layoutParams as? ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.viewPagerHome.updatePadding(
-                left = pagerStart,
-                top = pagerTop,
-                right = pagerEnd,
-                bottom = pagerBottom
-            )
-            binding.bottomTabBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = bottomTabBarMarginBottom + systemBars.bottom
-            }
-            insets
-        }
+//        val bottomTabBarMarginBottom =
+//            (binding.bottomTabBar.layoutParams as? ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0
+//
+//        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+//            binding.viewPagerHome.updatePadding(
+//                left = pagerStart,
+//                top = pagerTop,
+//                right = pagerEnd,
+//                bottom = pagerBottom
+//            )
+//            binding.bottomTabBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+//                bottomMargin = bottomTabBarMarginBottom + systemBars.bottom
+//            }
+//            insets
+//        }
     }
 
 }

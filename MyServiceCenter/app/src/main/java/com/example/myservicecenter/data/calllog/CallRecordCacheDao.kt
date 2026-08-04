@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.data.calllog
 
 import androidx.room.Dao
 import androidx.room.Insert

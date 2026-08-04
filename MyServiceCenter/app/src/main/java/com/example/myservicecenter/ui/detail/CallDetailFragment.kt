@@ -6,12 +6,16 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myservicecenter.core.AppPreferences
+import com.example.myservicecenter.data.calllog.CallRecord
 import com.example.myservicecenter.databinding.FragmentCallDetailBinding
 import com.example.myservicecenter.databinding.LayoutCallDetailFiltersBinding
+import com.example.myservicecenter.ui.detail.CallRecordAdapter
 import com.example.myservicecenter.ui.main.MainActivity
 import java.time.Instant
 import java.time.YearMonth
 import java.time.ZoneId
+import kotlin.collections.filter
 
 class CallDetailFragment : Fragment(R.layout.fragment_call_detail) {
     private var _binding: FragmentCallDetailBinding? = null

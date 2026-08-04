@@ -19,10 +19,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import com.example.myservicecenter.AppPreferences
-import com.example.myservicecenter.CommonWebViewSupport
 import com.example.myservicecenter.R
-import com.example.myservicecenter.SettingsActivity
+import com.example.myservicecenter.core.AppPreferences
+import com.example.myservicecenter.core.CommonWebViewSupport
+import com.example.myservicecenter.ui.settings.SettingsActivity
 import com.example.myservicecenter.databinding.FragmentHomeContentBinding
 
 class HomeContentFragment : Fragment(R.layout.fragment_home_content) {

@@ -1,4 +1,4 @@
-﻿package com.example.myservicecenter
+﻿package com.example.myservicecenter.ui.detail
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -9,6 +9,9 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.example.myservicecenter.PhoneDisplayManager
+import com.example.myservicecenter.R
+import com.example.myservicecenter.data.calllog.CallRecord
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

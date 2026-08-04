@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.data.sms
 
 import android.content.Context
 import androidx.room.Database

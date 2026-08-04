@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.data.calllog
 
 /**
  * 通话记录数据类

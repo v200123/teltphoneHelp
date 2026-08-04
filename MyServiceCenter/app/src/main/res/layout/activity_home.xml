@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-   >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:background="@color/transparent"
@@ -21,84 +20,154 @@
 
 
     </LinearLayout>
-    <ImageView
-        android:scaleType="centerCrop"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_gravity="bottom"
-        android:src="@drawable/bg_home_bottom_ai"
+        android:id="@+id/rl_bottom"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/x120"/>
-    <LinearLayout
-        android:id="@+id/bottomTabBar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/x120"
-        android:layout_gravity="bottom"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:gravity="bottom">
 
-        <LinearLayout
+        <!--
+            Background layer. AppTabFragment.setBottomTabBg(hasLingXi, tabBgImg)
+            may replace this default image with the server-provided tabBgImg.
+        -->
+        <ImageView
+            android:id="@+id/bottom_tab_bg"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_height="@dimen/x120"
+            android:scaleType="fitXY"
+            android:src="@drawable/bg_home_bottom_ai"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-            <ImageView
-                android:id="@+id/tabHome"
-                android:layout_width="@dimen/x120"
-                android:layout_height="@dimen/x120"
-                android:contentDescription="@string/home_tab_home"
-                android:scaleType="fitCenter"
-                android:src="@drawable/tab_home_unselect_v2" />
-
-            <ImageView
-                android:id="@+id/tabVideo"
-                android:layout_width="@dimen/x120"
-                android:layout_height="@dimen/x120"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/home_tab_video"
-                android:scaleType="fitCenter"
-                android:src="@drawable/tab_discovery_unselect_v2" />
-        </LinearLayout>
-
-        <Space
-            android:layout_width="104dp"
-            android:layout_height="1dp" />
-
-        <LinearLayout
+        <!-- Divider is positioned above the visible navigation-bar body. -->
+        <ImageView
+            android:id="@+id/bottom_line_tab_fragment"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_height="@dimen/x1"
+            android:layout_marginBottom="@dimen/x97"
+            android:background="@color/color_DDDDDD"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-            <ImageView
-                android:id="@+id/tabEquity"
-                android:layout_width="@dimen/x120"
-                android:layout_height="@dimen/x120"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/home_tab_equity"
-                android:scaleType="fitCenter"
-                android:src="@drawable/tab_equity_default_v2" />
+        <!--
+            Basic-layout version of TabLayoutV2: five equally weighted tab items.
+            Normal icons are x120; the middle LingXi/AI item is x196 and shifted
+            up by fx24. Replacing each src with your selected-state selector keeps
+            the structure independent of TabLayoutV2 and TabItem.
+        -->
+        <LinearLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/x200"
+            android:baselineAligned="false"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
-            <ImageView
-                android:id="@+id/tabMine"
-                android:layout_width="@dimen/x120"
-                android:layout_height="@dimen/x120"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/home_tab_mine"
-                android:scaleType="fitCenter"
-                android:src="@drawable/tab_mine_select_v2" />
+            <FrameLayout
+                android:id="@+id/tab_item_1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+                <ImageView
+                    android:id="@+id/custom_tab_icon_01"
+                    android:layout_width="@dimen/x120"
+                    android:layout_height="@dimen/x120"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:contentDescription="首页"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/selector_tab_home" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/tab_item_2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+                <ImageView
+                    android:id="@+id/custom_tab_icon_02"
+                    android:layout_width="@dimen/x120"
+                    android:layout_height="@dimen/x120"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:contentDescription="服务"
+                    android:scaleType="fitXY"
+                     />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/tab_item_ai"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+                <ImageView
+                    android:id="@+id/custom_tab_icon_03"
+                    android:layout_width="@dimen/x196"
+                    android:layout_height="@dimen/x196"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="@dimen/fx24"
+                    android:contentDescription="灵犀 AI"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_tab_lingxi_normal" />
+                <View
+                    android:id="@+id/custom_tab_unread"
+                    android:layout_width="@dimen/x18"
+                    android:layout_height="@dimen/x18"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="@dimen/x27"
+                    android:layout_marginEnd="@dimen/x41"
+                    android:background="@drawable/ic_unread_r3"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/tab_item_4"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+                <ImageView
+                    android:id="@+id/custom_tab_icon_04"
+                    android:layout_width="@dimen/x120"
+                    android:layout_height="@dimen/x120"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:contentDescription="发现"
+                    android:scaleType="fitXY"
+                     />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/tab_item_5"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+                <ImageView
+                    android:id="@+id/custom_tab_icon_05"
+                    android:layout_width="@dimen/x120"
+                    android:layout_height="@dimen/x120"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:contentDescription="我的"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/selector_tab_mine" />
+            </FrameLayout>
         </LinearLayout>
-    </LinearLayout>
-    <ImageView
-        android:id="@+id/centerAiButton"
-        android:layout_width="@dimen/x196"
-        android:layout_height="@dimen/x196"
-        android:layout_gravity="bottom|center_horizontal"
-
-        android:contentDescription="@string/home_ai_entry"
-        android:focusable="true"
-        android:scaleType="fitXY"
-        />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

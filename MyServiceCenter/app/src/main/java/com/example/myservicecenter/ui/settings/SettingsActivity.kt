@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.settings
 
 import android.graphics.Color
 import android.content.Intent
@@ -9,7 +9,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import com.example.myservicecenter.PhoneDisplayManager
+import com.example.myservicecenter.R
+import com.example.myservicecenter.core.AppPreferences
 import com.example.myservicecenter.databinding.ActivitySettingsBinding
+import com.example.myservicecenter.ui.sms.SmsDetailManageActivity
 
 class SettingsActivity : AppCompatActivity() {
 

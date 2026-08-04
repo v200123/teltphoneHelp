@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.ui.sms
 
 import android.app.AlertDialog
 import android.graphics.Color
@@ -21,6 +21,11 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myservicecenter.PhoneDisplayManager
+import com.example.myservicecenter.R
+import com.example.myservicecenter.data.sms.SmsDetailDatabase
+import com.example.myservicecenter.data.sms.SmsDetailRecordEntity
+
 import com.example.myservicecenter.databinding.ActivitySmsDetailManageBinding
 import com.example.myservicecenter.databinding.ItemSmsDetailRecordBinding
 import kotlinx.coroutines.Dispatchers
@@ -116,12 +121,16 @@ class SmsDetailManageActivity : AppCompatActivity() {
                 }
                 val saved = SmsDetailRecordEntity(
                     id = record?.id ?: 0,
-                    direction = directionInput.text?.toString().orEmpty().trim().ifBlank { DEFAULT_DIRECTION },
+                    direction = directionInput.text?.toString().orEmpty().trim()
+                        .ifBlank { DEFAULT_DIRECTION },
                     phoneNumber = phoneNumber,
-                    messageType = typeInput.text?.toString().orEmpty().trim().ifBlank { DEFAULT_MESSAGE_TYPE },
-                    location = locationInput.text?.toString().orEmpty().trim().ifBlank { DEFAULT_LOCATION },
+                    messageType = typeInput.text?.toString().orEmpty().trim()
+                        .ifBlank { DEFAULT_MESSAGE_TYPE },
+                    location = locationInput.text?.toString().orEmpty().trim()
+                        .ifBlank { DEFAULT_LOCATION },
                     timestampMillis = timestamp,
-                    packageName = packageInput.text?.toString().orEmpty().trim().ifBlank { DEFAULT_PACKAGE },
+                    packageName = packageInput.text?.toString().orEmpty().trim()
+                        .ifBlank { DEFAULT_PACKAGE },
                     fee = normalizeFee(feeInput.text?.toString().orEmpty()),
                     createdAtMillis = record?.createdAtMillis ?: System.currentTimeMillis()
                 )
@@ -185,12 +194,16 @@ class SmsDetailManageActivity : AppCompatActivity() {
                         cursorTime += Random.nextLong(1L, 3L) * 1000L
                     }
                     SmsDetailRecordEntity(
-                        direction = directionInput.text?.toString().orEmpty().trim().ifBlank { DEFAULT_DIRECTION },
+                        direction = directionInput.text?.toString().orEmpty().trim()
+                            .ifBlank { DEFAULT_DIRECTION },
                         phoneNumber = phone,
-                        messageType = typeInput.text?.toString().orEmpty().trim().ifBlank { DEFAULT_MESSAGE_TYPE },
-                        location = locationInput.text?.toString().orEmpty().trim().ifBlank { DEFAULT_LOCATION },
+                        messageType = typeInput.text?.toString().orEmpty().trim()
+                            .ifBlank { DEFAULT_MESSAGE_TYPE },
+                        location = locationInput.text?.toString().orEmpty().trim()
+                            .ifBlank { DEFAULT_LOCATION },
                         timestampMillis = cursorTime,
-                        packageName = packageInput.text?.toString().orEmpty().trim().ifBlank { DEFAULT_PACKAGE },
+                        packageName = packageInput.text?.toString().orEmpty().trim()
+                            .ifBlank { DEFAULT_PACKAGE },
                         fee = normalizeFee(feeInput.text?.toString().orEmpty()),
                         createdAtMillis = now
                     )

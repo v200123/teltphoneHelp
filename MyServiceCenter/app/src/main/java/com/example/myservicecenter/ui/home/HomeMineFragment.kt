@@ -24,14 +24,14 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.example.myservicecenter.AppPreferences
 import com.example.myservicecenter.R
-import com.example.myservicecenter.SettingsActivity
+import com.example.myservicecenter.core.AppPreferences
 import com.example.myservicecenter.databinding.FragmentHomeMineBinding
 import com.example.myservicecenter.databinding.ItemHomeMineComboBinding
 import com.example.myservicecenter.databinding.ItemHomeMineServiceCenterBinding
-import com.example.myservicecenter.ui.main.MainActivity
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
+import com.example.myservicecenter.ui.main.MainActivity
+import com.example.myservicecenter.ui.settings.SettingsActivity
 
 class HomeMineFragment : Fragment(R.layout.fragment_home_mine) {
     private var _binding: FragmentHomeMineBinding? = null

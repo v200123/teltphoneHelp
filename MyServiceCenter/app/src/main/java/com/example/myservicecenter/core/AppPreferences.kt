@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.myservicecenter.core
 
 import android.content.Context
 import android.net.Uri

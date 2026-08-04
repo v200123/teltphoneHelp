@@ -18,18 +18,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.myservicecenter.AppPreferences
-import com.example.myservicecenter.CallRecord
-import com.example.myservicecenter.CallRecordCacheDatabase
-import com.example.myservicecenter.CallRecordContract
-import com.example.myservicecenter.CommonWebViewSupport
 import com.example.myservicecenter.R
-import com.example.myservicecenter.SettingsActivity
-import com.example.myservicecenter.SmsDetailDatabase
-import com.example.myservicecenter.SmsDetailRecordEntity
+
+import com.example.myservicecenter.core.AppPreferences
+import com.example.myservicecenter.data.calllog.CallRecord
+import com.example.myservicecenter.data.calllog.CallRecordCacheDatabase
+import com.example.myservicecenter.data.calllog.toCachedEntity
+import com.example.myservicecenter.data.calllog.toCallRecord
 import com.example.myservicecenter.databinding.ActivityMainBinding
-import com.example.myservicecenter.toCachedEntity
-import com.example.myservicecenter.toCallRecord
+import com.example.myservicecenter.ui.settings.SettingsActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,6 +37,10 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
+import com.example.myservicecenter.core.CommonWebViewSupport
+import com.example.myservicecenter.data.calllog.CallRecordContract
+import com.example.myservicecenter.data.sms.SmsDetailDatabase
+import com.example.myservicecenter.data.sms.SmsDetailRecordEntity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding

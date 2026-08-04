@@ -20,12 +20,12 @@
         android:theme="@style/Theme.MyServiceCenter">
 
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".SmsDetailManageActivity"
+            android:name=".ui.sms.SmsDetailManageActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
