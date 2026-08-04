@@ -14,6 +14,7 @@ android {
         targetSdk 34
         versionCode 8
         versionName "1.8"
+        buildConfigField "String", "UPDATE_SERVICE_BASE_URL", '"http://www.lastcoffee.top:8082"'
     }
 
     buildTypes {
@@ -31,10 +32,12 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 
 dependencies {
+    implementation project(':app-updater')
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'

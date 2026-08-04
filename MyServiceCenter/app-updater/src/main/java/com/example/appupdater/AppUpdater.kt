@@ -1,0 +1,185 @@
+package com.example.appupdater
+
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+class AppUpdater private constructor(
+    private val activity: AppCompatActivity,
+    config: UpdateConfig
+) {
+    private val updateManager = AppUpdateManager(config)
+    private var hasCheckedAppUpdate = false
+    private var pendingInstallApkFile: File? = null
+    private var pendingForceUpdate = false
+
+    private val installPermissionLauncher =
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val apkFile = pendingInstallApkFile ?: return@registerForActivityResult
+            if (updateManager.canRequestPackageInstalls(activity)) {
+                updateManager.installApk(activity, apkFile)
+                pendingInstallApkFile = null
+                pendingForceUpdate = false
+            } else if (pendingForceUpdate) {
+                showInstallPermissionDialog(apkFile, true)
+            } else {
+                Toast.makeText(
+                    activity,
+                    activity.getString(R.string.app_updater_install_permission_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+    fun checkAndShow() {
+        if (hasCheckedAppUpdate) return
+        hasCheckedAppUpdate = true
+        activity.lifecycleScope.launch {
+            val updateResult = withContext(Dispatchers.IO) {
+                runCatching { updateManager.checkForUpdate(activity) }
+                    .onFailure { Log.e(TAG, "启动版本检测失败", it) }
+                    .getOrNull()
+            }
+            if (updateResult?.needUpdate == true) {
+                showUpdateDialog(updateResult)
+            }
+        }
+    }
+
+    private fun showUpdateDialog(updateResult: UpdateCheckResult) {
+        val dialogMessage = buildString {
+            append(
+                activity.getString(
+                    R.string.app_updater_dialog_version_label,
+                    updateResult.latestVersion ?: "--"
+                )
+            )
+            if (!updateResult.updateLog.isNullOrBlank()) {
+                append("\n\n")
+                append(activity.getString(R.string.app_updater_dialog_log_label))
+                append("\n")
+                append(updateResult.updateLog)
+            }
+        }
+
+        val dialog = AlertDialog.Builder(activity)
+            .setTitle(
+                if (updateResult.forceUpdate) {
+                    activity.getString(R.string.app_updater_dialog_title_force)
+                } else {
+                    activity.getString(R.string.app_updater_dialog_title)
+                }
+            )
+            .setMessage(dialogMessage)
+            .setCancelable(!updateResult.forceUpdate)
+            .setPositiveButton(R.string.app_updater_dialog_confirm, null)
+            .apply {
+                if (!updateResult.forceUpdate) {
+                    setNegativeButton(R.string.app_updater_dialog_cancel, null)
+                }
+            }
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                dialog.dismiss()
+                startUpdateDownload(updateResult)
+            }
+        }
+        dialog.show()
+    }
+
+    private fun startUpdateDownload(updateResult: UpdateCheckResult) {
+        pendingForceUpdate = updateResult.forceUpdate
+        val progressDialog = AlertDialog.Builder(activity)
+            .setTitle(R.string.app_updater_downloading_title)
+            .setMessage(activity.getString(R.string.app_updater_downloading_message))
+            .setCancelable(false)
+            .create()
+        progressDialog.show()
+
+        activity.lifecycleScope.launch {
+            val downloadResult = withContext(Dispatchers.IO) {
+                runCatching {
+                    updateManager.downloadApk(activity, updateResult) { progress ->
+                        activity.runOnUiThread {
+                            if (progressDialog.isShowing) {
+                                progressDialog.setMessage(
+                                    activity.getString(
+                                        R.string.app_updater_downloading_progress,
+                                        progress
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            if (progressDialog.isShowing) {
+                progressDialog.dismiss()
+            }
+
+            downloadResult.onSuccess { apkFile ->
+                pendingInstallApkFile = apkFile
+                if (updateManager.canRequestPackageInstalls(activity)) {
+                    updateManager.installApk(activity, apkFile)
+                    pendingInstallApkFile = null
+                    pendingForceUpdate = false
+                } else {
+                    showInstallPermissionDialog(apkFile, updateResult.forceUpdate)
+                }
+            }.onFailure { throwable ->
+                Toast.makeText(
+                    activity,
+                    activity.getString(
+                        R.string.app_updater_download_failed,
+                        throwable.message ?: "未知错误"
+                    ),
+                    Toast.LENGTH_LONG
+                ).show()
+                if (updateResult.forceUpdate) {
+                    showUpdateDialog(updateResult)
+                }
+            }
+        }
+    }
+
+    private fun showInstallPermissionDialog(apkFile: File, forceUpdate: Boolean) {
+        pendingInstallApkFile = apkFile
+        pendingForceUpdate = forceUpdate
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.app_updater_install_permission_title)
+            .setMessage(R.string.app_updater_install_permission_message)
+            .setCancelable(!forceUpdate)
+            .setPositiveButton(R.string.app_updater_install_permission_confirm) { _, _ ->
+                installPermissionLauncher.launch(
+                    updateManager.createInstallPermissionIntent(activity)
+                )
+            }
+            .apply {
+                if (!forceUpdate) {
+                    setNegativeButton(R.string.app_updater_dialog_cancel, null)
+                }
+            }
+            .show()
+    }
+
+    companion object {
+        private const val TAG = "AppUpdater"
+
+        @JvmStatic
+        fun register(
+            activity: AppCompatActivity,
+            config: UpdateConfig
+        ): AppUpdater {
+            return AppUpdater(activity, config)
+        }
+    }
+}

@@ -1,4 +1,4 @@
-package com.example.myservicecenter
+package com.example.appupdater
 
 import android.content.Context
 import android.content.Intent
@@ -10,45 +10,26 @@ import android.provider.Settings
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONObject
 
-data class UpdateCheckResult(
-    val needUpdate: Boolean,
-    val forceUpdate: Boolean,
-    val latestVersion: String?,
-    val latestVersionCode: Int?,
-    val updateLog: String?,
-    val downloadUrl: String?,
-    val fileSize: Long?,
-    val md5: String?
-)
-
-object AppUpdateManager {
-    private const val TAG = "AppUpdateManager"
-    private const val LOG_BODY_MAX_LENGTH = 2000
-    // TODO: 替换成你的升级服务真实地址，例如 http://192.168.1.10:8080
-    private const val UPDATE_SERVICE_BASE_URL = "http://www.lastcoffee.top:8082"
-    private const val CONNECT_TIMEOUT_MILLIS = 15000
-    private const val READ_TIMEOUT_MILLIS = 15000
-
-    private val httpClient: OkHttpClient by lazy {
-        OkHttpClient.Builder()
-            .connectTimeout(CONNECT_TIMEOUT_MILLIS.toLong(), TimeUnit.MILLISECONDS)
-            .readTimeout(READ_TIMEOUT_MILLIS.toLong(), TimeUnit.MILLISECONDS)
-            .build()
-    }
+internal class AppUpdateManager(
+    private val config: UpdateConfig
+) {
+    private val httpClient: OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(config.connectTimeoutMillis, TimeUnit.MILLISECONDS)
+        .readTimeout(config.readTimeoutMillis, TimeUnit.MILLISECONDS)
+        .build()
 
     fun checkForUpdate(context: Context): UpdateCheckResult? {
-        // 启动时把当前包名和 versionCode 传给服务端，由服务端决定是否需要更新。
         val versionCode = getCurrentVersionCode(context)
-        val requestUrl = Uri.parse("${UPDATE_SERVICE_BASE_URL.trimEnd('/')}/api/check")
+        val requestUrl = Uri.parse(config.baseUrl.trimEnd('/') + config.checkPath.ensureStartsWithSlash())
             .buildUpon()
             .appendQueryParameter("packageName", context.packageName)
             .appendQueryParameter("versionCode", versionCode.toString())
@@ -65,11 +46,7 @@ object AppUpdateManager {
             httpClient.newCall(request).execute().use { response ->
                 val body = response.body?.string().orEmpty()
                 logResponse("检查更新", response, body)
-                if (!response.isSuccessful) {
-                    null
-                } else {
-                    parseCheckResponse(body)
-                }
+                if (response.isSuccessful) parseCheckResponse(body) else null
             }
         } catch (throwable: Throwable) {
             Log.e(TAG, "检查更新请求失败: url=$requestUrl", throwable)
@@ -86,11 +63,17 @@ object AppUpdateManager {
             ?: throw IllegalStateException("缺少最新版本号，无法下载升级包")
         val resolvedUrl = resolveDownloadUrl(result.downloadUrl)
             ?: throw IllegalStateException("缺少下载地址，无法下载升级包")
-        val targetDirectory =
-            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: context.filesDir
-        val targetFile = File(targetDirectory, "update_${context.packageName}_$targetVersionCode.apk")
+        val storageRoot = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            ?: context.filesDir
+        val targetDirectory = File(storageRoot, UPDATE_DIRECTORY_NAME)
+        if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
+            throw IllegalStateException("无法创建升级包目录")
+        }
+        val targetFile = File(
+            targetDirectory,
+            "update_${context.packageName}_$targetVersionCode.apk"
+        )
 
-        // 如果本地已经有同版本 APK，并且大小/MD5 校验通过，就直接复用，避免重复下载。
         if (targetFile.exists() && verifyDownloadedFile(targetFile, result)) {
             Log.d(TAG, "升级包复用本地缓存: path=${targetFile.absolutePath}, size=${targetFile.length()}")
             onProgressChanged?.invoke(100)
@@ -131,7 +114,9 @@ object AppUpdateManager {
                             output.write(buffer, 0, readSize)
                             downloadedBytes += readSize
                             if (expectedSize != null && expectedSize > 0L) {
-                                val progress = ((downloadedBytes * 100) / expectedSize).toInt().coerceIn(0, 100)
+                                val progress = ((downloadedBytes * 100) / expectedSize)
+                                    .toInt()
+                                    .coerceIn(0, 100)
                                 if (progress != lastProgress) {
                                     lastProgress = progress
                                     onProgressChanged?.invoke(progress)
@@ -180,7 +165,8 @@ object AppUpdateManager {
     }
 
     fun canRequestPackageInstalls(context: Context): Boolean {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.O || context.packageManager.canRequestPackageInstalls()
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+            context.packageManager.canRequestPackageInstalls()
     }
 
     fun createInstallPermissionIntent(context: Context): Intent {
@@ -193,7 +179,7 @@ object AppUpdateManager {
     fun installApk(context: Context, apkFile: File) {
         val apkUri = FileProvider.getUriForFile(
             context,
-            "${context.packageName}.fileprovider",
+            "${context.packageName}.appupdater.fileprovider",
             apkFile
         )
         val installIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -204,45 +190,12 @@ object AppUpdateManager {
         context.startActivity(installIntent)
     }
 
-    private fun logRequestStart(scene: String, url: String) {
-        Log.d(TAG, "$scene 请求开始: method=GET, url=$url")
-    }
-
-    private fun logResponse(scene: String, response: Response, body: String) {
-        Log.d(
-            TAG,
-            "$scene 响应: code=${response.code}, successful=${response.isSuccessful}, message=${response.message}, body=${body.take(LOG_BODY_MAX_LENGTH)}"
-        )
-    }
-
-    private fun logDownloadResponse(response: Response) {
-        Log.d(
-            TAG,
-            "下载升级包响应: code=${response.code}, successful=${response.isSuccessful}, message=${response.message}, contentLength=${response.body?.contentLength() ?: -1L}"
-        )
-    }
-
-    private fun parseCheckResponse(body: String): UpdateCheckResult {
-        val jsonObject = JSONObject(body)
-        return UpdateCheckResult(
-            needUpdate = jsonObject.optBoolean("needUpdate", false),
-            forceUpdate = jsonObject.optBoolean("forceUpdate", false),
-            latestVersion = jsonObject.optNullableString("latestVersion"),
-            latestVersionCode = jsonObject.optNullableInt("latestVersionCode"),
-            updateLog = jsonObject.optNullableString("updateLog"),
-            downloadUrl = jsonObject.optNullableString("downloadUrl"),
-            fileSize = jsonObject.optNullableLong("fileSize"),
-            md5 = jsonObject.optNullableString("md5")
-        )
-    }
-
     private fun resolveDownloadUrl(downloadUrl: String?): String? {
         if (downloadUrl.isNullOrBlank()) return null
         if (downloadUrl.startsWith("http://") || downloadUrl.startsWith("https://")) {
             return downloadUrl
         }
-        // 服务端返回相对路径时，自动拼到统一的升级服务根地址后面。
-        val baseUri = Uri.parse(UPDATE_SERVICE_BASE_URL.trimEnd('/'))
+        val baseUri = Uri.parse(config.baseUrl.trimEnd('/'))
         return baseUri.buildUpon()
             .encodedPath(downloadUrl.ensureStartsWithSlash())
             .build()
@@ -293,8 +246,40 @@ object AppUpdateManager {
         return PackageInfoCompat.getLongVersionCode(packageInfo)
     }
 
+    private fun parseCheckResponse(body: String): UpdateCheckResult {
+        val jsonObject = JSONObject(body)
+        return UpdateCheckResult(
+            needUpdate = jsonObject.optBoolean("needUpdate", false),
+            forceUpdate = jsonObject.optBoolean("forceUpdate", false),
+            latestVersion = jsonObject.optNullableString("latestVersion"),
+            latestVersionCode = jsonObject.optNullableInt("latestVersionCode"),
+            updateLog = jsonObject.optNullableString("updateLog"),
+            downloadUrl = jsonObject.optNullableString("downloadUrl"),
+            fileSize = jsonObject.optNullableLong("fileSize"),
+            md5 = jsonObject.optNullableString("md5")
+        )
+    }
+
+    private fun logRequestStart(scene: String, url: String) {
+        Log.d(TAG, "$scene 请求开始: method=GET, url=$url")
+    }
+
+    private fun logResponse(scene: String, response: Response, body: String) {
+        Log.d(
+            TAG,
+            "$scene 响应: code=${response.code}, successful=${response.isSuccessful}, message=${response.message}, body=${body.take(LOG_BODY_MAX_LENGTH)}"
+        )
+    }
+
+    private fun logDownloadResponse(response: Response) {
+        Log.d(
+            TAG,
+            "下载升级包响应: code=${response.code}, successful=${response.isSuccessful}, message=${response.message}, contentLength=${response.body?.contentLength() ?: -1L}"
+        )
+    }
+
     private fun JSONObject.optNullableString(key: String): String? {
-        return if (isNull(key)) null else optString(key, null)
+        return if (!has(key) || isNull(key)) null else getString(key)
     }
 
     private fun JSONObject.optNullableInt(key: String): Int? {
@@ -307,5 +292,11 @@ object AppUpdateManager {
 
     private fun String.ensureStartsWithSlash(): String {
         return if (startsWith("/")) this else "/$this"
+    }
+
+    private companion object {
+        const val TAG = "AppUpdateManager"
+        const val LOG_BODY_MAX_LENGTH = 2_000
+        const val UPDATE_DIRECTORY_NAME = "app-updater"
     }
 }

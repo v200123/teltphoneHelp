@@ -18,3 +18,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MyServiceCenter"
 include ':app'
+include ':app-updater'
