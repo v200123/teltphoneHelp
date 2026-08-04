@@ -14,10 +14,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import org.json.JSONObject
+import okhttp3.ResponseBody
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 internal class AppUpdateManager(
     private val config: UpdateConfig
@@ -26,27 +29,36 @@ internal class AppUpdateManager(
         .connectTimeout(config.connectTimeoutMillis, TimeUnit.MILLISECONDS)
         .readTimeout(config.readTimeoutMillis, TimeUnit.MILLISECONDS)
         .build()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+    private val updateApi: UpdateApi = Retrofit.Builder()
+        .baseUrl(config.baseUrl.trimEnd('/') + "/")
+        .client(httpClient)
+        .addConverterFactory(json.asConverterFactory(JSON_MEDIA_TYPE.toMediaType()))
+        .build()
+        .create(UpdateApi::class.java)
 
     fun checkForUpdate(context: Context): UpdateCheckResult? {
         val versionCode = getCurrentVersionCode(context)
-        val requestUrl = Uri.parse(config.baseUrl.trimEnd('/') + config.checkPath.ensureStartsWithSlash())
-            .buildUpon()
-            .appendQueryParameter("packageName", context.packageName)
-            .appendQueryParameter("versionCode", versionCode.toString())
-            .build()
-            .toString()
-
-        val request = Request.Builder()
-            .url(requestUrl)
-            .get()
-            .build()
+        val call = updateApi.checkForUpdate(
+            url = config.checkPath.ensureStartsWithSlash(),
+            packageName = context.packageName,
+            versionCode = versionCode
+        )
+        val requestUrl = call.request().url.toString()
 
         logRequestStart("检查更新", requestUrl)
         return try {
-            httpClient.newCall(request).execute().use { response ->
-                val body = response.body?.string().orEmpty()
-                logResponse("检查更新", response, body)
-                if (response.isSuccessful) parseCheckResponse(body) else null
+            val response = call.execute()
+            val result = response.body()
+            logCheckResponse(response, result)
+            if (response.isSuccessful) {
+                result
+            } else {
+                response.errorBody()?.close()
+                null
             }
         } catch (throwable: Throwable) {
             Log.e(TAG, "检查更新请求失败: url=$requestUrl", throwable)
@@ -85,21 +97,21 @@ internal class AppUpdateManager(
             tempFile.delete()
         }
 
-        val request = Request.Builder()
-            .url(resolvedUrl)
-            .get()
-            .build()
+        val call = updateApi.downloadApk(resolvedUrl)
+        val requestUrl = call.request().url.toString()
 
-        logRequestStart("下载升级包", resolvedUrl)
+        logRequestStart("下载升级包", requestUrl)
         try {
-            httpClient.newCall(request).execute().use { response ->
-                logDownloadResponse(response)
-                if (!response.isSuccessful) {
-                    throw IllegalStateException("下载升级包失败，HTTP状态码: ${response.code}")
-                }
+            val response = call.execute()
+            logDownloadResponse(response)
+            if (!response.isSuccessful) {
+                response.errorBody()?.close()
+                throw IllegalStateException("下载升级包失败，HTTP状态码: ${response.code()}")
+            }
 
-                val body = response.body
-                    ?: throw IllegalStateException("下载升级包失败，响应体为空")
+            val body = response.body()
+                ?: throw IllegalStateException("下载升级包失败，响应体为空")
+            body.use {
                 val expectedSize = result.fileSize ?: body.contentLength().takeIf { it > 0L }
                 val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                 var downloadedBytes = 0L
@@ -134,28 +146,28 @@ internal class AppUpdateManager(
                         output.flush()
                     }
                 }
-
-                if (targetFile.exists()) {
-                    targetFile.delete()
-                }
-                if (!tempFile.renameTo(targetFile)) {
-                    throw IllegalStateException("升级包写入本地失败")
-                }
-
-                if (!verifyDownloadedFile(targetFile, result)) {
-                    targetFile.delete()
-                    throw IllegalStateException("下载完成，但升级包校验失败")
-                }
-
-                Log.d(
-                    TAG,
-                    "下载升级包完成: path=${targetFile.absolutePath}, size=${targetFile.length()}, md5=${result.md5.orEmpty()}"
-                )
-                onProgressChanged?.invoke(100)
-                return targetFile
             }
+
+            if (targetFile.exists()) {
+                targetFile.delete()
+            }
+            if (!tempFile.renameTo(targetFile)) {
+                throw IllegalStateException("升级包写入本地失败")
+            }
+
+            if (!verifyDownloadedFile(targetFile, result)) {
+                targetFile.delete()
+                throw IllegalStateException("下载完成，但升级包校验失败")
+            }
+
+            Log.d(
+                TAG,
+                "下载升级包完成: path=${targetFile.absolutePath}, size=${targetFile.length()}, md5=${result.md5.orEmpty()}"
+            )
+            onProgressChanged?.invoke(100)
+            return targetFile
         } catch (throwable: Throwable) {
-            Log.e(TAG, "下载升级包请求失败: url=$resolvedUrl", throwable)
+            Log.e(TAG, "下载升级包请求失败: url=$requestUrl", throwable)
             throw throwable
         } finally {
             if (tempFile.exists()) {
@@ -246,48 +258,25 @@ internal class AppUpdateManager(
         return PackageInfoCompat.getLongVersionCode(packageInfo)
     }
 
-    private fun parseCheckResponse(body: String): UpdateCheckResult {
-        val jsonObject = JSONObject(body)
-        return UpdateCheckResult(
-            needUpdate = jsonObject.optBoolean("needUpdate", false),
-            forceUpdate = jsonObject.optBoolean("forceUpdate", false),
-            latestVersion = jsonObject.optNullableString("latestVersion"),
-            latestVersionCode = jsonObject.optNullableInt("latestVersionCode"),
-            updateLog = jsonObject.optNullableString("updateLog"),
-            downloadUrl = jsonObject.optNullableString("downloadUrl"),
-            fileSize = jsonObject.optNullableLong("fileSize"),
-            md5 = jsonObject.optNullableString("md5")
-        )
-    }
-
     private fun logRequestStart(scene: String, url: String) {
         Log.d(TAG, "$scene 请求开始: method=GET, url=$url")
     }
 
-    private fun logResponse(scene: String, response: Response, body: String) {
+    private fun logCheckResponse(
+        response: Response<UpdateCheckResult>,
+        body: UpdateCheckResult?
+    ) {
         Log.d(
             TAG,
-            "$scene 响应: code=${response.code}, successful=${response.isSuccessful}, message=${response.message}, body=${body.take(LOG_BODY_MAX_LENGTH)}"
+            "检查更新响应: code=${response.code()}, successful=${response.isSuccessful}, message=${response.message()}, body=${body.toString().take(LOG_BODY_MAX_LENGTH)}"
         )
     }
 
-    private fun logDownloadResponse(response: Response) {
+    private fun logDownloadResponse(response: Response<ResponseBody>) {
         Log.d(
             TAG,
-            "下载升级包响应: code=${response.code}, successful=${response.isSuccessful}, message=${response.message}, contentLength=${response.body?.contentLength() ?: -1L}"
+            "下载升级包响应: code=${response.code()}, successful=${response.isSuccessful}, message=${response.message()}, contentLength=${response.body()?.contentLength() ?: -1L}"
         )
-    }
-
-    private fun JSONObject.optNullableString(key: String): String? {
-        return if (!has(key) || isNull(key)) null else getString(key)
-    }
-
-    private fun JSONObject.optNullableInt(key: String): Int? {
-        return if (isNull(key)) null else optInt(key)
-    }
-
-    private fun JSONObject.optNullableLong(key: String): Long? {
-        return if (isNull(key)) null else optLong(key)
     }
 
     private fun String.ensureStartsWithSlash(): String {
@@ -298,5 +287,6 @@ internal class AppUpdateManager(
         const val TAG = "AppUpdateManager"
         const val LOG_BODY_MAX_LENGTH = 2_000
         const val UPDATE_DIRECTORY_NAME = "app-updater"
+        const val JSON_MEDIA_TYPE = "application/json"
     }
 }
