@@ -1,4 +1,5 @@
 package com.example.myservicecenter.ui.home
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
@@ -7,11 +8,8 @@ import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -51,8 +49,13 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initViews()
-        applyWindowInsets()
+        syncBottomTabLayout()
         appUpdater.checkAndShow()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        syncBottomTabLayout()
     }
 
     private fun initViews() {
@@ -110,28 +113,24 @@ class HomeActivity : AppCompatActivity() {
     ) {
         iconView.setImageResource(if (selected) iconSelected else iconUnselected)
     }
-    private fun applyWindowInsets() {
-        val pagerStart = binding.viewPagerHome.paddingStart
-        val pagerTop = binding.viewPagerHome.paddingTop
-        val pagerEnd = binding.viewPagerHome.paddingEnd
-        val pagerBottom = binding.viewPagerHome.paddingBottom
-
-//        val bottomTabBarMarginBottom =
-//            (binding.bottomTabBar.layoutParams as? ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0
-//
-//        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            binding.viewPagerHome.updatePadding(
-//                left = pagerStart,
-//                top = pagerTop,
-//                right = pagerEnd,
-//                bottom = pagerBottom
-//            )
-//            binding.bottomTabBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-//                bottomMargin = bottomTabBarMarginBottom + systemBars.bottom
-//            }
-//            insets
-//        }
+    private fun syncBottomTabLayout() {
+        val currentResources = resources
+        binding.bottomTabBg.updateLayoutParams {
+            height = currentResources.getDimensionPixelSize(R.dimen.x120)
+        }
+        binding.bottomLineTabFragment.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            bottomMargin = currentResources.getDimensionPixelSize(R.dimen.x97)
+        }
+        binding.tabLayout.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            height = currentResources.getDimensionPixelSize(R.dimen.x200)
+        }
+        binding.viewPagerHome.updateLayoutParams<ViewGroup.LayoutParams> {
+            width = if (currentResources.configuration.screenWidthDp < 600) {
+                ViewGroup.LayoutParams.MATCH_PARENT
+            } else {
+                currentResources.getDimensionPixelSize(R.dimen.x750)
+            }
+        }
     }
 
 }
