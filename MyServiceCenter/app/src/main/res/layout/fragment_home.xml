@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:background="@drawable/bg_top_tab_default_normal"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -11,6 +10,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ImageView
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/bg_top_tab_default_normal"
+        app:layout_constraintBottom_toBottomOf="@+id/search_view_cl"
+        app:layout_constraintEnd_toEndOf="@+id/iv_show_top_gif"
+
+        app:layout_constraintStart_toStartOf="parent" />
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -63,13 +71,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_view_cl" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_marginStart="@dimen/x24"
-        android:layout_marginEnd="@dimen/x24"
         android:id="@+id/search_view_cl"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x72"
+        android:layout_marginStart="@dimen/x24"
         android:layout_marginTop="@dimen/x8"
+        android:layout_marginEnd="@dimen/x24"
         android:background="@drawable/bg_top_view_search"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
