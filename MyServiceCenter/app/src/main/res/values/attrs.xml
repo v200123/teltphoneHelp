@@ -14,4 +14,8 @@
         <attr name="codeTableUnitText" format="string" />
         <attr name="codeTableTitleText" format="string" />
     </declare-styleable>
+
+    <declare-styleable name="CustomBoldTextView">
+        <attr name="customFontWeight" format="float"/>
+    </declare-styleable>
 </resources>

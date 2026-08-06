@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:background="@drawable/bg_top_tab_default_normal"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/homeScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_home_reference_page"
     android:orientation="vertical">
 
     <LinearLayout
@@ -52,6 +53,16 @@
 
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/new_home_second_top_bg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_home_second_top_bg_normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_view_cl" />
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_marginStart="@dimen/x24"
         android:layout_marginEnd="@dimen/x24"
@@ -81,6 +92,8 @@
             android:layout_marginStart="@dimen/x10"
             android:layout_marginEnd="@dimen/x10"
             android:gravity="center_vertical"
+            android:textColor="#333333"
+            android:textSize="@dimen/x28"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintLeft_toRightOf="@+id/search_view_icon"
