@@ -39,12 +39,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         uri ?: return@registerForActivityResult
         try {
             context.contentResolver.takePersistableUriPermission(uri, FLAG_GRANT_READ_URI_PERMISSION)
-            if (context.contentResolver.getType(uri).orEmpty().startsWith("video/")) {
-                AppPreferences.setCodeTableBottomVideoUri(context, uri)
-            } else {
-                AppPreferences.setCodeTableBottomImageMedia(context, uri)
-            }
-            renderCodeTableBottomImage()
+            AppPreferences.setCodeTableBottomImageMedia(context, uri)
+            renderSecondTopContentImage()
         } catch (_: SecurityException) {
             Toast.makeText(context, "无法保存所选图片的访问权限，请重新选择", Toast.LENGTH_SHORT).show()
         }
@@ -60,12 +56,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         Glide.with(this).load("https://res.app.coc.10086.cn/group1/M00/09/EA/CtFOBmkpCReAEmvqAAABTBkx0cQ779.png?fmt=webp").into(_binding!!.ivAdPointIcon);
         initTopBar()
         applyManagedPhone()
-        _binding!!.codeTableBottomContainer.visibility = View.VISIBLE
         applyCodeTableConfigs()
         bindCodeTableButtons()
         bindCodeTableBottomImage()
         bindSearchText()
-        positionCodeTableMediaOverlay()
 
     }
     private fun initTopBar(){
@@ -96,9 +90,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         if (_binding != null) {
             applyCodeTableConfigs()
             applyManagedPhone()
-            renderCodeTableBottomImage()
             applySearchText()
-            positionCodeTableMediaOverlay()
+            renderSecondTopContentImage()
         }
     }
 
@@ -177,85 +170,37 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun bindCodeTableBottomImage() {
-        binding.codeTableBottomContainer.setOnClickListener {
-            selectCodeTableBottomImage.launch(arrayOf("image/*", "video/*"))
+        binding.ivSecondTopContent.setOnClickListener {
+            selectCodeTableBottomImage.launch(arrayOf("image/*"))
         }
-        binding.ivCodeTableBottomImage.setOnClickListener {
-            selectCodeTableBottomImage.launch(arrayOf("image/*", "video/*"))
-        }
-        renderCodeTableBottomImage()
+        renderSecondTopContentImage()
     }
 
-    /** Places the media area over the fixed CodeTable card, starting at the divider position. */
-    private fun positionCodeTableMediaOverlay() {
-        binding.root.doOnLayout {
-            binding.codetable.doOnLayout {
-                val rootLocation = IntArray(2)
-                val tableLocation = IntArray(2)
-                binding.root.getLocationOnScreen(rootLocation)
-                binding.codetable.getLocationOnScreen(tableLocation)
-                val dividerTop = tableLocation[1] - rootLocation[1] + binding.codetable.height
-                (binding.codeTableBottomContainer.layoutParams as ConstraintLayout.LayoutParams).apply {
-                    topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-                    topMargin = dividerTop
-                    bottomMargin = resources.getDimensionPixelSize(R.dimen.x120) +
-                        (ViewCompat.getRootWindowInsets(binding.root)
-                            ?.getInsets(WindowInsetsCompat.Type.systemBars())
-                            ?.bottom ?: 0)
-                    binding.codeTableBottomContainer.layoutParams = this
-                }
-                binding.codeTableBottomContainer.bringToFront()
-                binding.ivCodeViewLine.visibility = View.VISIBLE
-                binding.ivCodeViewLine.bringToFront()
-            }
-        }
-    }
-
-    private fun renderCodeTableBottomImage() {
+    /** Loads the persisted photo into the scrollable second-top content area. */
+    private fun renderSecondTopContentImage() {
         val context = context ?: return
-        if (AppPreferences.getCodeTableBottomMediaType(context) == AppPreferences.CODE_TABLE_BOTTOM_MEDIA_TYPE_VIDEO) {
-            AppPreferences.getCodeTableBottomVideoUri(context)?.let { videoUri ->
-                Glide.with(this).clear(binding.ivCodeTableBottomImage)
-                binding.ivCodeTableBottomImage.visibility = View.GONE
-                binding.playerCodeTableBottom.visibility = View.VISIBLE
-                binding.playerCodeTableBottom.onVideoReset()
-                GSYVideoOptionBuilder()
-                    .setUrl(videoUri.toString())
-                    .setVideoTitle("")
-                    .setLooping(true)
-                    .setIsTouchWiget(false)
-                    .setAutoFullWithSize(false)
-                    .setShowFullAnimation(false)
-                    .build(binding.playerCodeTableBottom)
-                binding.playerCodeTableBottom.startPlayLogic()
-                return
-            }
-        }
-        val imageUri = AppPreferences.getCodeTableBottomImageUri(context)
-        if (imageUri == null) {
-            Glide.with(this).clear(binding.ivCodeTableBottomImage)
-            binding.ivCodeTableBottomImage.visibility = View.GONE
-            binding.playerCodeTableBottom.onVideoReset()
-            binding.playerCodeTableBottom.visibility = View.GONE
+        if (AppPreferences.getCodeTableBottomMediaType(context) !=
+            AppPreferences.CODE_TABLE_BOTTOM_MEDIA_TYPE_IMAGE
+        ) {
             return
         }
-        binding.playerCodeTableBottom.onVideoReset()
-        binding.playerCodeTableBottom.visibility = View.GONE
-        binding.ivCodeTableBottomImage.visibility = View.VISIBLE
+        val imageUri = AppPreferences.getCodeTableBottomImageUri(context) ?: return
         Glide.with(this)
             .load(imageUri)
             .override(Target.SIZE_ORIGINAL)
             .dontTransform()
-            .into(binding.ivCodeTableBottomImage)
+            .into(binding.ivSecondTopContent)
     }
 
+
+
+
     override fun onPause() {
-        binding.playerCodeTableBottom.onVideoPause()
+
         super.onPause()
     }
 
     override fun onDestroyView() {
-        _binding?.playerCodeTableBottom?.onVideoReset()
         _binding = null
         super.onDestroyView()
     }

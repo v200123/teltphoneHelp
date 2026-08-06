@@ -968,7 +968,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/x12"
-                android:layout_marginTop="@dimen/fx194"
+                android:layout_marginTop="@dimen/fx134"
                 android:layout_marginEnd="@dimen/x12"
                 android:clipChildren="false"
                 android:clipToPadding="false"
@@ -1007,11 +1007,11 @@
                     android:id="@+id/cl_bottom_view_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/center_icon_content_bg"
-                    android:paddingStart="@dimen/x18"
-                    android:paddingTop="@dimen/x18"
-                    android:paddingEnd="@dimen/x18"
-                    android:paddingBottom="@dimen/x18">
+                    android:background="@drawable/center_icon_content_bg">
+<!--                    android:paddingStart="@dimen/x18"-->
+<!--                    android:paddingTop="@dimen/x18"-->
+<!--                    android:paddingEnd="@dimen/x18"-->
+<!--                    android:paddingBottom="@dimen/x18">-->
 
                     <ImageView
                         android:id="@+id/iv_second_top_content"
@@ -1030,41 +1030,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <FrameLayout
-        android:id="@+id/codeTableBottomContainer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        android:background="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/iv_code_view_line"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:src="@mipmap/img_code_view_line"
-            android:visibility="invisible" />
-
-        <ImageView
-            android:id="@+id/iv_code_table_bottom_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription=""
-            android:scaleType="fitCenter"
-            android:visibility="gone" />
-
-        <com.example.myservicecenter.ui.widget.NoControlVideoPlayer
-            android:id="@+id/player_code_table_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
-    </FrameLayout>
 
 <!--    -->
     <ImageView
