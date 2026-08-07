@@ -67,6 +67,57 @@ public class HomeTopInfoRightOtherButtonView extends FrameLayout {
         }
     }
 
+    public void setUnreadDotDrawable(@Nullable Drawable drawable) {
+        unreadDotView.setImageDrawable(drawable);
+    }
+
+    public void setUnreadBadge(@Nullable CharSequence text) {
+        unreadCountView.setText(text);
+        boolean hasText = !TextUtils.isEmpty(text);
+        if (hasText) {
+            updateUnreadBadgeSize(text.length());
+            if (text.length() > 2) {
+                unreadCountView.setBackgroundResource(R.drawable.home2_0_top_info_right_msg_3);
+            } else if (text.length() > 1) {
+                unreadCountView.setBackgroundResource(R.drawable.home2_0_top_info_right_msg_2);
+            } else {
+                unreadCountView.setBackgroundResource(R.drawable.home2_0_top_info_right_msg_1);
+            }
+        }
+        unreadCountView.setVisibility(hasText ? VISIBLE : GONE);
+        if (hasText) {
+            unreadDotView.setVisibility(GONE);
+        }
+    }
+
+    public void setUnreadBadgeVisible(boolean visible) {
+        unreadCountView.setVisibility(visible ? VISIBLE : GONE);
+        if (visible) {
+            unreadDotView.setVisibility(GONE);
+        }
+    }
+
+    public void setUnreadBadgeBackground(@Nullable Drawable drawable) {
+        unreadCountView.setBackground(drawable);
+    }
+
+    public void setUnreadBadgeTextColor(int color) {
+        unreadCountView.setTextColor(color);
+    }
+
+    private void updateUnreadBadgeSize(int textLength) {
+        ViewGroup.LayoutParams layoutParams = unreadCountView.getLayoutParams();
+        layoutParams.height = getResources().getDimensionPixelSize(R.dimen.x26);
+        if (textLength > 2) {
+            layoutParams.width = getResources().getDimensionPixelSize(R.dimen.x44);
+        } else if (textLength > 1) {
+            layoutParams.width = getResources().getDimensionPixelSize(R.dimen.x34);
+        } else {
+            layoutParams.width = getResources().getDimensionPixelSize(R.dimen.x24);
+        }
+        unreadCountView.setLayoutParams(layoutParams);
+    }
+
     /**
      * Updates the unread badge using the same rules as the original home title bar:
      * 1-9, 10-99 and 99+ use different badge widths; zero displays only a red dot;

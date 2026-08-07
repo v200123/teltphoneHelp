@@ -7,6 +7,8 @@ import android.text.InputType
 import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.Switch
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -62,16 +64,115 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         bindSearchText()
 
     }
-    private fun initTopBar(){
-        Glide.with(this).load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8c74e600bbc440148a6b6a56f2fb68e5.gif").into(_binding!!.rlContainerTopInfoRightOtherBtn.iconView);
-        _binding!!.rlContainerTopInfoRightOtherBtn.apply { this.text = "签到有礼" }
-        _binding!!.rlContainerTopInfoRightOtherBtn01.apply { this.text = "消息"
-        this.setUnreadCount("80")
-        this.iconView.visibility = View.GONE
+    private fun initTopBar() {
+        Glide.with(this)
+            .load("https://res.app.coc.10086.cn/qwhdcdn_cmcc-cs_cn/prd-mgcenter/8c74e600bbc440148a6b6a56f2fb68e5.gif")
+            .into(binding.rlContainerTopInfoRightOtherBtn.iconView)
+        binding.rlContainerTopInfoRightOtherBtn01.iconView.visibility = View.GONE
+        applyTopActionConfigs()
+        binding.rlContainerTopInfoRightOtherBtn.setOnButtonClickListener {
+            showTopActionEditDialog(0)
         }
+        binding.rlContainerTopInfoRightOtherBtn01.setOnButtonClickListener {
+            showTopActionEditDialog(1)
+        }
+    }
 
+    private fun applyTopActionConfigs() {
+        val buttons = listOf(
+            binding.rlContainerTopInfoRightOtherBtn,
+            binding.rlContainerTopInfoRightOtherBtn01
+        )
+        buttons.forEachIndexed { index, button ->
+            val config = AppPreferences.getHomeTopActionConfig(requireContext(), index)
+            button.text = config.title
+            when (config.badgeStyle) {
+                AppPreferences.TOP_ACTION_BADGE_DOT -> button.setUnreadDotVisible(true)
+                AppPreferences.TOP_ACTION_BADGE_TEXT -> {
+                    val count = config.badgeText.toIntOrNull()
+                    if (count != null) {
+                        button.updateUnreadView(count)
+                    } else {
+                        button.setUnreadBadge(config.badgeText)
+                    }
+                }
+                else -> button.updateUnreadView(-1)
+            }
+        }
+    }
 
+    private fun showTopActionEditDialog(index: Int) {
+        val context = requireContext()
+        val config = AppPreferences.getHomeTopActionConfig(context, index)
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(4), dp(20), 0)
+        }
+        val titleInput = EditText(context).apply {
+            hint = "按钮标题"
+            setText(config.title)
+            maxLines = 1
+            setSelectAllOnFocus(true)
+            setBackgroundResource(R.drawable.bg_search_input)
+            setPadding(dp(12), 0, dp(12), 0)
+        }
+        val badgeInput = EditText(context).apply {
+            hint = "数字角标内容，例如 8、99+ 或 VIP"
+            setText(config.badgeText)
+            maxLines = 1
+            setBackgroundResource(R.drawable.bg_search_input)
+            setPadding(dp(12), 0, dp(12), 0)
+        }
+        container.addView(titleInput, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, dp(44)
+        ).apply { topMargin = dp(10) })
 
+        val badgeStyleGroup = RadioGroup(context).apply { orientation = RadioGroup.VERTICAL }
+        val noBadge = RadioButton(context).apply { text = "不显示角标" }
+        val dotBadge = RadioButton(context).apply { text = "显示红点" }
+        val textBadge = RadioButton(context).apply { text = "显示数字/文字角标" }
+        badgeStyleGroup.addView(noBadge)
+        badgeStyleGroup.addView(dotBadge)
+        badgeStyleGroup.addView(textBadge)
+        when (config.badgeStyle) {
+            AppPreferences.TOP_ACTION_BADGE_DOT -> dotBadge.isChecked = true
+            AppPreferences.TOP_ACTION_BADGE_TEXT -> textBadge.isChecked = true
+            else -> noBadge.isChecked = true
+        }
+        container.addView(badgeStyleGroup, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(8) })
+        container.addView(badgeInput, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, dp(44)
+        ).apply { topMargin = dp(6) })
+
+        AlertDialog.Builder(context)
+            .setTitle("设置顶部按钮")
+            .setView(container)
+            .setNeutralButton("恢复默认") { _, _ ->
+                AppPreferences.resetHomeTopActionConfig(context, index)
+                applyTopActionConfigs()
+            }
+            .setNegativeButton("取消", null)
+            .setPositiveButton("保存") { _, _ ->
+                val badgeStyle = when (badgeStyleGroup.checkedRadioButtonId) {
+                    dotBadge.id -> AppPreferences.TOP_ACTION_BADGE_DOT
+                    textBadge.id -> AppPreferences.TOP_ACTION_BADGE_TEXT
+                    else -> AppPreferences.TOP_ACTION_BADGE_NONE
+                }
+                AppPreferences.setHomeTopActionConfig(
+                    context,
+                    index,
+                    AppPreferences.HomeTopActionConfig(
+                        title = titleInput.text.toString(),
+                        badgeStyle = badgeStyle,
+                        badgeText = badgeInput.text.toString()
+                    )
+                )
+                applyTopActionConfigs()
+                Toast.makeText(context, "已保存", Toast.LENGTH_SHORT).show()
+            }
+            .show()
     }
 
     /** 首页顶部账号与设置页的“号码信息自定义”保持同一数据源。 */

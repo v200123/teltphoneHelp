@@ -8,6 +8,7 @@
     android:id="@+id/homeScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <ImageView
@@ -147,6 +148,7 @@
             android:id="@+id/home_scroll_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/white"
             android:clipChildren="false"
             android:clipToPadding="false">
 
@@ -624,7 +626,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:background="#F5F6F8"
+                    android:background="@color/white"
                     android:visibility="gone">
 
                     <LinearLayout
@@ -1020,7 +1022,7 @@
                         android:adjustViewBounds="true"
                         android:contentDescription="@null"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/img_code_table_bg"
+                        android:src="@drawable/home_second_top_content_placeholder"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

@@ -30,6 +30,7 @@ object AppPreferences {
     private const val KEY_CODE_TABLE_BOTTOM_VIDEO_URI = "code_table_bottom_video_uri"
     private const val KEY_CODE_TABLE_BOTTOM_MEDIA_TYPE = "code_table_bottom_media_type"
     private const val KEY_HOME_SEARCH_TEXT = "home_search_text"
+    private const val KEY_HOME_TOP_ACTION_PREFIX = "home_top_action_"
 
     const val HOME_DEVICE_MEDIA_TYPE_IMAGE = "image"
     const val HOME_DEVICE_MEDIA_TYPE_VIDEO = "video"
@@ -44,6 +45,48 @@ object AppPreferences {
         val title: String = "",
         val buttonText: String = ""
     )
+
+    const val TOP_ACTION_BADGE_NONE = 0
+    const val TOP_ACTION_BADGE_DOT = 1
+    const val TOP_ACTION_BADGE_TEXT = 2
+
+    data class HomeTopActionConfig(
+        val title: String,
+        val badgeStyle: Int,
+        val badgeText: String
+    )
+
+    fun getHomeTopActionConfig(context: Context, index: Int): HomeTopActionConfig {
+        val default = when (index) {
+            0 -> HomeTopActionConfig("签到有礼", TOP_ACTION_BADGE_DOT, "")
+            else -> HomeTopActionConfig("消息", TOP_ACTION_BADGE_TEXT, "80")
+        }
+        val prefix = "$KEY_HOME_TOP_ACTION_PREFIX$index"
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return HomeTopActionConfig(
+            title = prefs.getString("${prefix}_title", default.title).orEmpty(),
+            badgeStyle = prefs.getInt("${prefix}_badge_style", default.badgeStyle),
+            badgeText = prefs.getString("${prefix}_badge_text", default.badgeText).orEmpty()
+        )
+    }
+
+    fun setHomeTopActionConfig(context: Context, index: Int, config: HomeTopActionConfig) {
+        val prefix = "$KEY_HOME_TOP_ACTION_PREFIX$index"
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .putString("${prefix}_title", config.title.trim())
+            .putInt("${prefix}_badge_style", config.badgeStyle)
+            .putString("${prefix}_badge_text", config.badgeText.trim())
+            .apply()
+    }
+
+    fun resetHomeTopActionConfig(context: Context, index: Int) {
+        val prefix = "$KEY_HOME_TOP_ACTION_PREFIX$index"
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+            .remove("${prefix}_title")
+            .remove("${prefix}_badge_style")
+            .remove("${prefix}_badge_text")
+            .apply()
+    }
 
     fun getCodeTableItemConfig(context: Context, index: Int): CodeTableItemConfig {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

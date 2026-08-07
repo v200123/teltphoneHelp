@@ -18,4 +18,5 @@
     <declare-styleable name="CustomBoldTextView">
         <attr name="customFontWeight" format="float"/>
     </declare-styleable>
+
 </resources>
