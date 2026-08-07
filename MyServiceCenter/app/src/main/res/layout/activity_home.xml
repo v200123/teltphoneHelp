@@ -36,9 +36,9 @@
         <ImageView
             android:id="@+id/bottom_tab_bg"
             android:layout_width="0dp"
-            android:layout_height="@dimen/x120"
+            android:layout_height="@dimen/x100"
             android:scaleType="fitXY"
-            android:src="@drawable/bg_home_bottom_ai"
+            android:src="@drawable/bg_home_bottom_ai_new"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

@@ -8,7 +8,9 @@ import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -48,6 +50,7 @@ class HomeActivity : AppCompatActivity() {
         }
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyBottomNavigationInset()
         initViews()
         syncBottomTabLayout()
         appUpdater.checkAndShow()
@@ -116,7 +119,7 @@ class HomeActivity : AppCompatActivity() {
     private fun syncBottomTabLayout() {
         val currentResources = resources
         binding.bottomTabBg.updateLayoutParams {
-            height = currentResources.getDimensionPixelSize(R.dimen.x120)
+            height = currentResources.getDimensionPixelSize(R.dimen.x100)
         }
         binding.bottomLineTabFragment.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             bottomMargin = currentResources.getDimensionPixelSize(R.dimen.x97)
@@ -131,6 +134,24 @@ class HomeActivity : AppCompatActivity() {
                 currentResources.getDimensionPixelSize(R.dimen.x750)
             }
         }
+    }
+
+    /**
+     * Edge-to-edge makes the root extend behind the system navigation bar. Keep the
+     * bottom navigation above that inset so its divider uses the same baseline as
+     * the original AppTabFragment layout.
+     */
+    private fun applyBottomNavigationInset() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val navigationBottom = insets.getInsets(
+                WindowInsetsCompat.Type.navigationBars()
+            ).bottom
+            binding.rlBottom.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = navigationBottom
+            }
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.root)
     }
 
 }
