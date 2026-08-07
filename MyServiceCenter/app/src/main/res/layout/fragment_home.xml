@@ -967,9 +967,7 @@
                 android:id="@+id/new_home_second_top_midView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/x12"
                 android:layout_marginTop="@dimen/fx134"
-                android:layout_marginEnd="@dimen/x12"
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:orientation="vertical"
@@ -981,6 +979,8 @@
                     android:id="@+id/ll_second_top_arrow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x12"
+                    android:layout_marginEnd="@dimen/x12"
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
