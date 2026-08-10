@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     private var lastTopBarCollapsedState: Boolean? = null
 
     companion object {
-        private const val DETAIL_PAGE_URL = "https://www.lastcoffee.top:8200/merged_order_tabs.html"
+        private const val DETAIL_PAGE_URL = "file:///android_asset/merged_order_tabs.html"
         private const val READ_CALL_RECORDS_PERMISSION =
             "com.u2tzjtne.telephonehelper.permission.READ_CALL_RECORDS"
     }
@@ -110,13 +110,13 @@ class MainActivity : AppCompatActivity() {
     private fun setupWebView() {
         binding.webViewPackageDetail.apply {
             setBackgroundColor(Color.WHITE)
+            alpha = 0f
             addJavascriptInterface(EditorBridge(), "PackageDetailBridge")
             CommonWebViewSupport.configure(
                 webView = this,
                 logTag = "PackageDetailWebView",
                 onPageFinished = { _, _ ->
-                    syncPackageListToPage()
-                    syncBasicInfoToPage()
+                    syncInitialPageStateAndReveal()
                     requestActiveSmsDetailList()
                     bindBasicInfoEditorClick()
                     bindEditorClick()
@@ -155,6 +155,44 @@ class MainActivity : AppCompatActivity() {
             })();
         """.trimIndent()
         evaluatePageScript(script)
+    }
+
+    /**
+     * The bundled page remains hidden until its persisted values have been applied.
+     * This prevents its template/sample values from briefly appearing before the
+     * JavaScript bridge overwrites them.
+     */
+    private fun syncInitialPageStateAndReveal() {
+        val listJson = escapeJsString(AppPreferences.getWebViewFixedFeeListJson(this))
+        val customPhone = PhoneDisplayManager.managedPhone(this)
+        val displayName = AppPreferences.getCustomDisplayName(this).trim()
+        val badgeLevel = AppPreferences.getCustomStarLevel(this)
+        val openedAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val script = """
+            (function() {
+              var records = [];
+              try {
+                records = JSON.parse('$listJson');
+              } catch (e) {
+                records = [];
+              }
+              if (typeof window.renderFixedFeeList === 'function') {
+                window.renderFixedFeeList(records);
+              }
+              var config = {
+                phoneNumber: '${escapeJsString(customPhone)}',
+                name: '${escapeJsString(displayName)}',
+                badgeLevel: '${escapeJsString(badgeLevel.toString())}',
+                openedAt: '${escapeJsString(openedAt)}'
+              };
+              if (typeof window.applyPackageDetailConfig === 'function') {
+                window.applyPackageDetailConfig(config);
+              }
+            })();
+        """.trimIndent()
+        binding.webViewPackageDetail.evaluateJavascript(script) {
+            binding.webViewPackageDetail.alpha = 1f
+        }
     }
 
     private fun syncBasicInfoToPage() {
