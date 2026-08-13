@@ -28,11 +28,8 @@
 
   function getMonthRange(offset) {
     const start = new Date(today.getFullYear(), today.getMonth() - offset, 1);
-    const isCurrentMonth = offset === 0;
-    const end = isCurrentMonth
-      ? new Date(today.getFullYear(), today.getMonth(), today.getDate())
-      : new Date(start.getFullYear(), start.getMonth() + 1, 0);
-    return { start, end, isCurrentMonth };
+    const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+    return { start, end };
   }
 
   function formatDate(date) {
@@ -350,7 +347,7 @@
     if (!digits) {
       return '';
     }
-    return '+' + (digits.indexOf('86') === 0 ? digits : '86' + digits);
+    return digits.indexOf('86') === 0 ? digits.slice(2) : digits;
   }
 
   function getCallDetailTemplate() {
@@ -542,10 +539,7 @@
         return;
       }
       const text = String(value == null ? '' : value).trim();
-      if (!text) {
-        return;
-      }
-      node.textContent = ' ' + text + ' ';
+      node.textContent = text ? ' ' + text + ' ' : '';
     }
     if (titleLeft) {
       setNodeText(titleLeft, record.callType || '高清语音被叫');
@@ -563,11 +557,11 @@
       const left = rows[1].querySelector('.row-left .text') || rows[1].querySelector('.row-left');
       const right = rows[1].querySelector('.row-right');
       setNodeText(left, record.location);
-      setNodeText(right, record.packageName || '标准资费');
+      setNodeText(right, record.packageName);
     }
     if (rows[2]) {
       const right = rows[2].querySelector('.row-right');
-      setNodeText(right, record.communicationType || '国内被叫');
+      setNodeText(right, record.communicationType);
     }
     if (rows[3]) {
       const right = rows[3].querySelector('.row-right');

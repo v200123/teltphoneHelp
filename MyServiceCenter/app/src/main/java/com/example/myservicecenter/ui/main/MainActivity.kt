@@ -646,7 +646,8 @@ class MainActivity : AppCompatActivity() {
     private fun CallRecord.toWebCallDetailJson(): JSONObject {
         val isIncoming = callType == 1
         val billSeconds = calculateBillSeconds(this)
-        val billedMinutes = calculateBilledMinutes(billSeconds)
+        // 被叫不参与计费，无论通话时长多少，详单均显示 0 分钟。
+        val billedMinutes = if (isIncoming) 0 else calculateBilledMinutes(billSeconds)
         val displayTimestamp = resolveDisplayTimestamp(this)
         val customRegion = AppPreferences.getCustomSelfRegion(this@MainActivity).trim()
         val outgoingPackage = AppPreferences.getOutgoingPackageInfo(this@MainActivity).trim()
@@ -663,11 +664,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             customOutgoingType.ifBlank { getString(R.string.record_type_outgoing_local) }
         }
-        val packageName = if (isIncoming) {
-            incomingPackage.ifBlank { "被叫免费" }
-        } else {
-            outgoingPackage.ifBlank { "标准资费" }
-        }
+        // 套餐文案由设置控制；没有填写时保持空白，不显示模板默认文案。
+        val packageName = if (isIncoming) incomingPackage else outgoingPackage
         val location = customRegion.ifBlank {
             attribution ?: operator ?: getString(R.string.record_unknown_location)
         }

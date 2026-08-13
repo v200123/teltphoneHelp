@@ -36,7 +36,7 @@
         <ImageView
             android:id="@+id/bottom_tab_bg"
             android:layout_width="0dp"
-            android:layout_height="@dimen/x100"
+            android:layout_height="@dimen/x98"
             android:scaleType="fitXY"
             android:src="@drawable/bg_home_bottom_ai_new"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -46,6 +46,7 @@
         <!-- Divider is positioned above the visible navigation-bar body. -->
         <ImageView
             android:id="@+id/bottom_line_tab_fragment"
+            android:visibility="gone"
             android:layout_width="0dp"
             android:layout_height="@dimen/x1"
             android:layout_marginBottom="@dimen/x97"

@@ -118,9 +118,9 @@ class HomeActivity : AppCompatActivity() {
     }
     private fun syncBottomTabLayout() {
         val currentResources = resources
-        binding.bottomTabBg.updateLayoutParams {
-            height = currentResources.getDimensionPixelSize(R.dimen.x100)
-        }
+//        binding.bottomTabBg.updateLayoutParams {
+//            height = currentResources.getDimensionPixelSize(R.dimen.x96)
+//        }
         binding.bottomLineTabFragment.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             bottomMargin = currentResources.getDimensionPixelSize(R.dimen.x97)
         }

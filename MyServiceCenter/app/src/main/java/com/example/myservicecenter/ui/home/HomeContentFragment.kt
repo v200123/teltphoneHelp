@@ -152,6 +152,7 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
         val context = context ?: return
         val data = AppPreferences.getMineStatData(context)
         val balance = AppPreferences.getMineStatBalance(context)
+        val bean = AppPreferences.getMineStatBean(context)
         val callMinutes = AppPreferences.getWebViewHomeCallMinutes(context)
         val points = AppPreferences.getWebViewHomePoints(context)
         val pendingRights = AppPreferences.getWebViewHomePendingRights(context)
@@ -160,6 +161,7 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
               window.__codexHomeStats = {
                 data: ${jsString(data)},
                 balance: ${jsString(balance)},
+                bean: ${jsString(bean)},
                 callMinutes: ${jsString(callMinutes)},
                 points: ${jsString(points)},
                 pendingRights: ${jsString(pendingRights)}
@@ -181,7 +183,7 @@ class HomeContentFragment : Fragment(R.layout.fragment_home_content) {
                 var stats = window.__codexHomeStats || {};
                 setStopwatchItem('card-stopwatch-item-1', stats.data, 'GB', '通用流量剩余');
                 setStopwatchItem('card-stopwatch-item-2', stats.balance, '元', '话费余额');
-                setStopwatchItem('card-stopwatch-item-3', stats.callMinutes, '分钟', '通用通话剩余');
+                setStopwatchItem('card-stopwatch-item-3', stats.bean, '豆', 'AI豆');
                 setStopwatchItem('cardstopwatchitem5_0', stats.points, '分', '积分');
                 setStopwatchItem('cardstopwatchitem5_1', stats.pendingRights, '个', '待领取权益');
               };
