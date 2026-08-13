@@ -7,6 +7,7 @@ object AppPreferences {
     // Preference keys
     private const val PREFS_NAME = "service_center_prefs"
     private const val KEY_OUTGOING_PACKAGE_INFO = "outgoing_package_info"
+    private const val KEY_INCOMING_PACKAGE_INFO = "incoming_package_info"
     private const val KEY_CUSTOM_PHONE_NUMBER = "custom_phone_number"
     private const val KEY_CUSTOM_DISPLAY_NAME = "custom_display_name"
     private const val KEY_CUSTOM_CALL_TYPE_OUTGOING = "custom_call_type_outgoing"
@@ -212,6 +213,19 @@ object AppPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_OUTGOING_PACKAGE_INFO, value.trim())
+            .apply()
+    }
+
+    fun getIncomingPackageInfo(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_INCOMING_PACKAGE_INFO, "")
+            .orEmpty()
+    }
+
+    fun setIncomingPackageInfo(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_INCOMING_PACKAGE_INFO, value.trim())
             .apply()
     }
 

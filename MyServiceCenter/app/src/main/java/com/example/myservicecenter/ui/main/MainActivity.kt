@@ -650,6 +650,7 @@ class MainActivity : AppCompatActivity() {
         val displayTimestamp = resolveDisplayTimestamp(this)
         val customRegion = AppPreferences.getCustomSelfRegion(this@MainActivity).trim()
         val outgoingPackage = AppPreferences.getOutgoingPackageInfo(this@MainActivity).trim()
+        val incomingPackage = AppPreferences.getIncomingPackageInfo(this@MainActivity).trim()
         val customOutgoingType = AppPreferences.getCustomOutgoingCallType(this@MainActivity).trim()
         val customIncomingType = AppPreferences.getCustomIncomingCallType(this@MainActivity).trim()
         val title = if (isIncoming) {
@@ -662,7 +663,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             customOutgoingType.ifBlank { getString(R.string.record_type_outgoing_local) }
         }
-        val packageName = outgoingPackage.ifBlank { "标准资费" }
+        val packageName = if (isIncoming) {
+            incomingPackage.ifBlank { "被叫免费" }
+        } else {
+            outgoingPackage.ifBlank { "标准资费" }
+        }
         val location = customRegion.ifBlank {
             attribution ?: operator ?: getString(R.string.record_unknown_location)
         }
@@ -724,10 +729,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun formatDuration(totalSeconds: Int): String {
         if (totalSeconds <= 0) {
-            return "0秒"
+            return "00秒"
         }
         if (totalSeconds < 60) {
-            return "${totalSeconds}秒"
+            return String.format(Locale.getDefault(), "%02d秒", totalSeconds)
         }
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60

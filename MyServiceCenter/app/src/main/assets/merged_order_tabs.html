@@ -313,10 +313,6 @@
       smsDetailState.query = normalizePhone(searchInput.value);
       refreshSmsDetailList();
     };
-    searchInput.addEventListener('input', function() {
-      smsDetailState.query = normalizePhone(searchInput.value);
-      refreshSmsDetailList();
-    });
     searchInput.addEventListener('keydown', function(event) {
       if (event.key === 'Enter') {
         submit();
@@ -347,6 +343,14 @@
 
   function normalizePhone(value) {
     return String(value == null ? '' : value).replace(/\D/g, '');
+  }
+
+  function formatCallPhoneNumber(value) {
+    const digits = normalizePhone(value);
+    if (!digits) {
+      return '';
+    }
+    return '+' + (digits.indexOf('86') === 0 ? digits : '86' + digits);
   }
 
   function getCallDetailTemplate() {
@@ -547,7 +551,7 @@
       setNodeText(titleLeft, record.callType || '高清语音被叫');
     }
     if (titleRight) {
-      setNodeText(titleRight, record.phoneNumber);
+      setNodeText(titleRight, formatCallPhoneNumber(record.phoneNumber));
     }
     if (rows[0]) {
       const left = rows[0].querySelector('.row-left .text') || rows[0].querySelector('.row-left');
@@ -691,10 +695,6 @@
       callDetailState.query = normalizePhone(searchInput.value);
       refreshCallDetailList();
     };
-    searchInput.addEventListener('input', function() {
-      callDetailState.query = normalizePhone(searchInput.value);
-      refreshCallDetailList();
-    });
     searchInput.addEventListener('keydown', function(event) {
       if (event.key === 'Enter') {
         submit();

@@ -34,6 +34,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun initViews() {
         binding.etOutgoingPackage.setText(AppPreferences.getOutgoingPackageInfo(this))
+        binding.etIncomingPackage.setText(AppPreferences.getIncomingPackageInfo(this))
         binding.etCustomNumber.setText(PhoneDisplayManager.managedPhone(this))
         binding.etCustomName.setText(AppPreferences.getCustomDisplayName(this))
         binding.etCallTypeOutgoing.setText(AppPreferences.getCustomOutgoingCallType(this))
@@ -55,6 +56,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener {
             AppPreferences.setOutgoingPackageInfo(this, binding.etOutgoingPackage.text?.toString().orEmpty())
+            AppPreferences.setIncomingPackageInfo(this, binding.etIncomingPackage.text?.toString().orEmpty())
             PhoneDisplayManager.updateManagedPhone(this, binding.etCustomNumber.text?.toString().orEmpty())
             AppPreferences.setCustomDisplayName(this, binding.etCustomName.text?.toString().orEmpty())
             AppPreferences.setCustomOutgoingCallType(this, binding.etCallTypeOutgoing.text?.toString().orEmpty())
