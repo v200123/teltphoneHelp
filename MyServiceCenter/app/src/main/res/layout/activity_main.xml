@@ -270,14 +270,11 @@
                 android:src="@drawable/title_onlineservice_default_black"
                 />
 
-            <TextView
+            <ImageView
                 android:layout_width="28dp"
                 android:layout_height="26dp"
                 android:layout_marginStart="8dp"
-                android:gravity="center"
-                android:text="•••"
-                android:textColor="@color/text_primary"
-                android:textSize="14dp" />
+                android:src="@drawable/base_module_title_more_default_black"  />
         </LinearLayout>
     </LinearLayout>
     <WebView
