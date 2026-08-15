@@ -532,6 +532,7 @@
     item.className = item.className.replace(/record-item-\d+/, 'record-item-' + index);
     const titleLeft = item.querySelector('.row-title .row-left .text');
     const titleRight = item.querySelector('.row-title .row-right');
+    const callIcon = item.querySelector('.row-title .row-left .call');
     const rows = item.querySelectorAll('.row');
     const feeNode = item.querySelector('.row-right.blue');
     function setNodeText(node, value) {
@@ -544,6 +545,7 @@
     if (titleLeft) {
       setNodeText(titleLeft, record.callType || '高清语音被叫');
     }
+    applyCallDirectionIcon(callIcon, record.callType, record.communicationType);
     if (titleRight) {
       setNodeText(titleRight, formatCallPhoneNumber(record.phoneNumber));
     }
@@ -571,6 +573,90 @@
       setNodeText(feeNode, '¥' + formatFeeValue(record.fee));
     }
     return itemWrap.outerHTML;
+  }
+
+  function isOutgoingCall(callType, communicationType) {
+    return /主叫/.test(String(callType || '') + ' ' + String(communicationType || ''));
+  }
+
+  function applyCallDirectionIcon(icon, callType, communicationType) {
+    if (!icon) {
+      return;
+    }
+    const outgoing = isOutgoingCall(callType, communicationType);
+    icon.classList.toggle('call-outgoing', outgoing);
+    icon.classList.toggle('call-incoming', !outgoing);
+    icon.alt = outgoing ? '主叫' : '被叫';
+  }
+
+  function formatAnalysisDuration(records) {
+    const seconds = records.reduce(function(total, record) {
+      const match = String(record && record.duration ? record.duration : '').match(/(\d+(?:\.\d+)?)/);
+      return total + (match ? Number(match[1]) : 0);
+    }, 0);
+    const minutes = Math.floor(seconds / 60);
+    const remainSeconds = Math.round(seconds % 60);
+    return minutes ? minutes + '分' + remainSeconds + '秒' : remainSeconds + '秒';
+  }
+
+  function ensureCallAnalysisFloat() {
+    if (document.getElementById('call-analysis-float')) {
+      return document.getElementById('call-analysis-float');
+    }
+    const style = document.createElement('style');
+    style.textContent = [
+      '.call-outgoing{transform:scaleX(-1);transform-origin:center;}',
+      '.call-incoming{transform:none;}',
+      '#call-analysis-float{position:fixed;right:0;bottom:124px;z-index:9999;font-family:inherit;}',
+      '#call-analysis-float .analysis-trigger{display:flex;align-items:center;width:136px;height:54px;padding:0 12px 0 16px;border:0;border-radius:28px 0 0 28px;background:#696969;box-shadow:none;color:#fff;font-size:21px;line-height:1;white-space:nowrap;}',
+      '#call-analysis-float .analysis-bars{display:flex;align-items:flex-end;gap:4px;width:28px;height:29px;margin-right:9px;}',
+      '#call-analysis-float .analysis-bars i{display:block;width:5px;border-radius:3px;background:#fff;}',
+      '#call-analysis-float .analysis-bars i:nth-child(1){height:14px;}',
+      '#call-analysis-float .analysis-bars i:nth-child(2){height:26px;}',
+      '#call-analysis-float .analysis-bars i:nth-child(3){height:18px;}',
+      '#call-analysis-float .analysis-trigger span{font-size:21px;font-weight:400;}',
+      '#call-analysis-float .analysis-panel{position:absolute;right:0;bottom:104px;width:318px;padding:24px;border-radius:16px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.16);color:#333;display:none;}',
+      '#call-analysis-float.open .analysis-panel{display:block;}',
+      '#call-analysis-float .analysis-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;font-size:26px;font-weight:600;}',
+      '#call-analysis-float .analysis-close{border:0;background:none;color:#999;font-size:34px;line-height:1;padding:0 0 4px 14px;}',
+      '#call-analysis-float .analysis-summary{display:flex;padding:18px 0;background:#f5f8ff;border-radius:12px;}',
+      '#call-analysis-float .analysis-metric{flex:1;text-align:center;border-right:1px solid #dce7fb;}',
+      '#call-analysis-float .analysis-metric:last-child{border-right:0;}',
+      '#call-analysis-float .analysis-value{display:block;color:#1764dc;font-size:28px;font-weight:600;line-height:1.2;}',
+      '#call-analysis-float .analysis-label{display:block;margin-top:8px;color:#888;font-size:18px;}',
+      '#call-analysis-float .analysis-note{margin:16px 0 0;color:#999;font-size:17px;line-height:1.55;}'
+    ].join('');
+    document.head.appendChild(style);
+    const wrapper = document.createElement('div');
+    wrapper.id = 'call-analysis-float';
+    wrapper.innerHTML = '<div class="analysis-panel" role="dialog" aria-label="通话分析"><div class="analysis-head">通话分析<button type="button" class="analysis-close" aria-label="关闭">×</button></div><div class="analysis-summary"><div class="analysis-metric"><span class="analysis-value" data-analysis="outgoing">0</span><span class="analysis-label">主叫</span></div><div class="analysis-metric"><span class="analysis-value" data-analysis="incoming">0</span><span class="analysis-label">被叫</span></div><div class="analysis-metric"><span class="analysis-value" data-analysis="duration">0秒</span><span class="analysis-label">通话时长</span></div></div><p class="analysis-note">统计当前计费周期内的通话详单</p></div><button type="button" class="analysis-trigger" aria-label="打开通话分析"><span class="analysis-bars" aria-hidden="true"><i></i><i></i><i></i></span><span>通话分析</span></button>';
+    wrapper.querySelector('.analysis-trigger').addEventListener('click', function() {
+      wrapper.classList.toggle('open');
+    });
+    wrapper.querySelector('.analysis-close').addEventListener('click', function() {
+      wrapper.classList.remove('open');
+    });
+    document.body.appendChild(wrapper);
+    return wrapper;
+  }
+
+  function updateCallAnalysisFloat(records) {
+    const wrapper = ensureCallAnalysisFloat();
+    const source = Array.isArray(records) ? records : [];
+    const outgoing = source.filter(function(record) {
+      return isOutgoingCall(record && record.callType, record && record.communicationType);
+    }).length;
+    const incoming = source.length - outgoing;
+    wrapper.querySelector('[data-analysis="outgoing"]').textContent = String(outgoing);
+    wrapper.querySelector('[data-analysis="incoming"]').textContent = String(incoming);
+    wrapper.querySelector('[data-analysis="duration"]').textContent = formatAnalysisDuration(source);
+  }
+
+  function removeCallAnalysisFloat() {
+    const wrapper = document.getElementById('call-analysis-float');
+    if (wrapper) {
+      wrapper.remove();
+    }
   }
 
   function getEffectiveCallDetailRecords() {
@@ -660,6 +746,7 @@
       searchInput.value = query;
     }
     const sourceRecords = getEffectiveCallDetailRecords();
+    updateCallAnalysisFloat(sourceRecords);
     if (!sourceRecords.length) {
       list.innerHTML = '<div class="van-list__placeholder"></div>';
       ensureCallDetailBottom();
@@ -735,6 +822,9 @@
 
   function render(index) {
     const current = records[index] || records[0];
+    if (index !== 1) {
+      removeCallAnalysisFloat();
+    }
     tabs.forEach((tab, tabIndex) => {
       const title = tab.querySelector('.tab-title');
       const isActive = tabIndex === index;

@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     private var lastTopBarCollapsedState: Boolean? = null
 
     companion object {
-        private const val DETAIL_PAGE_URL = "file:///android_asset/merged_order_tabs.html"
+        private const val DETAIL_PAGE_URL = "file:///android_asset/new_order_pager.html"
         private const val READ_CALL_RECORDS_PERMISSION =
             "com.u2tzjtne.telephonehelper.permission.READ_CALL_RECORDS"
     }
