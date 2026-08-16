@@ -26,10 +26,199 @@
     {direction:'被叫',number:'18080034454',time:m+'-15 15:47:36',duration:'9秒',location:'成都资阳眉山三地',plan:'标准资费',type:'国内被叫',minutes:'0',fee:'¥0.00'}
   ]; }
   function renderCallDetails(payload) { var records = normaliseRecords(payload); if (!records.length) return; var list = getCallList(), prototype = getCallTemplate(); if (!list || !prototype) return; var outgoing = null, incoming = null; callPage.querySelectorAll('.list2-item').forEach(function (item) { var label = item.querySelector('.row-title .row-left .text'), icon = item.querySelector('img.call'); if (!label || !icon) return; if (label.textContent.indexOf('主叫') !== -1) outgoing = icon.src; if (label.textContent.indexOf('被叫') !== -1) incoming = icon.src; }); list.innerHTML = ''; records.forEach(function (record, index) { var row = prototype.cloneNode(true), item = row.querySelector('.list2-item'), direction = record.direction || record.callDirection || record.typeName || '被叫'; if (item) item.className = 'list2-item record-item-' + index; text(row.querySelector('.row-title .row-left .text'), ' 高清语音' + direction + ' '); text(row.querySelector('.row-title .row-right'), record.number || record.phoneNumber || record.calledNumber || ''); var rows = row.querySelectorAll('.row'); if (rows.length >= 5) { text(rows[0].querySelector('.row-left .text'), record.time || record.callTime || ''); text(rows[0].querySelector('.row-right'), record.duration || record.callDuration || ''); text(rows[1].querySelector('.row-left .text'), record.location || record.callLocation || ''); text(rows[1].querySelector('.row-right'), record.plan || record.packageName || '标准资费'); text(rows[2].querySelector('.row-right'), record.type || record.communicationType || '国内' + direction); text(rows[3].querySelector('.row-right'), record.minutes || record.billingMinutes || '0'); text(rows[4].querySelector('.row-right'), record.fee || record.callFee || '¥0.00'); } var icon = row.querySelector('img.call'); if (icon) icon.src = direction.indexOf('主叫') !== -1 && outgoing ? outgoing : (incoming || icon.src); list.appendChild(row); }); }
-  function requestCurrentMonthCallDetail() { var now = new Date(), year = now.getFullYear(), month = now.getMonth() + 1; if (window.PackageDetailBridge && typeof window.PackageDetailBridge.requestCallDetailMonth === 'function') { try { var response = window.PackageDetailBridge.requestCallDetailMonth(year, month); if (response) renderCallDetails(response); return; } catch (error) { console.warn('读取原生通话详单失败，改用本地模拟数据。', error); } } renderCallDetails(createMockCallDetailRecords(year, month)); }
+  function requestCurrentMonthCallDetail() { var now = new Date(), year = now.getFullYear(), month = now.getMonth() + 1; if (window.PackageDetailBridge && typeof window.PackageDetailBridge.requestCallDetailMonth === 'function') { try { window.PackageDetailBridge.requestCallDetailMonth(String(year), String(month)); return; } catch (error) { console.warn('读取原生通话详单失败，改用本地模拟数据。', error); } } renderCallDetails(createMockCallDetailRecords(year, month)); }
   window.renderCallDetailRecords = renderCallDetails; window.onCallDetailData = renderCallDetails; window.receiveCallDetailData = renderCallDetails;
-  function switchTo(next) { if (next === activePage) return; loading.hidden = false; window.setTimeout(function () { planPage.hidden = next !== 'plan'; callPage.hidden = next !== 'call'; activePage = next; if (next === 'call') requestCurrentMonthCallDetail(); loading.hidden = true; window.scrollTo(0, 0); }, 2000); }
+  function switchTo(next) { if (next === activePage) return; planPage.hidden = next !== 'plan'; callPage.hidden = next !== 'call'; activePage = next; if (next === 'call') requestCurrentMonthCallDetail(); Array.prototype.forEach.call(loading.querySelectorAll('[role="tab"]'), function (tab, index) { var active = index === (next === 'plan' ? 0 : 1); tab.classList.toggle('van-tab--active', active); tab.setAttribute('aria-selected', active ? 'true' : 'false'); var title = tab.querySelector('.tab-title'); if (title) title.classList.toggle('active', active); }); loading.hidden = false; window.setTimeout(function () { loading.hidden = true; }, 1000); window.scrollTo(0, 0); }
   function bindTabs(page) { var tabs = page.querySelectorAll('[role="tab"]'); tabs.forEach(function (tab, index) { tab.addEventListener('click', function (event) { event.preventDefault(); if (index === 0) switchTo('plan'); else if (index === 1) switchTo('call'); }); }); }
   bindTabs(planPage); bindTabs(callPage);
+}());
+</script><script>
+/* 与 merged_order_tabs.html 保持一致的原生数据注入接口。 */
+(function () {
+  'use strict';
+  function asRecords(payload) {
+    if (typeof payload === 'string') { try { payload = JSON.parse(payload); } catch (_) { return []; } }
+    if (payload && !Array.isArray(payload)) payload = payload.records || payload.data || payload.list || payload.rspBody || [];
+    return Array.isArray(payload) ? payload : [];
+  }
+  function maskPhone(value) {
+    var digits = String(value == null ? '' : value).replace(/\s/g, '');
+    return /^1\d{10}$/.test(digits) ? digits.slice(0, 3) + '****' + digits.slice(-4) : digits;
+  }
+  function fee(value) {
+    var number = Number(value);
+    return Number.isFinite(number) ? number.toFixed(2) : (String(value == null ? '' : value).replace(/^¥\s*/, '').trim() || '0.00');
+  }
+  function setText(node, value) { if (node) node.textContent = value == null ? '' : String(value); }
+
+  window.applyPackageDetailConfig = function (config) {
+    var info = Object.assign({}, window.__packageDetailConfig || {}, config || {});
+    window.__packageDetailConfig = info;
+    var phone = maskPhone(info.phoneNumber);
+    var displayName = String(info.name || '').trim();
+    displayName = displayName ? Array.from(displayName)[0] + '*' : '';
+    document.querySelectorAll('.phoneNumber').forEach(function (node) { if (phone) setText(node, phone); });
+    document.querySelectorAll('.name').forEach(function (node) { if (displayName) setText(node, displayName); });
+    document.querySelectorAll('.userInfo img.tags').forEach(function (node) {
+      var level = Number(info.badgeLevel);
+      if (Number.isFinite(level) && level > 0) node.src = 'https://app.online-cmcc.cn/cmcc-service/img/app/starLevel' + level + '.png';
+    });
+    document.querySelectorAll('.notice-content-item:nth-child(2)').forEach(function (node) {
+      if (phone && info.openedAt) setText(node, '1、以上信息是移动用户' + phone + '截止至日期' + info.openedAt + '的查询结果。');
+    });
+  };
+
+  window.renderFixedFeeList = function (payload) {
+    var records = asRecords(payload), page = document.getElementById('plan-page');
+    var list = page && page.querySelector('.detail-list-wrap .van-list');
+    var sample = list && list.querySelector('.item');
+    if (!list || !sample || !records.length) return;
+    var template = sample.cloneNode(true);
+    list.innerHTML = '';
+    records.forEach(function (record, index) {
+      var row = template.cloneNode(true);
+      var item = row.querySelector('.list1-item');
+      if (item) item.className = 'list1-item record-item-' + index;
+      setText(row.querySelector('.row-title .text'), ' ' + String(record.name || record.packageName || '').trim() + ' ');
+      setText(row.querySelector('.item-detail-row-value.blue'), ' ¥' + fee(record.fee) + ' ');
+      list.appendChild(row);
+    });
+    list.appendChild(document.createElement('div')).className = 'van-list__placeholder';
+  };
+
+  var legacyRenderCallDetails = window.renderCallDetailRecords;
+  var callDirectionIcons = { incoming: '', outgoing: '' };
+  document.querySelectorAll('#call-page .list2-item').forEach(function (item) {
+    var label = item.querySelector('.row-title .row-left .text');
+    var icon = item.querySelector('img.call');
+    if (!label || !icon) return;
+    if (label.textContent.indexOf('主叫') !== -1) callDirectionIcons.outgoing = icon.src;
+    if (label.textContent.indexOf('被叫') !== -1) callDirectionIcons.incoming = icon.src;
+  });
+  var monthState = { offset: 0, year: 0, month: 0 };
+  var callDetailState = { records: [], query: '' };
+  var monthItems = Array.prototype.slice.call(document.querySelectorAll('.month-tab-wrap .nav-bar-list'));
+  var monthItemCount = Math.max(1, document.querySelectorAll('#plan-page .month-tab-wrap .nav-bar-list').length);
+
+  function selectedMonthDate() { return new Date(new Date().getFullYear(), new Date().getMonth() - monthState.offset, 1); }
+  function formatDate(date) { return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'); }
+  function updatePackageDates() {
+    var start = selectedMonthDate();
+    var end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+    var range = formatDate(start) + '至' + formatDate(end);
+    document.querySelectorAll('#plan-page .cycle-date').forEach(function (node) { node.innerHTML = formatDate(start) + '<span>至</span>' + formatDate(end); });
+    document.querySelectorAll('#plan-page .list1-item .row-right').forEach(function (node) { setText(node, ' ' + range + ' '); });
+  }
+  function updateMonthTabs() {
+    monthItems.forEach(function (item, index) {
+      var monthOffset = index % monthItemCount;
+      var date = new Date(new Date().getFullYear(), new Date().getMonth() - monthOffset, 1);
+      var monthNode = item.querySelector('.month'), yearNode = item.querySelector('.year');
+      item.classList.toggle('active', monthOffset === monthState.offset);
+      item.dataset.monthOffset = String(monthOffset);
+      if (monthNode) setText(monthNode, date.getMonth() + 1 + '月');
+      if (yearNode) setText(yearNode, date.getFullYear());
+      item.className = item.className.replace(/voice1-\d{4}-\d{1,2}/, '').trim();
+      item.classList.add('voice1-' + date.getFullYear() + '-' + (date.getMonth() + 1));
+    });
+    var selected = selectedMonthDate();
+    monthState.year = selected.getFullYear();
+    monthState.month = selected.getMonth() + 1;
+    updatePackageDates();
+  }
+  function normalizePhone(value) { return String(value == null ? '' : value).replace(/\D/g, ''); }
+  function requestSelectedMonthCallDetail() {
+    if (window.PackageDetailBridge && typeof window.PackageDetailBridge.requestCallDetailMonth === 'function') {
+      window.PackageDetailBridge.requestCallDetailMonth(String(monthState.year), String(monthState.month));
+    }
+  }
+  function renderFilteredCallDetails() {
+    var query = normalizePhone(callDetailState.query);
+    var records = query ? callDetailState.records.filter(function (record) { return normalizePhone(record.phoneNumber || record.number || record.calledNumber).indexOf(query) !== -1; }) : callDetailState.records;
+    if (records.length) {
+      var renderedRecords = records.map(function (record) {
+      var item = Object.assign({}, record);
+      if (!item.direction) item.direction = String(item.callType || '').indexOf('主叫') !== -1 ? '主叫' : '被叫';
+      return item;
+      });
+      legacyRenderCallDetails(renderedRecords);
+      document.querySelectorAll('#call-page .list2-item').forEach(function (item, index) {
+        var icon = item.querySelector('img.call');
+        var direction = renderedRecords[index] && renderedRecords[index].direction;
+        var iconSource = String(direction).indexOf('主叫') !== -1 ? callDirectionIcons.outgoing : callDirectionIcons.incoming;
+        if (icon && iconSource) icon.src = iconSource;
+      });
+    }
+    else {
+      var list = document.querySelector('#call-page .detail-list-wrap .van-list');
+      if (list) list.innerHTML = '<div class="van-list__placeholder"></div>';
+    }
+  }
+  function bindCallNumberSearch() {
+    var input = document.querySelector('#call-page .search-box input');
+    var button = document.querySelector('#call-page .search-box .search-btn');
+    if (!input || input.dataset.callSearchBound === '1') return;
+    input.dataset.callSearchBound = '1';
+    function search() { callDetailState.query = normalizePhone(input.value); input.value = callDetailState.query; renderFilteredCallDetails(); }
+    input.addEventListener('keydown', function (event) { if (event.key === 'Enter') search(); });
+    if (button) button.addEventListener('click', search);
+  }
+  window.renderCallDetailList = function (payload, meta) {
+    var year = Number(meta && meta.year), month = Number(meta && meta.month);
+    if (Number.isFinite(year) && Number.isFinite(month) && (year !== monthState.year || month !== monthState.month)) return;
+    callDetailState.records = asRecords(payload);
+    renderFilteredCallDetails();
+    bindCallNumberSearch();
+  };
+  window.requestCurrentCallDetailData = requestSelectedMonthCallDetail;
+  monthItems.forEach(function (item, index) {
+    item.addEventListener('click', function () {
+      monthState.offset = index % monthItemCount;
+      updateMonthTabs();
+      if (!document.getElementById('call-page').hidden) requestSelectedMonthCallDetail();
+    });
+  });
+  document.querySelectorAll('[role="tab"]').forEach(function (tab, index) {
+    if (index % 7 !== 1) return;
+    tab.addEventListener('click', function () { bindCallNumberSearch(); requestSelectedMonthCallDetail(); });
+  });
+  document.querySelectorAll('.floating-bar-container .action-btn').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var popup = button.closest('.floating-bar-container');
+      if (popup) popup.style.display = 'none';
+    });
+  });
+  (function bindNativeScrollBridge() {
+    if (window.__packageDetailScrollBound) return;
+    window.__packageDetailScrollBound = true;
+    var ticking = false, lastScrollTop = -1;
+    function getScrollTop() { return Math.max(0, Math.round(window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)); }
+    function reportScroll() {
+      ticking = false;
+      var scrollTop = getScrollTop();
+      if (scrollTop === lastScrollTop) return;
+      lastScrollTop = scrollTop;
+      if (window.PackageDetailBridge && typeof window.PackageDetailBridge.onPageScroll === 'function') window.PackageDetailBridge.onPageScroll(String(scrollTop));
+    }
+    function scheduleReport() {
+      if (ticking) return;
+      ticking = true;
+      if (window.requestAnimationFrame) window.requestAnimationFrame(reportScroll);
+      else window.setTimeout(reportScroll, 16);
+    }
+    [window, document, document.documentElement, document.body].forEach(function (target) {
+      if (target && target.addEventListener) target.addEventListener('scroll', scheduleReport, { passive: true });
+    });
+    window.reportPackageDetailScroll = reportScroll;
+    reportScroll();
+  }());
+  updateMonthTabs();
+
+  var query = new URLSearchParams(window.location.search);
+  window.applyPackageDetailConfig(Object.assign({}, window.PackageDetailPageConfig || {}, {
+    phoneNumber: query.get('phoneNumber') || undefined,
+    name: query.get('name') || undefined,
+    badgeLevel: query.get('badgeLevel') || undefined
+  }));
 }());
 </script></body></html>
