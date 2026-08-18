@@ -13,6 +13,7 @@ import com.example.myservicecenter.PhoneDisplayManager
 import com.example.myservicecenter.R
 import com.example.myservicecenter.core.AppPreferences
 import com.example.myservicecenter.databinding.ActivitySettingsBinding
+import com.example.myservicecenter.ui.calllog.ProviderCallRecordsActivity
 import com.example.myservicecenter.ui.sms.SmsDetailManageActivity
 
 class SettingsActivity : AppCompatActivity() {
@@ -52,6 +53,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.etWebHomeRights.setText(AppPreferences.getWebViewHomePendingRights(this))
         binding.btnSmsDetailManage.setOnClickListener {
             startActivity(Intent(this, SmsDetailManageActivity::class.java))
+        }
+        binding.btnProviderCallRecords.setOnClickListener {
+            startActivity(Intent(this, ProviderCallRecordsActivity::class.java))
         }
         binding.btnBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener {

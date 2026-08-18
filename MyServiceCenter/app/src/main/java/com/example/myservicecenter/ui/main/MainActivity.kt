@@ -41,6 +41,9 @@ import com.example.myservicecenter.core.CommonWebViewSupport
 import com.example.myservicecenter.data.calllog.CallRecordContract
 import com.example.myservicecenter.data.sms.SmsDetailDatabase
 import com.example.myservicecenter.data.sms.SmsDetailRecordEntity
+import kotlin.collections.filter
+import kotlin.collections.isNotEmpty
+import kotlin.collections.map
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -52,9 +55,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var topBarExpandedColor: Int = Color.TRANSPARENT
-    private var topBarCollapsedColor: Int = Color.WHITE
     private var pageScrollThresholdPx: Int = 0
-    private var lastTopBarCollapsedState: Boolean? = null
 
     companion object {
         private const val DETAIL_PAGE_URL = "file:///android_asset/new_order_pager.html"
@@ -76,26 +77,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        pageScrollThresholdPx = 28
+        pageScrollThresholdPx = dpToPx(25)
         binding.topBarContainer.setBackgroundColor(topBarExpandedColor)
         binding.topBarContainer.bringToFront()
-        binding.btnMore.setOnClickListener {
+        binding.rlBasemoduleRightMenuParent.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
-        binding.ivBack.setOnClickListener {
+        binding.titleBackBtn.setOnClickListener {
             finish()
         }
     }
 
     fun updateTopBarForPageScroll(scrollY: Int) {
-        val collapsed = scrollY >= pageScrollThresholdPx
-        if (lastTopBarCollapsedState == collapsed) {
-            return
-        }
-        lastTopBarCollapsedState = collapsed
-        binding.topBarContainer.setBackgroundColor(
-            if (collapsed) topBarCollapsedColor else topBarExpandedColor
-        )
+        val progress = (scrollY.toFloat() / pageScrollThresholdPx)
+            .coerceIn(0f, 1f)
+        val alpha = (progress * 255).toInt()
+        binding.topBarContainer.setBackgroundColor(Color.argb(alpha, 255, 255, 255))
     }
 
     fun loadCallRecords() {

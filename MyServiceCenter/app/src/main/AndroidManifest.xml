@@ -30,6 +30,10 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.calllog.ProviderCallRecordsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.main.MainActivity"
             android:exported="false" />
 
