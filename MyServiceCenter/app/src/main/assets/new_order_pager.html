@@ -219,7 +219,9 @@
     var item = row.querySelector('.fix2-item');
     if (item) item.className = 'fix2-item record-item-' + index;
     var spans = row.querySelectorAll('.row-title .text span');
-    setText(spans[0], record.direction || '接收');
+    // Use a non-breaking space so “接收 95580” keeps one visible gap between
+    // the direction label and the receiving number.
+    setText(spans[0], (record.direction || '接收') + '\u00a0');
     setText(spans[1], record.phoneNumber || '');
     setText(row.querySelector('.row-title .row-right'), record.messageType || '短信');
     var rows = row.querySelectorAll('.row');
