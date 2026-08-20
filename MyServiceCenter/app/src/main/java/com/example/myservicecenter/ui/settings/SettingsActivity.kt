@@ -9,6 +9,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import com.example.appupdater.AppUpdater
+import com.example.appupdater.UpdateConfig
+import com.example.myservicecenter.BuildConfig
 import com.example.myservicecenter.PhoneDisplayManager
 import com.example.myservicecenter.R
 import com.example.myservicecenter.core.AppPreferences
@@ -19,6 +22,7 @@ import com.example.myservicecenter.ui.sms.SmsDetailManageActivity
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
+    private lateinit var appUpdater: AppUpdater
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,12 +32,20 @@ class SettingsActivity : AppCompatActivity() {
 
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        appUpdater = AppUpdater.register(
+            activity = this,
+            config = UpdateConfig(baseUrl = BuildConfig.UPDATE_SERVICE_BASE_URL)
+        )
 
         initViews()
         applyWindowInsets()
     }
 
     private fun initViews() {
+        binding.tvCurrentVersion.text = getString(R.string.settings_current_version, BuildConfig.VERSION_NAME)
+        binding.btnCheckUpdate.setOnClickListener {
+            appUpdater.checkAndShowUserInitiated()
+        }
         binding.etOutgoingPackage.setText(AppPreferences.getOutgoingPackageInfo(this))
         binding.etIncomingPackage.setText(AppPreferences.getIncomingPackageInfo(this))
         binding.etCustomNumber.setText(PhoneDisplayManager.managedPhone(this))

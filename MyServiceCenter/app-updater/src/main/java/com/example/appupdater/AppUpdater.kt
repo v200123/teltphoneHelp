@@ -17,6 +17,7 @@ class AppUpdater private constructor(
 ) {
     private val updateManager = AppUpdateManager(config)
     private var hasCheckedAppUpdate = false
+    private var isCheckingForUpdate = false
     private var pendingInstallApkFile: File? = null
     private var pendingForceUpdate = false
 
@@ -41,14 +42,57 @@ class AppUpdater private constructor(
     fun checkAndShow() {
         if (hasCheckedAppUpdate) return
         hasCheckedAppUpdate = true
+        checkForUpdate(showLatestVersionMessage = false)
+    }
+
+    /** Checks for an update in response to an explicit user action. */
+    fun checkAndShowUserInitiated() {
+        checkForUpdate(showLatestVersionMessage = true)
+    }
+
+    private fun checkForUpdate(showLatestVersionMessage: Boolean) {
+        if (isCheckingForUpdate) return
+        isCheckingForUpdate = true
         activity.lifecycleScope.launch {
+            if (showLatestVersionMessage) {
+                Toast.makeText(
+                    activity,
+                    activity.getString(R.string.app_updater_checking),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             val updateResult = withContext(Dispatchers.IO) {
                 runCatching { updateManager.checkForUpdate(activity) }
-                    .onFailure { Log.e(TAG, "启动版本检测失败", it) }
-                    .getOrNull()
+                    .onFailure { Log.e(TAG, "版本检测失败", it) }
             }
-            if (updateResult?.needUpdate == true) {
-                showUpdateDialog(updateResult)
+            try {
+                updateResult.onSuccess { result ->
+                    if (result?.needUpdate == true) {
+                        showUpdateDialog(result)
+                    } else if (showLatestVersionMessage) {
+                        Toast.makeText(
+                            activity,
+                            activity.getString(
+                                if (result == null) {
+                                    R.string.app_updater_check_failed
+                                } else {
+                                    R.string.app_updater_already_latest
+                                }
+                            ),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }.onFailure {
+                    if (showLatestVersionMessage) {
+                        Toast.makeText(
+                            activity,
+                            activity.getString(R.string.app_updater_check_failed),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } finally {
+                isCheckingForUpdate = false
             }
         }
     }
