@@ -12,8 +12,8 @@ android {
         applicationId "com.example.myservicecenter"
         minSdk 26
         targetSdk 34
-        versionCode 22
-        versionName "1.22"
+        versionCode 23
+        versionName "1.23"
         buildConfigField "String", "UPDATE_SERVICE_BASE_URL", '"http://www.lastcoffee.top:8082"'
     }
 

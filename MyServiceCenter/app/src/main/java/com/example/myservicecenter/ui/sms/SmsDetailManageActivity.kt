@@ -421,9 +421,9 @@ class SmsDetailManageActivity : AppCompatActivity() {
     companion object {
         private const val DEFAULT_DIRECTION = "接收"
         private const val DEFAULT_MESSAGE_TYPE = "短信"
-        private const val DEFAULT_LOCATION = "内地"
-        private const val DEFAULT_PACKAGE = "标准资费"
-        private const val DEFAULT_FEE = "0.00"
+        private const val DEFAULT_LOCATION = "国内"
+        private const val DEFAULT_PACKAGE = "普通短信"
+        private const val DEFAULT_FEE = "0.10"
         private val TIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         private val DISPLAY_TIME_FORMAT = SimpleDateFormat("MM-dd HH:mm:ss", Locale.getDefault())
     }
